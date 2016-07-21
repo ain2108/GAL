@@ -16,12 +16,13 @@ type expr = Litint of int
 		  | Unop of uop * expr
 		  | Call of string * expr list 
 		  | Edge of string * int * string
-		  | List of list 
+		  | List of list (*MIGHT HAVE ISSUES HERE, alternative expr list*)
 
 type stmt = Block of stmt list
 		  | Expr of expr
 		  | If of expr * stmt * stmt  (*MIGHT NOT NEED ELSE ALL THE TIME*)
 		  | For of expr * expr * expr * stmt
+		  | While of expre * stmt
 		  | Return of expr
 
 type func_decl = { 

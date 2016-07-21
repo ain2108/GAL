@@ -31,6 +31,7 @@ rule token = parse
 | "&&"     { AND }
 | "||"     { OR }
 | "!"      { NOT }
+| "while"  { WHILE }
 | "if"     { IF }
 | "else"   { ELSE }
 | "for"    { FOR }
