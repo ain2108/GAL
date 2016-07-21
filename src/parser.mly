@@ -1,13 +1,13 @@
-(* OCamlyacc parser for GAL *)
+
 
 %{
 	open Ast
 %}
 
-%token SEMI LPAREN RPAREN LSQBRACE RSQBRACE LBRAC RBRACE BAR COLON LISTSEP COMMA
+%token SEMI LPAREN RPAREN LSQBRACE RSQBRACE LBRACE RBRACE BAR COLON LISTSEP COMMA
 %token EPLUS EMINUS PLUS MINUS TIMES DIVIDE ASSIGN NOT 
 %token EQ LT LEQ GT GEQ AND OR 
-%token RETURN IF ELSE FOR INT STRING EDGE LIST DEFINE
+%token RETURN IF ELSE FOR INT STRING EDGE LIST DEFINE WHILE
 %token <int> LITINT
 %token <string> ID
 %token <string> LITSTR
@@ -100,12 +100,12 @@ expr:
     | ID LPAREN actuals_opt RPAREN RPAREN { Call($1, $3)}
 
 expr_opt: /*nothing*/ { Noexpr }
-	| expr
+	| expr 			  { $1 }
 
 actuals_opt: /*nothing*/ { [] }
 	| actuals_list { List.rev $1 }
 
 actuals_list:
-	  expr
+	  expr    				  { [$1] }
 	| actuals_list COMMA expr { $3 :: $1 }
 
