@@ -19,6 +19,8 @@ type expr = Litint of int
 	  | Call of string * expr list 
 	  | Edgedcl of string * int * string
 	  | Listdcl of expr list
+          | Localdecl of typ * string 
+(* Added to support local decls *)
 (*MIGHT HAVE ISSUES HERE, alternative expr list*)
 
 type stmt = Block of stmt list
@@ -27,6 +29,7 @@ type stmt = Block of stmt list
 		  | For of expr * expr * expr * stmt
 		  | While of expr * stmt
 		  | Return of expr
+                  
 
 type func_decl = { 
 		

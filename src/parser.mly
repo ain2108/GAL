@@ -11,7 +11,7 @@
 %token <string> LITSTR
 %token EOF
 
-%nonassoc ELSE
+
 %right ASSIGN
 %left OR
 %left AND
@@ -19,7 +19,7 @@
 %left LT GT LEQ GEQ
 %left PLUS MINUS EPLUS EMINUS
 %left TIMES DIVIDE
-%right NOT NEG  
+%right NOT  
 
 %start program
 %type <Ast.program> program 
@@ -32,11 +32,16 @@ decls: /*nothing */ {[],[]}
 	| decls vdecl { ($2 :: fst $1), snd $1 }
 	| decls fdecl { fst $1, ($2 :: snd $1) } 
 
+/* If you look at the functions declaration, you can see that declarations of
+   locals must preced the statements in micro c. After my modification to expr,
+   body contains some Localdecl's, which can be removed from $9 and added to $8
+   in ocaml code below  */
 fdecl:
 	DEFINE typ ID LPAREN formals_opts RPAREN LBRACE vdecl_list stmt_list RBRACE
 	{ { typ = $2; fname = $3; formals = $5;
 		locals = List.rev $8; body = List.rev $9}}
-
+        
+        
 formals_opts: /*nothing*/ 	{[]}
 	| formal_list 			{ List.rev $1 }
 
@@ -53,12 +58,14 @@ vdecl_list: /*nothin*/  { [] }
 
 vdecl: typ ID SEMI { ($1, $2) }
 
-stmt_list: /*nothing*/	{ [] }
+stmt_list:
+          /*nothing*/	        { [] }
 	| stmt_list stmt 	{ $2 :: $1 }
 
+                    /*DOESNT ALLOW RETURN of Nothing*/
 stmt:
-	  expr SEMI					{ Expr($1) }
-	| RETURN expr SEMI				{ Return($2) }   /*DOESNT ALLOW RETURN of Nothing*/
+          expr SEMI					{ Expr $1 }
+ 	| RETURN expr SEMI				{ Return $2  }         
 	| LBRACE stmt_list RBRACE 		{ Block(List.rev $2) } 
 	| IF LPAREN expr RPAREN stmt ELSE stmt { If($3, $5, $7) }
 	| FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt { For($3,$5,$7,$9) }
@@ -74,7 +81,8 @@ listdecl:
 
 
 expr:
-          LITINT			{ Litint($1) }
+          typ ID                        { Localdecl($1, $2)}
+        | LITINT			{ Litint($1) }
 	| ID				{ Id($1) }
 	| LITSTR			{ Litstr($1) }
 	| BAR LITSTR COMMA LITINT COMMA LITSTR BAR 	{ Edgedcl($2,$4,$6) }

@@ -1,41 +1,28 @@
 def int helloWorld( int a, int b){
 
-    list a1;
-    edge e1;
-    string s1;
-
-    int b;   
-    int c;
-    string many;
+    int b;
     int a;
+
+    b = 29;
+    a = b;
 
 /* For some reason, declaration cannot be separated by a expr. In that case,
    stuff breaks. Try put a declaration after few assignments */ 
 
+   list l1;
+   edge e2;
+
+   e2 = | "A", 2, "B" |;
+   l1 = ["A"::"B"::C];
     b = 3;
     c = 4;
 
     many = "hello";
     s1 = "play";
 
-    /* a1 = ["a"]; */
-
-    /* Above Works, after list assignment, declarations stop working.
-       Assignments still work though */
-
     s1 = "Hello";
     many = "Many";
 
-
-
-    /* 'e1 = ' gives parse error as it should */
-
-    /* string hello;  */
-
-    /* edge e2; */
-
-    /*  'list l1;' not working, need to dig */
-
-    return b;
+    int b;
     return a;
 }
