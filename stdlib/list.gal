@@ -3,7 +3,7 @@
  * List implementation in gal
  */
 
-box List:
+def List:
     edge * first;
 :> // Improvising with the symbol to show end of block
 
