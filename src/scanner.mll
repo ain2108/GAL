@@ -37,9 +37,8 @@ rule token = parse
 | "for"    { FOR }
 | "return" { RETURN }
 | "def"	   { DEFINE }
-| "list"   { LIST }
-| "edge"   { EDGE }
-| "node"   { LIST }
+| "list"   { LISTT }
+| "edge"   { EDGE }      
 | "int"    { INT }
 | "string" { STRING }
 | ['0'-'9']+ as lxm { LITINT(int_of_string lxm) }

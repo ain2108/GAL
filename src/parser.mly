@@ -1,5 +1,3 @@
-
-
 %{
 	open Ast
 %}
@@ -7,7 +5,7 @@
 %token SEMI LPAREN RPAREN LSQBRACE RSQBRACE LBRACE RBRACE BAR COLON LISTSEP COMMA
 %token EPLUS EMINUS PLUS MINUS TIMES DIVIDE ASSIGN NOT 
 %token EQ LT LEQ GT GEQ AND OR 
-%token RETURN IF ELSE FOR INT STRING EDGE LIST DEFINE WHILE
+%token RETURN IF ELSE FOR INT STRING EDGE LISTT DEFINE WHILE
 %token <int> LITINT
 %token <string> ID
 %token <string> LITSTR
@@ -37,7 +35,7 @@ decls: /*nothing */ {[],[]}
 fdecl:
 	DEFINE typ ID LPAREN formals_opts RPAREN LBRACE vdecl_list stmt_list RBRACE
 	{ { typ = $2; fname = $3; formals = $5;
-		locals = List.rev $8; body = List.rev $8}}
+		locals = List.rev $8; body = List.rev $9}}
 
 formals_opts: /*nothing*/ 	{[]}
 	| formal_list 			{ List.rev $1 }
@@ -45,9 +43,9 @@ formals_opts: /*nothing*/ 	{[]}
 formal_list: typ ID 		{ [($1,$2)] }
 	| formal_list COMMA typ ID 	{ ($3,$4) :: $1 }
 
-typ:  INT 		{ Int }
+typ:      INT 		{ Int }
 	| STRING 	{ String }
-	| LIST 		{ List }
+	| LISTT 	{ Listtyp }
 	| EDGE 		{ Edge }
 
 vdecl_list: /*nothin*/  { [] } 
@@ -59,8 +57,8 @@ stmt_list: /*nothing*/	{ [] }
 	| stmt_list stmt 	{ $2 :: $1 }
 
 stmt:
-	  expr SEMI					{ Expr $1 }
-	| RETURN expr SEMI				{ Return $2 }   /*DOESNT ALLOW RETURN of Nothing*/
+	  expr SEMI					{ Expr($1) }
+	| RETURN expr SEMI				{ Return($2) }   /*DOESNT ALLOW RETURN of Nothing*/
 	| LBRACE stmt_list RBRACE 		{ Block(List.rev $2) } 
 	| IF LPAREN expr RPAREN stmt ELSE stmt { If($3, $5, $7) }
 	| FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt { For($3,$5,$7,$9) }
@@ -76,11 +74,11 @@ listdecl:
 
 
 expr:
-	  LITINT									{ Litint($1) }
-	| ID										{ Id($1) }
-	| LITSTR									{ Litstr($1) }
-	| BAR LITSTR COMMA LITINT COMMA LITSTR BAR 	{ Edge($2,$4,$6) }					  
-	| RSQBRACE list_list LSQBRACE 				{ List($2) }
+          LITINT			{ Litint($1) }
+	| ID				{ Id($1) }
+	| LITSTR			{ Litstr($1) }
+	| BAR LITSTR COMMA LITINT COMMA LITSTR BAR 	{ Edgedcl($2,$4,$6) }
+	| LSQBRACE list_list RSQBRACE 			{ Listdcl($2) }
 	| expr PLUS   expr { Binop($1, Add,   $3) }
     | expr MINUS  expr { Binop($1, Sub,   $3) }
     | expr TIMES  expr { Binop($1, Mult,  $3) }
@@ -97,7 +95,7 @@ expr:
     | NOT expr         { Unop(Not, $2) }
     | ID ASSIGN expr   { Assign($1, $3) }
     | LPAREN expr RPAREN { $2 }
-    | ID LPAREN actuals_opt RPAREN RPAREN { Call($1, $3)}
+    | ID LPAREN actuals_opt RPAREN  { Call($1, $3)}
 
 expr_opt: /*nothing*/ { Noexpr }
 	| expr 			  { $1 }
