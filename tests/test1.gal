@@ -23,15 +23,18 @@ def int helloWorld( int a, int b){
    s1 = "Hello";
    many = "Many";
 
-   int b;
-   edge e7; 
+   int carrots;
+   edge e7;
 
+   carrots = 3;
 
-   if (1){
+   if ( carrots > 1){
    e7 = | "A", 3, "B" |;
 
-}else {}
+   }else {
 
-
+   e7 = | "A", 10, "A" |; 
+   }
+   
    return a;
 }
