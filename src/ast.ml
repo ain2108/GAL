@@ -19,7 +19,6 @@ type expr = Litint of int
 	  | Call of string * expr list 
 	  | Edgedcl of string * int * string
 	  | Listdcl of expr list
-          | Localdecl of typ * string 
 (* Added to support local decls *)
 (*MIGHT HAVE ISSUES HERE, alternative expr list*)
 

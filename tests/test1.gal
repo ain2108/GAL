@@ -14,15 +14,24 @@ def int helloWorld( int a, int b){
 
    e2 = | "A", 2, "B" |;
    l1 = ["A"::"B"::C];
-    b = 3;
-    c = 4;
+   b = 3;
+   c = 4;
 
-    many = "hello";
-    s1 = "play";
+   many = "hello";
+   s1 = "play";
 
-    s1 = "Hello";
-    many = "Many";
+   s1 = "Hello";
+   many = "Many";
 
-    int b;
-    return a;
+   int b;
+   edge e7; 
+
+
+   if (1){
+   e7 = | "A", 3, "B" |;
+
+}else {}
+
+
+   return a;
 }

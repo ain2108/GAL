@@ -32,46 +32,16 @@ decls: /*nothing */ {[],[]}
 	| decls vdecl { ($2 :: fst $1), snd $1 }
 	| decls fdecl { fst $1, ($2 :: snd $1) } 
 
-/* If you look at the functions declaration, you can see that declarations of
-   locals must preced the statements in micro c. After my modification to expr,
-   body contains some Localdecl's, which can be removed from $9 and added to $8
-   in ocaml code below  */
-/*fdecl:
-	DEFINE typ ID LPAREN formals_opts RPAREN LBRACE vdecl_list stmt_list RBRACE
-	{ { typ = $2; fname = $3; formals = $5;
-		locals = List.rev $8; body = List.rev $9}}
-        
-formals_opts: /*nothing*/ 	{[]}
-	| formal_list 			{ List.rev $1 }
-
-formal_list: typ ID 		{ [($1,$2)] }
-	| formal_list COMMA typ ID 	{ ($3,$4) :: $1 }
-
-typ:      
-	INT 		{ Int }
-	| STRING 	{ String }
-	| LISTT 	{ Listtyp }
-	| EDGE 		{ Edge }
-
-vdecl_list: /*nothin*/  { [] } 
-    | vdecl_list vdecl  { $2 :: $1 }
-
-vdecl: typ ID SEMI { ($1, $2) }
-
-*/
-
-vdecl_list: /*nothin*/  { [] } 
-    | vdecl_list vdecl  { $2 :: $1 }
-
 vdecl: typ ID SEMI { ($1, $2) }
 
 fdecl:
 	DEFINE typ ID LPAREN formals_opts RPAREN LBRACE func_body RBRACE
 	{{ typ = $2; fname = $3; formals = $5; 
-		locals = List.rev (fst func_body); 
-		body = (snd func_body)  }}
+		locals = List.rev (fst $8); 
+		body = (snd $8)  }}
 
-formals_opts: /*nothing*/ 	{[]}
+formals_opts: 
+	/* nothing */ 			{ [] } 
 	| formal_list 			{ List.rev $1 }
 
 formal_list: typ ID 		{ [($1,$2)] }
@@ -88,25 +58,19 @@ func_body: /*nothing*/ 	{ [] ,[] }
 	| func_body stmt    { fst $1, ($2 :: snd $1) } 
 
 
-
-
-
-
-
-/*
 stmt_list:
           /*nothing*/	        { [] }
 	| stmt_list stmt 	{ $2 :: $1 }
-	*/
                         
                     /*DOESNT ALLOW RETURN of Nothing*/
 stmt:
-    expr SEMI					{ Expr $1 }
- 	| RETURN expr SEMI				{ Return $2  }         
-	| LBRACE stmt_list RBRACE 		{ Block(List.rev $2) } 
-	| IF LPAREN expr RPAREN stmt ELSE stmt { If($3, $5, $7) }
-	| FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt { For($3,$5,$7,$9) }
-	| WHILE LPAREN expr RPAREN stmt 	{ While($3, $5) }
+      expr SEMI								{ Expr $1 }
+ 	| RETURN expr SEMI						{ Return $2  }         
+	| LBRACE stmt_list RBRACE 				{ Block(List.rev $2) } 
+	| IF LPAREN expr RPAREN stmt ELSE stmt 	{ If($3, $5, $7) }
+	| FOR LPAREN expr_opt SEMI expr SEMI expr_opt RPAREN stmt 	
+											{ For($3,$5,$7,$9) }
+	| WHILE LPAREN expr RPAREN stmt 	    { While($3, $5) }
 
 
 list_list: /*nothing*/ { [] }
