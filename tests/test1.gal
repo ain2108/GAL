@@ -1,7 +1,8 @@
 
-int a;
-int b;
+int pancake;
+int panda;
 
+int panda;
 
 
 def int helloWorld( int a, int b){
@@ -43,6 +44,17 @@ def int helloWorld( int a, int b){
    }
 
    int b;
-
+   int a;
+   
    return a;
+}
+
+
+def int main(){
+    int pink;
+    int floyd;
+
+    edge pink;
+    edge floyd;
+
 }
