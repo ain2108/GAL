@@ -1,3 +1,5 @@
+open Semant;; 
+
 type action = Ast | LLVM_IR | Compile;;
 
 let _ = (*
@@ -9,5 +11,5 @@ let _ = (*
 
   let lexbuf = Lexing.from_channel stdin in
   let ast = Parser.program Scanner.token lexbuf in
-  ast;;
+  check ast;
 

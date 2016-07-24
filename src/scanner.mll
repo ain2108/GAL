@@ -1,4 +1,8 @@
 (*Ocamllex scanner for GAL*)
+(* Authors: Donovan Chan, Andrew Feather, Macrina Lobo, 
+			Anton Nefedenkov
+   Note: This code was writte on top of Prof. Edwards's 
+   		 microc code. We hope this is acceptable. *)
 
 { open Parser }
 

@@ -1,3 +1,11 @@
+
+int a;
+int b;
+
+int a;
+int b;
+
+
 def int helloWorld( int a, int b){
 
     int b;
