@@ -6,10 +6,11 @@
 
 # More detailed: build using ocamlc/ocamlopt + ocamlfind to locate LLVM
 
-OBJS = parser.cmo scanner.cmo semant.cmo gal.cmo 
+OBJS = ast.cmo help.cmo parser.cmo scanner.cmo semant.cmo gal.cmo 
 
 gal: scanner.ml parser.ml
 	ocamlc -c ast.ml 
+	ocamlc -c help.ml
 	ocamlc -c parser.mli
 	ocamlc -c scanner.ml parser.ml
 	ocamlc -c semant.ml

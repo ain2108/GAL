@@ -10,7 +10,7 @@ let _ = (*
       Compile in
 
   let lexbuf = Lexing.from_channel stdin in
-  let ast = Parser.program Scanner.token lexbuf in
+  let ast = Parser.program Scanner.token lexbuf in 
   let exp_list = Semant.check ast in
   if exp_list <> [] then
   	raise (Failure ("\n" ^ (String.concat "\n" exp_list)));

@@ -70,6 +70,10 @@ let rec purify_exp_list result = function
 	| _::tl -> purify_exp_list result tl
 ;;
 
+
+
+
+(* The thing that does all the checks *)
 let check (globals, funcs) = 
 
 	(* Check duplicate globals *)
@@ -80,7 +84,7 @@ let check (globals, funcs) =
 	in let exp = global_dup_exp::
 	(List.rev (func_duplicates dup_local_exp [] 
 						(extract_locals [] funcs)))
-
+	(* Get rid of elements containing empty sstring *)
 	in purify_exp_list [] exp
 
 

@@ -4,7 +4,6 @@
    	Note: This code was writte on top of Prof. Edwards's 
    		 microc code. We hope this is acceptable. *)
     open Ast
-    open Help
 %}
 
 %token SEMI LPAREN RPAREN LSQBRACE RSQBRACE LBRACE RBRACE BAR COLON LISTSEP COMMA
@@ -42,8 +41,8 @@ vdecl: typ ID SEMI { ($1, $2) }
 fdecl:
 	DEFINE typ ID LPAREN formals_opts RPAREN LBRACE func_body RBRACE
 	{{ typ = $2; fname = $3; formals = $5; 
-		locals = Help.get_vardecls [] $8; 
-		body = $8 }}
+		locals = List.rev (fst $8); 
+		body = (snd $8)  }}
 
 formals_opts: 
 	/* nothing */ 			{ [] } 
@@ -58,13 +57,13 @@ typ:
 	| LISTT 	{ Listtyp }
 	| EDGE 		{ Edge }
 
-func_body: 
-	/*nothing*/ 		{ [] }
-	| func_body stmt    { $2 :: $1 } 
+func_body: /*nothing*/ 	{ [] ,[] }
+	| func_body vdecl 	{ ($2 :: fst $1), snd $1 }
+	| func_body stmt    { fst $1, ($2 :: snd $1) } 
 
 
 stmt_list:
-          /*nothing*/	{ [] }
+          /*nothing*/	        { [] }
 	| stmt_list stmt 	{ $2 :: $1 }
                         
                     /*DOESNT ALLOW RETURN of Nothing*/
@@ -87,7 +86,7 @@ listdecl:
 
 
 expr:
-      typ ID            { Localdecl($1, $2)}
+          /*typ ID                        { Localdecl($1, $2)}*/
     | LITINT			{ Litint($1) }
 	| ID				{ Id($1) }
 	| LITSTR			{ Litstr($1) }
@@ -120,4 +119,3 @@ actuals_opt: /*nothing*/ { [] }
 actuals_list:
 	  expr    				  { [$1] }
 	| actuals_list COMMA expr { $3 :: $1 }
-
