@@ -8,6 +8,7 @@ open Ast;;
 module StringMap = Map.Make(String);;
 
 let dup_global_exp = " duplicate global ";;
+let dup_local_exp = " duplicate local ";;
 
 (* Static semantic checker of the program. Will return void 
    on success. Raise an exception otherwise. Checks first the
@@ -50,15 +51,25 @@ let report_duplicate exception_msg list =
 *)
 
 
+(* Returns a list of lists of locals *)
+let rec extract_locals local_vars = function
+	[] -> List.rev local_vars
+	| hd::tl -> extract_locals 
+		((List.map snd hd.locals)::local_vars) tl
+;;
 
+
+let local_rep_dup = report_duplicate dup_local_exp;;
 
 	
 let check (globals, funcs) = 
 
 	(* Check duplicate globals *)
 	report_duplicate dup_global_exp (List.map snd globals );
-	 
 
+	(* Report local vars duplicates *)
+	List.map local_rep_dup (extract_locals [] funcs);
+	
 
 ;;
 

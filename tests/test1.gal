@@ -2,8 +2,6 @@
 int a;
 int b;
 
-int a;
-int b;
 
 
 def int helloWorld( int a, int b){
@@ -43,6 +41,8 @@ def int helloWorld( int a, int b){
 
    e7 = | "A", 10, "A" |; 
    }
-   
+
+   int b;
+
    return a;
 }
