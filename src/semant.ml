@@ -6,6 +6,7 @@
 open Ast;;
 
 module StringMap = Map.Make(String);;
+let m = StringMap.empty;;
 
 (* Error messages of the exceptions *)
 let dup_global_exp = " duplicate global ";;
@@ -13,10 +14,43 @@ let dup_local_exp = " duplicate local ";;
 let dup_formal_exp = " duplicate formal arg ";;
 let dup_func_exp = " duplicate function name ";;
 let builtin_decl_exp = " cannot redefine ";;
+let main_undef_exp = " main not defined ";;
 
 (* Names of built in functions can be added below *)
 let builtins_list =
-	["print"; "length"; "source"; "dest"; "pop"];;
+	["print_int"; "print_str";
+	 "length"; "source"; "dest"; "pop"];;
+
+(* Built in decls *)
+let print_int_fdcl = 
+	{ typ = Int; fname = "print_int"; formals = [(Int, "a")];
+	  locals = []; body = []};;
+
+let print_str_fdcl = 
+	{ typ = String; fname = "print_str"; formals = [(String, "a")];
+	  locals = []; body = []};;
+
+let length_fdcl = 
+	{ typ = Int; fname = "length"; formals = [(Listtyp, "a")];
+	  locals = []; body = []};;
+
+let dest_fdcl = 
+	{ typ = String; fname = "dest"; formals = [(Edge, "a")];
+	  locals = []; body = []};;
+
+let source_fdcl = 
+	{ typ = String; fname = "source"; formals = [(Edge, "a")];
+	  locals = []; body = []};;
+
+(* This function needs discussion *)
+let pop_fdcl = 
+	{ typ = Listtyp; fname = "source"; formals = [(Listtyp, "a")];
+	  locals = []; body = []};;
+
+let builtin_fdcl_list =
+	[ print_int_fdcl; print_str_fdcl; length_fdcl; dest_fdcl;
+	  source_fdcl; pop_fdcl ];;
+
 
 (* Static semantic checker of the program. Will return void 
    on success. Raise an exception otherwise. Checks first the
@@ -95,7 +129,6 @@ let rec check_builtins_defs exp_list expmsg funcs = function
 			check_builtins_defs exp_list expmsg funcs tl
 ;;
 
-
 (* The thing that does all the checks *)
 let check (globals, funcs) = 
 
@@ -126,6 +159,24 @@ let check (globals, funcs) =
 		builtin_decl_exp
 		(List.map (fun n -> n.fname) funcs)
 		builtins_list)
+	
+	(* Add builtins to the map *)
+	in let builtin_decls = List.fold_left
+		(fun m fd -> StringMap.add fd.fname fd m)
+		StringMap.empty
+		builtin_fdcl_list
+
+	(* Add user declared functions to the map *)
+	in let fdecl_map = List.fold_left
+		(fun m fd -> StringMap.add fd.fname fd m)
+		builtin_decls
+		funcs
+
+	(* Check if main was properly declared *)
+	in let exp = 
+			try ignore (StringMap.find "main" fdecl_map); exp 
+			with Not_found -> main_undef_exp :: exp 
+ 
 
 	(* Get rid of elements containing empty sstring *)
 	in purify_exp_list [] exp
