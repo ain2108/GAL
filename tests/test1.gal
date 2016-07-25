@@ -4,8 +4,12 @@ int panda;
 
 int panda;
 
+def int helloWorld( int potato){
 
-def int helloWorld( int a, int b){
+    return potato;
+}
+
+def int helloWorld( int banana, string banana){
 
     int b;
     int a;

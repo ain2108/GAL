@@ -10,6 +10,7 @@ module StringMap = Map.Make(String);;
 let dup_global_exp = " duplicate global ";;
 let dup_local_exp = " duplicate local ";;
 let dup_formal_exp = " duplicate formal arg ";;
+let dup_func_exp = " duplicate function name "
 
 (* Static semantic checker of the program. Will return void 
    on success. Raise an exception otherwise. Checks first the
@@ -46,12 +47,19 @@ let report_duplicate exception_msg list func_name =
 		
 	else ""
 
+
 (* Returns a list of lists of locals *)
 let rec extract_locals local_vars = function
 	[] -> List.rev local_vars
 	| hd::tl -> extract_locals 
 		(( hd.fname, (List.map snd hd.locals))::local_vars) tl
 ;;
+
+(* Extracts formal arguments *)
+let rec extract_formals formals = function
+	[] -> List.rev formals
+	| hd::tl -> extract_formals
+		(( hd.fname, (List.map snd hd.formals))::formals) tl
 
 (* Helper functions extracts good stuff from list of funcs *)
 let rec func_duplicates exp_msg exception_list = function
@@ -71,8 +79,6 @@ let rec purify_exp_list result = function
 ;;
 
 
-
-
 (* The thing that does all the checks *)
 let check (globals, funcs) = 
 
@@ -82,8 +88,21 @@ let check (globals, funcs) =
 	
 	(* Check the local variables *)
 	in let exp = global_dup_exp::
-	(List.rev (func_duplicates dup_local_exp [] 
+	((func_duplicates dup_local_exp [] 
 						(extract_locals [] funcs)))
+
+	(* Check the formal arguments *)
+	in let exp = func_duplicates 
+		dup_formal_exp 
+		exp
+		(extract_formals [] funcs)
+
+	(* Check for func name duplicates *)
+	in let exp = (report_duplicate 
+		dup_func_exp 
+		(List.map (fun n -> n.fname) funcs) 
+		"")::exp 
+
 	(* Get rid of elements containing empty sstring *)
 	in purify_exp_list [] exp
 
