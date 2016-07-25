@@ -34,17 +34,18 @@ def int helloWorld( int a, int b){
    edge e7;
 
    carrots = 3;
-
+   int i;
    if ( carrots > 1){
    e7 = | "A", 3, "B" |;
-
+   int i;
+      
    }else {
-
    e7 = | "A", 10, "A" |; 
    }
 
    int b;
    int a;
+
    
    return a;
 }
