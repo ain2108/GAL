@@ -129,51 +129,77 @@ let rec check_builtins_defs exp_list expmsg funcs = function
 			check_builtins_defs exp_list expmsg funcs tl
 ;;
 
-(* let check_func exp_list globs_map func_body =
+(* Function checks bunch of fun stuff in the function structure *)
+let check_func exp_list globs_map func_decl =
 
 	(* Function returns the type of the identifier *)
-	let get_type_of_id vars_map id = 
-		try StringMap.find id vars_map 
-		with Not_found -> Void; 
+	let get_type_of_id exp_list vars_map id = 
+		try (StringMap.find id vars_map, exp_list) 
+		with Not_found -> 
+			(Void, (" unknown identifier " ^ id ^ " in " ^ func_decl.fname)::exp_list)
 
 	(* Helper will return a list of exceptions *)
-	let get_expression_type vars_map = function
-		| Litstr(_) -> String
-		| Litint(_) -> Int
-		| Id(name)  -> get_type_of_id name vars_map
-		| Binop(e1, op, e2) -> 
-			let v1 = get_expression_type vars_map e1
-			and v2 = get_expression_type vars_map 
+	in let rec get_expression_type vars_map exp_list = function
+		| Litstr(_) -> (String, exp_list)
+		| Litint(_) -> (Int, exp_list)
+		| Boolit(_) -> (Int, exp_list) (* KIV, just like in parser *)
+		| Id(name)  -> get_type_of_id exp_list vars_map name
+		| Binop(e1, op, e2) (* as e *) -> 
+			let (v1, exp_list) = get_expression_type vars_map exp_list e1 in
+			let (v2, exp_list) = get_expression_type vars_map exp_list e2 
+			in (match op with 
+				(* Integer operators *)
+				| Add | Sub | Mult | Div | Equal | Less | Leq 
+				| Greater | Geq | And | Or 
+					when (v1 = Int && v2 = Int) -> (Int, exp_list)
+				(* List operators *)
+				| Eadd | Esub when v1 = Listtyp && v2 = Listtyp -> (Listtyp, exp_list)
+				| _ -> (Void, (" illegal binary op in " ^ func_decl.fname)::exp_list) )
+		| Unop(op, e1) -> get_expression_type vars_map exp_list e1
+		| Noexpr -> (Void, exp_list) (* Need to check how Noexp is used *)
+		| Assign(var, e) (* as ex *) -> 
+			let (lt, exp_list) = get_type_of_id exp_list vars_map var in
+			let (rt, exp_list) = get_expression_type vars_map exp_list e
+				in if lt <> rt then 
+				(Void,(" illegal assignment to " ^ var ^ " in " ^ func_decl.fname)::exp_list) 
+				else (rt, exp_list) 
+		| Edgedcl(_, _, _) -> (Edge, exp_list)
+		| Listdcl(_) -> (Listtyp, exp_list)
+		| _ -> (Void, exp_list)
 
-							
+	in get_expression_type globs_map exp_list (Litstr("hello"))
+
+(* (* In short, helper walks through the ast checking all kind of things *)
+	in let rec helper vars_map exp_list = function
+		| [] -> List.rev exp_list
+		|  hd::tl -> (match hd with 
+			| Localdecl(typname, name) ->
+					print_string "locvar " ^ name ^ " added \n";
+					helper (StringMap.add name typname vars_map) exp_list tl
+			| Return(e) -> let (rettyp, exp_list) = get_expression_type vars_map exp_list e
+					in if rettyp = func_decl.typ then helper vars_map exp_list tl
+ 
+
+
+
+)
+ *)
+
+
+			
+
+
+
+
+
+
+
+
+
+
 
 
 	
-	let rec helper exp_list vars_map =
-		| [] -> List.rev exp_list
-		|  hd::tl -> (match hd with 
-			| Expr(expression) -> (match expression with
-				| Localdecl(typname, name) ->
-					print_string "locvar " ^ name ^ " added \n";
-					check_func exp_list (StringMap.add name typname vars_map) tl			
-
-
-
-
-			)
-
-
-
-
-
-
-
-
-
-
-
-
-		) *)
 
 
 
