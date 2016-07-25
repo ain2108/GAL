@@ -8,7 +8,7 @@ open Ast
 let rec get_vardecls vars = function
 	| [] -> List.rev vars
 	| hd::tl -> (match hd with
-		| Expr(Localdecl(typname, name)) -> 
+		| Localdecl(typname, name) -> 
 			(* print_string " Expr"; *)
 			get_vardecls ((typname, name)::vars) tl
 		| Block(slist) -> (* print_string " Block"; *)

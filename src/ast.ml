@@ -9,7 +9,7 @@ type op = Add | Sub | Mult | Div | Equal |
 
 (* List and Edge here are different from below *)
 type uop = Not
-type typ = Int | String | Listtyp | Edge 
+type typ = Int | String | Listtyp | Edge | Void
 
 type bind = typ * string 
 
@@ -24,11 +24,13 @@ type expr = Litint of int
 	  | Call of string * expr list 
 	  | Edgedcl of string * int * string
 	  | Listdcl of expr list
-	  | Localdecl of typ * string 
+	  (*  Localdecl of typ * string  *)
 (* Added to support local decls *)
 (*MIGHT HAVE ISSUES HERE, alternative expr list*)
 
-type stmt = Block of stmt list
+type stmt = 
+		  | Localdecl of typ * string
+		  |	Block of stmt list
 		  | Expr of expr
 		  | If of expr * stmt * stmt  (*MIGHT NOT NEED ELSE ALL THE TIME*)
 		  | For of expr * expr * expr * stmt

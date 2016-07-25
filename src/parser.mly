@@ -69,7 +69,8 @@ stmt_list:
                         
                     /*DOESNT ALLOW RETURN of Nothing*/
 stmt:
-      expr SEMI								{ Expr $1 }
+	  typ ID SEMI							{ Localdecl($1, $2)}
+    | expr SEMI								{ Expr $1 }
  	| RETURN expr SEMI						{ Return $2  }         
 	| LBRACE stmt_list RBRACE 				{ Block(List.rev $2) } 
 	| IF LPAREN expr RPAREN stmt ELSE stmt 	{ If($3, $5, $7) }
@@ -87,7 +88,7 @@ listdecl:
 
 
 expr:
-      typ ID            { Localdecl($1, $2)}
+      /* typ ID            { Localdecl($1, $2)} */
     | LITINT			{ Litint($1) }
 	| ID				{ Id($1) }
 	| LITSTR			{ Litstr($1) }

@@ -129,6 +129,66 @@ let rec check_builtins_defs exp_list expmsg funcs = function
 			check_builtins_defs exp_list expmsg funcs tl
 ;;
 
+(* let check_func exp_list globs_map func_body =
+
+	(* Function returns the type of the identifier *)
+	let get_type_of_id vars_map id = 
+		try StringMap.find id vars_map 
+		with Not_found -> Void; 
+
+	(* Helper will return a list of exceptions *)
+	let get_expression_type vars_map = function
+		| Litstr(_) -> String
+		| Litint(_) -> Int
+		| Id(name)  -> get_type_of_id name vars_map
+		| Binop(e1, op, e2) -> 
+			let v1 = get_expression_type vars_map e1
+			and v2 = get_expression_type vars_map 
+
+							
+
+
+	
+	let rec helper exp_list vars_map =
+		| [] -> List.rev exp_list
+		|  hd::tl -> (match hd with 
+			| Expr(expression) -> (match expression with
+				| Localdecl(typname, name) ->
+					print_string "locvar " ^ name ^ " added \n";
+					check_func exp_list (StringMap.add name typname vars_map) tl			
+
+
+
+
+			)
+
+
+
+
+
+
+
+
+
+
+
+
+		) *)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 (* The thing that does all the checks *)
 let check (globals, funcs) = 
 
@@ -176,7 +236,17 @@ let check (globals, funcs) =
 	in let exp = 
 			try ignore (StringMap.find "main" fdecl_map); exp 
 			with Not_found -> main_undef_exp :: exp 
- 
+
+	(* Get a map of globals for future use in symbol table
+		composition for each function *)
+	in let globs_map = List.fold_left 
+		(fun m (typname, name) -> StringMap.add name typname m)
+ 		StringMap.empty
+ 		globals
+
+
+
+
 
 	(* Get rid of elements containing empty sstring *)
 	in purify_exp_list [] exp
