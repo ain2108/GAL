@@ -4,6 +4,11 @@ int panda;
 
 int panda;
 
+def int length(){
+
+    return 1;
+}
+
 def int helloWorld( int potato){
 
     return potato;
