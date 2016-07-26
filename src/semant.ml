@@ -129,8 +129,10 @@ let rec check_builtins_defs exp_list expmsg funcs = function
 			check_builtins_defs exp_list expmsg funcs tl
 ;;
 
+  
+
 (* Function checks bunch of fun stuff in the function structure *)
-let check_func exp_list globs_map func_decl =
+let check_func exp_list globs_map func_decl funcs_map =
 
 	(* Function returns the type of the identifier *)
 	let get_type_of_id exp_list vars_map id = 
@@ -165,7 +167,41 @@ let check_func exp_list globs_map func_decl =
 				else (rt, exp_list) 
 		| Edgedcl(_, _, _) -> (Edge, exp_list)
 		| Listdcl(_) -> (Listtyp, exp_list)
-		| _ -> (Void, exp_list)
+		(* CARE HERE, NOT FINISHED AT ALL *)
+		| Call(fname, actuals) -> 
+			try let fd = StringMap.find fname funcs_map
+			in if List.length actuals <> List.length fd.formals then
+				(Void, (
+					fd.fname ^ " expects " ^ 
+					(string_of_int (List.length fd.formals)) ^ 
+					 " in " ^ func_decl.fname)::exp_list)
+			else 
+				(* Helper comparing actuals to formals *)
+				let rec check_actuals formals exp_list = function 
+					[] -> List.rev exp_list
+					| actual_name::tla -> 
+						(* Warning in case formals is [], but then actuals
+							is also [], so prev line should fire *)
+						let (hdf::tlf) = formals in
+						let (actual_typ, exp_list) = get_expression_type
+							 vars_map exp_list actual_name in
+						let (formal_typ, _) = hdf in 
+						if formal_typ = actual_typ then
+							check_actuals tlf exp_list tla
+						else
+							(" wrong argument type in " ^ 
+								fname ^ " call ")::exp_list
+				
+				in let exp_list = check_actuals 
+					(fd.formals)
+					exp_list
+					actuals
+				in (fd.typ, exp_list)
+
+			with Not_found -> 
+				(Void, (" function " ^ fname ^ " not defined ")::exp_list)
+
+		| _ -> (Void, exp_list) 
 
 	in get_expression_type globs_map exp_list (Litstr("hello"))
 

@@ -9,11 +9,6 @@ def int length(){
     return 1;
 }
 
-def int helloWorld( int potato){
-
-    return potato;
-}
-
 def int helloWorld( int banana, string banana){
 
     int b;
@@ -63,7 +58,9 @@ def int helloWorld( int banana, string banana){
 def int notmain(){
     int pink;
     int floyd;
-
+    string banana;
+    banana  = "hello";
+    helloWorld(banana, banana);
     edge pink;
     edge floyd;
 
