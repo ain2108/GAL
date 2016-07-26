@@ -2,66 +2,27 @@
 int pancake;
 int panda;
 
-int panda;
+def int main(int banana, int hello){
 
-def int length(){
+    int pink;
+    string panda;
+    pink = 1;
+    panda = "hello";
+
+    mamba(panda, pink);
 
     return 1;
 }
 
-def int helloWorld( int banana, string banana){
+def string mamba(string black){
 
-    int b;
-    int a;
+    string black;
+    black = 4;
 
-    b = 29;
-    a = b;
-
-/* For some reason, declaration cannot be separated by a expr. In that case,
-   stuff breaks. Try put a declaration after few assignments */ 
-
-   list l1;
-   edge e2;
-
-   e2 = | "A", 2, "B" |;
-   l1 = ["A"::"B"::C];
-   b = 3;
-   c = 4;
-
-   many = "hello";
-   s1 = "play";
-
-   s1 = "Hello";
-   many = "Many";
-
-   int carrots;
-   edge e7;
-
-   carrots = 3;
-   int i;
-   if ( carrots > 1){
-   e7 = | "A", 3, "B" |;
-   int i;
-      
-   }else {
-   e7 = | "A", 10, "A" |; 
-   }
-
-   int b;
-   int a;
-
-   
-   return a;
+    return "green";
 }
 
 
-def int notmain(){
-    int pink;
-    int floyd;
-    string banana;
-    banana  = "hello";
-    helloWorld(banana, banana);
-    edge pink;
-    edge floyd;
 
-}
+
+

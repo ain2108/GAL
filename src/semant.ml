@@ -129,6 +129,13 @@ let rec check_builtins_defs exp_list expmsg funcs = function
 			check_builtins_defs exp_list expmsg funcs tl
 ;;
 
+(* Helper function to print types *)
+let string_of_typ = function
+	| Int -> " int "
+	| String -> " string "
+	| Listtyp -> " list "
+	| Edge -> " edge "
+	| Void -> " (bad expression) "		
   
 
 (* Function checks bunch of fun stuff in the function structure *)
@@ -136,6 +143,9 @@ let check_func exp_list globs_map func_decl funcs_map =
 
 	(* Function returns the type of the identifier *)
 	let get_type_of_id exp_list vars_map id = 
+		StringMap.iter 
+			(fun name typname -> (print_string (name ^ "\n")) )
+			vars_map; 
 		try (StringMap.find id vars_map, exp_list) 
 		with Not_found -> 
 			(Void, (" unknown identifier " ^ id ^ " in " ^ func_decl.fname)::exp_list)
@@ -162,8 +172,8 @@ let check_func exp_list globs_map func_decl funcs_map =
 		| Assign(var, e) (* as ex *) -> 
 			let (lt, exp_list) = get_type_of_id exp_list vars_map var in
 			let (rt, exp_list) = get_expression_type vars_map exp_list e
-				in if lt <> rt then 
-				(Void,(" illegal assignment to " ^ var ^ " in " ^ func_decl.fname)::exp_list) 
+				in if lt <> rt || rt = Void then 
+				(Void,(" illegal assignment to variable " ^ var ^ " in " ^ func_decl.fname)::exp_list) 
 				else (rt, exp_list) 
 		| Edgedcl(_, _, _) -> (Edge, exp_list)
 		| Listdcl(_) -> (Listtyp, exp_list)
@@ -172,9 +182,9 @@ let check_func exp_list globs_map func_decl funcs_map =
 			try let fd = StringMap.find fname funcs_map
 			in if List.length actuals <> List.length fd.formals then
 				(Void, (
-					fd.fname ^ " expects " ^ 
+					" " ^ fd.fname ^ " expects " ^ 
 					(string_of_int (List.length fd.formals)) ^ 
-					 " in " ^ func_decl.fname)::exp_list)
+					 " arguments in " ^ func_decl.fname)::exp_list)
 			else 
 				(* Helper comparing actuals to formals *)
 				let rec check_actuals formals exp_list = function 
@@ -203,53 +213,44 @@ let check_func exp_list globs_map func_decl funcs_map =
 
 		| _ -> (Void, exp_list) 
 
-	in get_expression_type globs_map exp_list (Litstr("hello"))
-
-(* (* In short, helper walks through the ast checking all kind of things *)
+	(* in get_expression_type globs_map exp_list (Litstr("hello"))
+ *)
+(* In short, helper walks through the ast checking all kind of things *)
 	in let rec helper vars_map exp_list = function
 		| [] -> List.rev exp_list
 		|  hd::tl -> (match hd with 
 			| Localdecl(typname, name) ->
-					print_string "locvar " ^ name ^ " added \n";
+					print_string ("locvar " ^ name ^ " added \n"); 
 					helper (StringMap.add name typname vars_map) exp_list tl
+			| Expr(e) -> 
+					print_string " checking expression ";
+					let (typname, exp_list) = get_expression_type vars_map exp_list e in
+					helper vars_map exp_list tl
 			| Return(e) -> let (rettyp, exp_list) = get_expression_type vars_map exp_list e
-					in if rettyp = func_decl.typ then helper vars_map exp_list tl
+					in if rettyp = func_decl.typ then 
+							helper vars_map exp_list tl
+					else (func_decl.fname ^ " expected to return type " ^ 
+							(string_of_typ func_decl.typ) ^ " but expression is of type " ^
+							(string_of_typ rettyp))::exp_list
+			| _ -> helper vars_map exp_list [] (* Placeholder *)
+
+		)
+
+	in let globs_forms_map = List.fold_left 
+		(fun m (typname, name) -> StringMap.add name typname m)
+ 		globs_map
+ 		func_decl.formals 
+
+ 	in helper globs_forms_map exp_list (List.rev func_decl.body)
  
 
-
-
-)
- *)
-
-
-			
-
-
-
-
-
-
-
-
-
-
-
-
-	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+let rec check_functions exp_list globs_map funcs_map = function
+	| [] -> List.rev exp_list
+	| hd::tl -> check_functions
+			(check_func exp_list globs_map hd funcs_map)
+			globs_map
+			funcs_map
+			tl
 
 (* The thing that does all the checks *)
 let check (globals, funcs) = 
@@ -306,8 +307,7 @@ let check (globals, funcs) =
  		StringMap.empty
  		globals
 
-
-
+ 	in let exp = check_functions exp globs_map fdecl_map funcs
 
 
 	(* Get rid of elements containing empty sstring *)
