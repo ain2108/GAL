@@ -226,6 +226,19 @@ let check_func exp_list globs_map func_decl funcs_map =
 					print_string " checking expression ";
 					let (typname, exp_list) = get_expression_type vars_map exp_list e in
 					helper vars_map exp_list tl
+			| If(p, s1, s2) -> 
+					let (ptype, exp_list) = get_expression_type vars_map exp_list p in
+						if ptype <> Int then
+							helper vars_map
+							((" predicate in if of type " ^ string_of_typ ptype ^ 
+							 " in function " ^ func_decl.fname)
+							::(helper vars_map (helper vars_map exp_list [s1]) [s2]))
+							tl
+						else
+							helper vars_map
+							(helper vars_map (helper vars_map exp_list [s1]) [s2])
+							tl
+
 			| Return(e) -> let (rettyp, exp_list) = get_expression_type vars_map exp_list e
 					in if rettyp = func_decl.typ then 
 							helper vars_map exp_list tl

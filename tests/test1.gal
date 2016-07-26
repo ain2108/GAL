@@ -7,9 +7,15 @@ def int main(int banana, int hello){
     int pink;
     string panda;
     pink = 1;
+    
     panda = "hello";
+    if(1){
+	print(pink);	
+    }else{
+	pink = 3;	
+    }
 
-    mamba(panda, pink);
+    mamba(3, pink);
 
     return 1;
 }
