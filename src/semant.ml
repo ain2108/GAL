@@ -143,9 +143,9 @@ let check_func exp_list globs_map func_decl funcs_map =
 
 	(* Function returns the type of the identifier *)
 	let get_type_of_id exp_list vars_map id = 
-		StringMap.iter 
+		(* StringMap.iter 
 			(fun name typname -> (print_string (name ^ "\n")) )
-			vars_map; 
+			vars_map;  *)
 		try (StringMap.find id vars_map, exp_list) 
 		with Not_found -> 
 			(Void, (" unknown identifier " ^ id ^ " in " ^ func_decl.fname)::exp_list)
@@ -220,10 +220,10 @@ let check_func exp_list globs_map func_decl funcs_map =
 		| [] -> List.rev exp_list
 		|  hd::tl -> (match hd with 
 			| Localdecl(typname, name) ->
-					print_string ("locvar " ^ name ^ " added \n"); 
+					(* print_string ("locvar " ^ name ^ " added \n");  *)
 					helper (StringMap.add name typname vars_map) exp_list tl
 			| Expr(e) -> 
-					print_string " checking expression ";
+					(* print_string " checking expression "; *)
 					let (typname, exp_list) = get_expression_type vars_map exp_list e in
 					helper vars_map exp_list tl
 			| If(p, s1, s2) -> 
@@ -238,7 +238,7 @@ let check_func exp_list globs_map func_decl funcs_map =
 							helper vars_map
 							(helper vars_map (helper vars_map exp_list [s1]) [s2])
 							tl
-
+			(* Make sure that tl is an empty list at this point, otherwise throgw exception *)
 			| Return(e) -> let (rettyp, exp_list) = get_expression_type vars_map exp_list e
 					in if rettyp = func_decl.typ then 
 							helper vars_map exp_list tl
