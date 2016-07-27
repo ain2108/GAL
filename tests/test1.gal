@@ -10,10 +10,17 @@ def int main(int banana, int hello){
     
     panda = "hello";
     if(1){
+	bazooka(pink);
 	print(pink);	
     }else{
 	pink = 3;	
     }
+
+    for( panda; 0; panda){
+    	 string i;
+	 i = "nevernevernever"; 
+    }
+
 
     mamba(3, pink);
 

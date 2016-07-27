@@ -148,7 +148,8 @@ let check_func exp_list globs_map func_decl funcs_map =
 			vars_map;  *)
 		try (StringMap.find id vars_map, exp_list) 
 		with Not_found -> 
-			(Void, (" unknown identifier " ^ id ^ " in " ^ func_decl.fname)::exp_list)
+			(Void, (" in " ^ func_decl.fname ^ " var: " ^
+					" unknown identifier " ^ id)::exp_list)
 
 	(* Helper will return a list of exceptions *)
 	in let rec get_expression_type vars_map exp_list = function
@@ -166,14 +167,17 @@ let check_func exp_list globs_map func_decl funcs_map =
 					when (v1 = Int && v2 = Int) -> (Int, exp_list)
 				(* List operators *)
 				| Eadd | Esub when v1 = Listtyp && v2 = Listtyp -> (Listtyp, exp_list)
-				| _ -> (Void, (" illegal binary op in " ^ func_decl.fname)::exp_list) )
+				| _ -> (Void, ( " in " ^ func_decl.fname ^ " expr: " ^
+								" illegal binary op ")::exp_list) )
 		| Unop(op, e1) -> get_expression_type vars_map exp_list e1
 		| Noexpr -> (Void, exp_list) (* Need to check how Noexp is used *)
 		| Assign(var, e) (* as ex *) -> 
+				(* print_string (" assignment to " ^ var ^ "\n"); *)
 			let (lt, exp_list) = get_type_of_id exp_list vars_map var in
 			let (rt, exp_list) = get_expression_type vars_map exp_list e
 				in if lt <> rt || rt = Void then 
-				(Void,(" illegal assignment to variable " ^ var ^ " in " ^ func_decl.fname)::exp_list) 
+				(Void,(" in " ^ func_decl.fname ^ " expr: " ^
+					   " illegal assignment to variable " ^ var)::exp_list) 
 				else (rt, exp_list) 
 		| Edgedcl(_, _, _) -> (Edge, exp_list)
 		| Listdcl(_) -> (Listtyp, exp_list)
@@ -182,24 +186,25 @@ let check_func exp_list globs_map func_decl funcs_map =
 			try let fd = StringMap.find fname funcs_map
 			in if List.length actuals <> List.length fd.formals then
 				(Void, (
-					" " ^ fd.fname ^ " expects " ^ 
+					" in " ^ func_decl.fname ^ " fcall: " ^
+					fd.fname ^ " expects " ^ 
 					(string_of_int (List.length fd.formals)) ^ 
-					 " arguments in " ^ func_decl.fname)::exp_list)
+					 " arguments " )::exp_list)
 			else 
 				(* Helper comparing actuals to formals *)
 				let rec check_actuals formals exp_list = function 
 					[] -> List.rev exp_list
-					| actual_name::tla -> 
-						(* Warning in case formals is [], but then actuals
-							is also [], so prev line should fire *)
-						let (hdf::tlf) = formals in
-						let (actual_typ, exp_list) = get_expression_type
-							 vars_map exp_list actual_name in
-						let (formal_typ, _) = hdf in 
-						if formal_typ = actual_typ then
-							check_actuals tlf exp_list tla
-						else
-							(" wrong argument type in " ^ 
+					| actual_name::tla -> match formals with
+						| []       -> raise (Failure(" bad. contact me "))
+						| hdf::tlf -> 
+							let (actual_typ, exp_list) = get_expression_type
+							vars_map exp_list actual_name in
+							let (formal_typ, _) = hdf in 
+							if formal_typ = actual_typ then
+								check_actuals tlf exp_list tla
+							else
+								(" in " ^ func_decl.fname ^
+							 	" fcall:  wrong argument type in " ^ 
 								fname ^ " call ")::exp_list
 				
 				in let exp_list = check_actuals 
@@ -209,18 +214,17 @@ let check_func exp_list globs_map func_decl funcs_map =
 				in (fd.typ, exp_list)
 
 			with Not_found -> 
-				(Void, (" function " ^ fname ^ " not defined ")::exp_list)
+				(Void, (" in " ^ func_decl.fname ^ " fcall:" ^
+						" function " ^ fname ^ " not defined ")::exp_list)
 
 		| _ -> (Void, exp_list) 
 
-	(* in get_expression_type globs_map exp_list (Litstr("hello"))
- *)
 (* In short, helper walks through the ast checking all kind of things *)
 	in let rec helper vars_map exp_list = function
 		| [] -> List.rev exp_list
 		|  hd::tl -> (match hd with 
 			| Localdecl(typname, name) ->
-					(* print_string ("locvar " ^ name ^ " added \n");  *)
+					(* print_string ("locvar " ^ name ^ " added \n"); *)
 					helper (StringMap.add name typname vars_map) exp_list tl
 			| Expr(e) -> 
 					(* print_string " checking expression "; *)
@@ -229,20 +233,52 @@ let check_func exp_list globs_map func_decl funcs_map =
 			| If(p, s1, s2) -> 
 					let (ptype, exp_list) = get_expression_type vars_map exp_list p in
 						if ptype <> Int then
+							
 							helper vars_map
-							((" predicate in if of type " ^ string_of_typ ptype ^ 
-							 " in function " ^ func_decl.fname)
+							(( " in " ^ func_decl.fname ^ 
+							   " if: predicate of type " ^ string_of_typ ptype )
 							::(helper vars_map (helper vars_map exp_list [s1]) [s2]))
 							tl
 						else
 							helper vars_map
 							(helper vars_map (helper vars_map exp_list [s1]) [s2])
 							tl
+			| For(e1, e2, e3, s) -> 
+					let (e1_typ, exp_list) = get_expression_type vars_map exp_list e1 in
+					let (e2_typ, exp_list) = get_expression_type vars_map exp_list e2 in
+					let (e3_typ, exp_list) = get_expression_type vars_map exp_list e3 in
+					if e1_typ = e3_typ && e2_typ = Int then
+						helper vars_map (helper vars_map exp_list [s]) tl
+					else
+						helper vars_map 
+						((" in " ^ func_decl.fname ^ 
+						 " for loop: bad types of expressions. Type * Int * Type expected. ")
+						::exp_list)
+						tl
+			| Block(sl) -> (match sl with
+					| [Return(_) as s] -> 
+						helper vars_map (helper vars_map exp_list [s]) tl 
+					| Return(_)::_ -> 
+						helper vars_map 
+						((" in " ^ func_decl.fname ^ " ret: nothing can come after return" ^
+						" in a given block")::exp_list)
+						tl
+					| Block(sl)::ss -> 
+						helper vars_map
+						(helper vars_map exp_list (sl @ ss))
+						tl
+					| s::sl as stl-> helper vars_map
+						(helper vars_map exp_list stl)
+						tl
+					| [] -> helper vars_map exp_list tl 
+					
+				)
+
 			(* Make sure that tl is an empty list at this point, otherwise throgw exception *)
 			| Return(e) -> let (rettyp, exp_list) = get_expression_type vars_map exp_list e
 					in if rettyp = func_decl.typ then 
 							helper vars_map exp_list tl
-					else (func_decl.fname ^ " expected to return type " ^ 
+					else (func_decl.fname ^ " ret: expected return type " ^ 
 							(string_of_typ func_decl.typ) ^ " but expression is of type " ^
 							(string_of_typ rettyp))::exp_list
 			| _ -> helper vars_map exp_list [] (* Placeholder *)
