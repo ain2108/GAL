@@ -6,6 +6,12 @@
 
 # More detailed: build using ocamlc/ocamlopt + ocamlfind to locate LLVM
 
+.PHONY : gal.native
+
+gal.native :
+	ocamlbuild -use-ocamlfind -pkgs llvm,llvm.analysis -cflags -w,+a-4 \
+		gal.native
+
 OBJS = ast.cmo help.cmo parser.cmo scanner.cmo semant.cmo gal.cmo 
 
 gal: scanner.ml parser.ml
