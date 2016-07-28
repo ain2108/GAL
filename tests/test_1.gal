@@ -1,0 +1,28 @@
+
+int pancake;
+int panda;
+
+def int main(int banana, int hello){
+
+    int pink;
+    string panda;
+    pink = 1;
+    panda = "hello";
+
+    mamba(panda, pink);
+
+    return 1;
+}
+
+def string mamba(string black){
+
+    string black;
+    black = 4;
+
+    return "green";
+}
+
+
+
+
+
