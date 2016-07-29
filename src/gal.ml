@@ -16,10 +16,10 @@ let _ = (*
   if exp_list <> [] then
   	raise (Failure ("\n" ^ (String.concat "\n" exp_list)))
 
-  else
-let m = Codegen.translate ast in
-    Llvm_analysis.assert_valid_module m;
+  else let m = Codegen.translate ast in
+    Llvm_analysis.assert_valid_module m; 
     print_string (Llvm.string_of_llmodule m)
+    (* print_string ("compilation succesful!\n")  *)
 
 
 
