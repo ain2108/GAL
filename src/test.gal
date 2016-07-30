@@ -1,4 +1,5 @@
 def int main(){
     print_int(1);
+    print_str( "goodbye world" );
     return 1;
 }

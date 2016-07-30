@@ -2,6 +2,13 @@ module A = Ast
 module L = Llvm
 module StringMap = Map.Make(String)
 
+let allocate_string str builder context = 
+	let atype = L.array_type (L.i8_type context) (String.length str + 1) in
+	let alloc = L.build_alloca atype "temp" builder in
+	let strval =  L.const_stringz context str in 
+    L.build_store strval alloc builder
+	   
+
 let translate (globals, functions) = 
 
 	(* Build a context and the module *)
@@ -9,14 +16,15 @@ let translate (globals, functions) =
 	let the_module = L.create_module context "GAL"
 	
 	(* Few helper functions returning the types *)
-	and i32_t = L.i32_type context
-	and i8_t = L.i8_type context
-	and i1_t = L.i1_type context
-
+	and i32_t = L.i32_type context (* Integer *)
+	and i8_t = L.i8_type context   (* Char   *)
+	and i1_t = L.i1_type context   (* Needed for predicates *)
+ 
 
 	(* Pattern match on A.typ returning a llvm type *)
 	in let ltype_of_typ ltyp = match ltyp with
 		| A.Int -> i32_t
+		(* | A.String(str) -> L.array_type i8_t (length str)   *)
 		| _ 	-> raise (Failure ("Type not implemented\n"))
 
 	
@@ -65,16 +73,26 @@ let translate (globals, functions) =
 		
 		(* BFotmat string needed for printing. *)
 		 (*   Will put format string into %tmt in global area *)
-		let int_format_string = L.build_global_stringptr "%d\n" "tmt" builder in
+		let int_format_string = L.build_global_stringptr "%d\n" "ifs" builder in
+		let string_format_string = L.build_global_stringptr "%s\n" "sfs" builder in
 
-  
 		(* We can now describe the action to be taken on ast traversal *)
 		(* Going to first pattern match on the list of expressions *)
 		let rec expr builder = function
 			| A.Litint(i) -> L.const_int i32_t i 
+			| A.Litstr(str) -> 
+				let s = L.build_global_stringptr str "" builder in
+				let zero = L.const_int i32_t 0 in
+				L.build_in_bounds_gep s [|zero|] "" builder
+
 			| A.Call("print_int", [e]) ->
 				L.build_call printf_func 
 				[| int_format_string; (expr builder e)|]
+				"printf"
+				builder
+			| A.Call("print_str", [e]) ->
+				L.build_call printf_func
+				[| string_format_string; (expr builder e)|]
 				"printf"
 				builder
 			| _ -> raise (Failure("expr not supported"))
