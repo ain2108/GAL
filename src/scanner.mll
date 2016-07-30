@@ -47,7 +47,7 @@ rule token = parse
 | "string" { STRING }
 | ['0'-'9']+ as lxm { LITINT(int_of_string lxm) }
 | ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9' '_']* as lxm { ID(lxm) }
-| '"'['a'-'z' 'A'-'Z' '0'-'9' '_' ' ']*'"' as lxm { LITSTR(lxm) }		(* * or + we have no idea*)
+| '"'['a'-'z' 'A'-'Z' '0'-'9' '_' ' ' '\\']*'"' as lxm { LITSTR(lxm) }		(* * or + we have no idea*)
 | eof { EOF }
 | _ as char { raise (Failure("illegal character " ^ Char.escaped char)) }
 

@@ -2,13 +2,6 @@ module A = Ast
 module L = Llvm
 module StringMap = Map.Make(String)
 
-let allocate_string str builder context = 
-	let atype = L.array_type (L.i8_type context) (String.length str + 1) in
-	let alloc = L.build_alloca atype "temp" builder in
-	let strval =  L.const_stringz context str in 
-    L.build_store strval alloc builder
-	   
-
 let translate (globals, functions) = 
 
 	(* Build a context and the module *)
@@ -28,6 +21,15 @@ let translate (globals, functions) =
 		| _ 	-> raise (Failure ("Type not implemented\n"))
 
 	
+	(* Global variables *)
+	in let global_vars =
+		let global_var m (t, n) =
+			(* Initialize the global variable to 000...000 *)
+			let init = L.const_int (ltype_of_typ t) 0
+		(* Bind the gloabal to its name and its lglobal *)
+		in StringMap.add n (L.define_global n init the_module) m 
+	in List.fold_left global_var StringMap.empty globals
+
 	(************ In built functions below ***********)
 	
 	(* Function llvm type *)
@@ -64,6 +66,8 @@ let translate (globals, functions) =
 	(* Builds the function body in the module *)
 	in let build_function_body fdecl = 
 
+		let local_hash = Hashtbl.create 100 in 
+
 		(* Get the llvm function from the map *)
 		let (the_function, _) = StringMap.find fdecl.A.fname function_decls in
 
@@ -76,9 +80,21 @@ let translate (globals, functions) =
 		let int_format_string = L.build_global_stringptr "%d\n" "ifs" builder in
 		let string_format_string = L.build_global_stringptr "%s\n" "sfs" builder in
 
+		let local_vars =
+			let add_formal (t, n) p = 
+				L.set_value_name n p;
+				let local = L.build_alloca (ltype_of_typ t) n builder in
+				ignore (L.build_store p local builder);
+				Hashtbl.add local_hash n local in                                      
+			List.iter2 add_formal fdecl.A.formals (Array.to_list (L.params the_function)) 
+
+		in let add_local builder (t, n) =
+				let local_var = L.build_alloca (ltype_of_typ t) n builder
+				in Hashtbl.add local_hash n local_var 
+		
 		(* We can now describe the action to be taken on ast traversal *)
 		(* Going to first pattern match on the list of expressions *)
-		let rec expr builder = function
+		in let rec expr builder = function
 			| A.Litint(i) -> L.const_int i32_t i 
 			| A.Litstr(str) -> 
 				let s = L.build_global_stringptr str "" builder in
@@ -103,10 +119,11 @@ let translate (globals, functions) =
 			| None -> ignore (f builder) 
 
 		in let rec stmt builder = function
-			| A.Block(sl) -> List.fold_left stmt builder sl
-			| A.Expr(e)   -> ignore (expr builder e); builder
-			| A.Return(e) -> L.build_ret (expr builder e) builder; builder
-			| _			  -> raise (Failure("statement not implemented"))
+			| A.Localdecl(t, n) -> ignore (add_local builder (t, n)); builder
+			| A.Block(sl) 		-> List.fold_left stmt builder sl
+			| A.Expr(e)   		-> ignore (expr builder e); builder
+			| A.Return(e) 		-> L.build_ret (expr builder e) builder; builder
+			| _			  		-> raise (Failure("statement not implemented"))
 
 		in let builder = stmt builder (A.Block (List.rev fdecl.A.body)) in ()
 
