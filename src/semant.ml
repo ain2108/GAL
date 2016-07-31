@@ -255,6 +255,17 @@ let check_func exp_list globs_map func_decl funcs_map =
 						 " for loop: bad types of expressions. Type * Int * Type expected. ")
 						::exp_list)
 						tl
+			| While(cond, loop) ->
+					let (cond_typ, exp_list) = get_expression_type vars_map exp_list cond in 
+					if cond_typ = Int then 
+						helper vars_map (helper vars_map exp_list [loop]) tl
+					else
+						helper vars_map
+						((" in " ^ func_decl.fname ^ 
+						 " while loop: bad type of conditional expression ")
+						::exp_list)
+						tl
+
 			| Block(sl) -> (match sl with
 					| [Return(_) as s] -> 
 						helper vars_map (helper vars_map exp_list [s]) tl 

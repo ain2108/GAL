@@ -92,6 +92,11 @@ let translate (globals, functions) =
 				let local_var = L.build_alloca (ltype_of_typ t) n builder
 				in Hashtbl.add local_hash n local_var 
 		
+		in let lookup name = 
+			try Hashtbl.find local_hash name 
+			with Not_found -> StringMap.find name global_vars 
+
+
 		(* We can now describe the action to be taken on ast traversal *)
 		(* Going to first pattern match on the list of expressions *)
 		in let rec expr builder = function
@@ -100,7 +105,10 @@ let translate (globals, functions) =
 				let s = L.build_global_stringptr str "" builder in
 				let zero = L.const_int i32_t 0 in
 				L.build_in_bounds_gep s [|zero|] "" builder
-
+			| A.Id(name) 	-> L.build_load (lookup name) name builder
+			| A.Assign(name, e) -> let e' = expr builder e in
+				ignore (L.build_store e' (lookup name) builder); e'
+				(* Calling builtins below *)
 			| A.Call("print_int", [e]) ->
 				L.build_call printf_func 
 				[| int_format_string; (expr builder e)|]
@@ -111,7 +119,19 @@ let translate (globals, functions) =
 				[| string_format_string; (expr builder e)|]
 				"printf"
 				builder
+			| A.Call(fname, actuals) ->
+				let (fdef, fdecl) = StringMap.find fname function_decls in 
+				let actuals = List.rev (List.map (expr builder) (List.rev actuals)) in 
+				let result = fname ^ "_result" in 
+				L.build_call fdef (Array.of_list actuals) result builder
+			| A.Binop(e1, op, e2) ->
+				let v1 = expr builder e1 and v2 = expr builder e2 in 
+				(match op with
+					A.Add -> L.build_add
+					| _   -> raise (Failure("operator not supported")))
+				v1 v2 "tmp" builder
 			| _ -> raise (Failure("expr not supported"))
+
 
 		in let add_terminal builder f =
 			match L.block_terminator (L.insertion_block builder) with
