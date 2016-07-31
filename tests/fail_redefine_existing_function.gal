@@ -1,0 +1,8 @@
+def int print() {}
+
+def int main()
+{
+	
+
+	return 0;	
+}

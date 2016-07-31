@@ -1,0 +1,18 @@
+def int main()
+{
+	string b;
+	int a;
+
+	b = "hello";
+	a = 2;
+
+	test(b,a);
+	
+}
+
+def int test(int x, int y)
+{
+	
+	int z;
+
+}

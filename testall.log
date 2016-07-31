@@ -1,8 +1,8 @@
 /usr/local/opt/llvm/bin/lli
 
-###### Testing test_*
-./src/gal < tests/test_*.gal > test_*.ll
-./testall.sh: line 57: tests/test_*.gal: No such file or directory
+###### Testing test_print
+./src/gal < tests/test_print.gal > test_print.ll
+Fatal error: exception Parsing.Parse_error
 ###### FAILED
 
 ###### Testing fail_assignment_edge1
@@ -77,6 +77,11 @@ diff -b fail_duplicate_global_assignment.err tests/fail_duplicate_global_assignm
 ###### Testing fail_main_nonexistent
 ./src/gal < tests/fail_main_nonexistent.gal 2> fail_main_nonexistent.err >> testall.log
 diff -b fail_main_nonexistent.err tests/fail_main_nonexistent.err > fail_main_nonexistent.diff
+###### SUCCESS
+
+###### Testing fail_no_id_before_usage_int
+./src/gal < tests/fail_no_id_before_usage_int.gal 2> fail_no_id_before_usage_int.err >> testall.log
+diff -b fail_no_id_before_usage_int.err tests/fail_no_id_before_usage_int.err > fail_no_id_before_usage_int.diff
 ###### SUCCESS
 
 ###### Testing fail_redefine_builtin_edge
