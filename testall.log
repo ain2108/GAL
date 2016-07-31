@@ -1,41 +1,87 @@
+/usr/local/opt/llvm/bin/lli
 
-###### Testing test_*.gal
-< tests/test_*.gal > test_*.gal.ll
-./testall.sh: line 23: tests/test_*.gal: No such file or directory
+###### Testing test_*
+./src/gal < tests/test_*.gal > test_*.ll
+./testall.sh: line 57: tests/test_*.gal: No such file or directory
 ###### FAILED
 
 ###### Testing fail_assignment_edge1
+./src/gal < tests/fail_assignment_edge1.gal 2> fail_assignment_edge1.err >> testall.log
+diff -b fail_assignment_edge1.err tests/fail_assignment_edge1.err > fail_assignment_edge1.diff
 ###### SUCCESS
 
 ###### Testing fail_assignment_edge2
+./src/gal < tests/fail_assignment_edge2.gal 2> fail_assignment_edge2.err >> testall.log
+diff -b fail_assignment_edge2.err tests/fail_assignment_edge2.err > fail_assignment_edge2.diff
 ###### SUCCESS
 
 ###### Testing fail_assignment_int_to_string
+./src/gal < tests/fail_assignment_int_to_string.gal 2> fail_assignment_int_to_string.err >> testall.log
+diff -b fail_assignment_int_to_string.err tests/fail_assignment_int_to_string.err > fail_assignment_int_to_string.diff
 ###### SUCCESS
 
 ###### Testing fail_assignment_list1
-###### SUCCESS
+./src/gal < tests/fail_assignment_list1.gal 2> fail_assignment_list1.err >> testall.log
+###### FAILED
 
 ###### Testing fail_assignment_string_to_int
+./src/gal < tests/fail_assignment_string_to_int.gal 2> fail_assignment_string_to_int.err >> testall.log
+diff -b fail_assignment_string_to_int.err tests/fail_assignment_string_to_int.err > fail_assignment_string_to_int.diff
 ###### SUCCESS
 
 ###### Testing fail_binary_addition1
+./src/gal < tests/fail_binary_addition1.gal 2> fail_binary_addition1.err >> testall.log
+diff -b fail_binary_addition1.err tests/fail_binary_addition1.err > fail_binary_addition1.diff
 ###### SUCCESS
 
 ###### Testing fail_binary_addition2
+./src/gal < tests/fail_binary_addition2.gal 2> fail_binary_addition2.err >> testall.log
+diff -b fail_binary_addition2.err tests/fail_binary_addition2.err > fail_binary_addition2.diff
+###### SUCCESS
+
+###### Testing fail_binary_division1
+./src/gal < tests/fail_binary_division1.gal 2> fail_binary_division1.err >> testall.log
+diff -b fail_binary_division1.err tests/fail_binary_division1.err > fail_binary_division1.diff
+###### SUCCESS
+
+###### Testing fail_binary_mulitplication1
+./src/gal < tests/fail_binary_mulitplication1.gal 2> fail_binary_mulitplication1.err >> testall.log
+diff -b fail_binary_mulitplication1.err tests/fail_binary_mulitplication1.err > fail_binary_mulitplication1.diff
+###### SUCCESS
+
+###### Testing fail_binary_subtraction1
+./src/gal < tests/fail_binary_subtraction1.gal 2> fail_binary_subtraction1.err >> testall.log
+diff -b fail_binary_subtraction1.err tests/fail_binary_subtraction1.err > fail_binary_subtraction1.diff
 ###### SUCCESS
 
 ###### Testing fail_duplicate_assignint
-###### SUCCESS
+./src/gal < tests/fail_duplicate_assignint.gal 2> fail_duplicate_assignint.err >> testall.log
+diff -b fail_duplicate_assignint.err tests/fail_duplicate_assignint.err > fail_duplicate_assignint.diff
+FAILED fail_duplicate_assignint.err differs from tests/fail_duplicate_assignint.err
+###### FAILED
 
 ###### Testing fail_duplicate_formal_identifiers
+./src/gal < tests/fail_duplicate_formal_identifiers.gal 2> fail_duplicate_formal_identifiers.err >> testall.log
+diff -b fail_duplicate_formal_identifiers.err tests/fail_duplicate_formal_identifiers.err > fail_duplicate_formal_identifiers.diff
 ###### SUCCESS
 
 ###### Testing fail_duplicate_function_names
+./src/gal < tests/fail_duplicate_function_names.gal 2> fail_duplicate_function_names.err >> testall.log
+diff -b fail_duplicate_function_names.err tests/fail_duplicate_function_names.err > fail_duplicate_function_names.diff
 ###### SUCCESS
 
 ###### Testing fail_duplicate_global_assignment
+./src/gal < tests/fail_duplicate_global_assignment.gal 2> fail_duplicate_global_assignment.err >> testall.log
+diff -b fail_duplicate_global_assignment.err tests/fail_duplicate_global_assignment.err > fail_duplicate_global_assignment.diff
 ###### SUCCESS
 
 ###### Testing fail_main_nonexistent
+./src/gal < tests/fail_main_nonexistent.gal 2> fail_main_nonexistent.err >> testall.log
+diff -b fail_main_nonexistent.err tests/fail_main_nonexistent.err > fail_main_nonexistent.diff
 ###### SUCCESS
+
+###### Testing fail_struct_existing_type
+./src/gal < tests/fail_struct_existing_type.gal 2> fail_struct_existing_type.err >> testall.log
+diff -b fail_struct_existing_type.err tests/fail_struct_existing_type.err > fail_struct_existing_type.diff
+FAILED fail_struct_existing_type.err differs from tests/fail_struct_existing_type.err
+###### FAILED

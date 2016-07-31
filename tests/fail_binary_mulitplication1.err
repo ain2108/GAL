@@ -1,0 +1,3 @@
+Fatal error: exception Failure("
+ in main expr:  illegal assignment to variable a
+ in main expr:  illegal binary op ")
