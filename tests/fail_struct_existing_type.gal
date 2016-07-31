@@ -1,6 +1,0 @@
-def int = 5
-
-def int main()
-{
-	int a;
-}

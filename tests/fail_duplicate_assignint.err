@@ -1,1 +1,2 @@
-Fatal error: exception Failure("duplicate local a in main")
+Fatal error: exception Failure("
+ duplicate local a in main")

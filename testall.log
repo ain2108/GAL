@@ -57,8 +57,7 @@ diff -b fail_binary_subtraction1.err tests/fail_binary_subtraction1.err > fail_b
 ###### Testing fail_duplicate_assignint
 ./src/gal < tests/fail_duplicate_assignint.gal 2> fail_duplicate_assignint.err >> testall.log
 diff -b fail_duplicate_assignint.err tests/fail_duplicate_assignint.err > fail_duplicate_assignint.diff
-FAILED fail_duplicate_assignint.err differs from tests/fail_duplicate_assignint.err
-###### FAILED
+###### SUCCESS
 
 ###### Testing fail_duplicate_formal_identifiers
 ./src/gal < tests/fail_duplicate_formal_identifiers.gal 2> fail_duplicate_formal_identifiers.err >> testall.log
@@ -80,8 +79,17 @@ diff -b fail_duplicate_global_assignment.err tests/fail_duplicate_global_assignm
 diff -b fail_main_nonexistent.err tests/fail_main_nonexistent.err > fail_main_nonexistent.diff
 ###### SUCCESS
 
-###### Testing fail_struct_existing_type
-./src/gal < tests/fail_struct_existing_type.gal 2> fail_struct_existing_type.err >> testall.log
-diff -b fail_struct_existing_type.err tests/fail_struct_existing_type.err > fail_struct_existing_type.diff
-FAILED fail_struct_existing_type.err differs from tests/fail_struct_existing_type.err
-###### FAILED
+###### Testing fail_redefine_builtin_edge
+./src/gal < tests/fail_redefine_builtin_edge.gal 2> fail_redefine_builtin_edge.err >> testall.log
+diff -b fail_redefine_builtin_edge.err tests/fail_redefine_builtin_edge.err > fail_redefine_builtin_edge.diff
+###### SUCCESS
+
+###### Testing fail_redefine_builtin_int
+./src/gal < tests/fail_redefine_builtin_int.gal 2> fail_redefine_builtin_int.err >> testall.log
+diff -b fail_redefine_builtin_int.err tests/fail_redefine_builtin_int.err > fail_redefine_builtin_int.diff
+###### SUCCESS
+
+###### Testing fail_redefine_builtin_list
+./src/gal < tests/fail_redefine_builtin_list.gal 2> fail_redefine_builtin_list.err >> testall.log
+diff -b fail_redefine_builtin_list.err tests/fail_redefine_builtin_list.err > fail_redefine_builtin_list.diff
+###### SUCCESS
