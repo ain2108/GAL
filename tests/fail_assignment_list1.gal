@@ -1,0 +1,16 @@
+def int main()
+{
+	edge e1;
+	edge e2;
+	edge e3;
+
+	e1 = |"A",5,"B"|;
+	e2 = |"B",7,"C"|;
+	e3 = |"C",2,"A"|;
+
+	list x;
+	x = [A::2::3];
+
+	return 1;
+
+}
