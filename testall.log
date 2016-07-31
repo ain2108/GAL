@@ -1,0 +1,41 @@
+
+###### Testing test_*.gal
+< tests/test_*.gal > test_*.gal.ll
+./testall.sh: line 23: tests/test_*.gal: No such file or directory
+###### FAILED
+
+###### Testing fail_assignment_edge1
+###### SUCCESS
+
+###### Testing fail_assignment_edge2
+###### SUCCESS
+
+###### Testing fail_assignment_int_to_string
+###### SUCCESS
+
+###### Testing fail_assignment_list1
+###### SUCCESS
+
+###### Testing fail_assignment_string_to_int
+###### SUCCESS
+
+###### Testing fail_binary_addition1
+###### SUCCESS
+
+###### Testing fail_binary_addition2
+###### SUCCESS
+
+###### Testing fail_duplicate_assignint
+###### SUCCESS
+
+###### Testing fail_duplicate_formal_identifiers
+###### SUCCESS
+
+###### Testing fail_duplicate_function_names
+###### SUCCESS
+
+###### Testing fail_duplicate_global_assignment
+###### SUCCESS
+
+###### Testing fail_main_nonexistent
+###### SUCCESS

@@ -1,0 +1,6 @@
+def int main()
+{
+	
+	def edge e1;
+	e1 = |5,2,"B"|;
+}
