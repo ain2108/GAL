@@ -11,7 +11,7 @@ LLI="/usr/local/opt/llvm/bin/lli"
 
 # Path to the microc compiler.  Usually "./microc.native"
 # Try "_build/microc.native" if ocamlbuild was unable to create a symbolic link.
-GAL="./src/gal"
+GAL="./src/gal.native"
 #GAL="_build/microc.native"
 
 # Set time limit for all operations

@@ -1,4 +1,4 @@
-def int print() {}
+def int print_int() {}
 
 def int main()
 {

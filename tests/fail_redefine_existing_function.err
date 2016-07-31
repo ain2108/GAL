@@ -1,1 +1,2 @@
-not working
+Fatal error: exception Failure("
+ cannot redefine print_int")
