@@ -4,12 +4,18 @@ def int sum(int a, int b){
 }
 
 def int main(){
-    int a;
-    a = 1;
+    edge e1;
+    e1 = |"A", 2, "B"|;
+    
+    list ls;
+    ls = [e1];
+
+
+    
     int b;
     b = 3;
     
-    print_int(sum(a, b));
+    
     print_str( "goodbye world" );
     return 1;
 }

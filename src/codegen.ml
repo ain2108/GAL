@@ -9,14 +9,19 @@ let translate (globals, functions) =
 	let the_module = L.create_module context "GAL"
 	
 	(* Few helper functions returning the types *)
-	and i32_t = L.i32_type context (* Integer *)
-	and i8_t = L.i8_type context   (* Char   *)
-	and i1_t = L.i1_type context   (* Needed for predicates *)
+	and i32_t = L.i32_type context 		(* Integer *)
+	and i8_t = L.i8_type context   		(* Char   *)
+	and i1_t = L.i1_type context  		(* Needed for predicates *)
+    
+    in let i8_p_t = L.pointer_type i8_t 	(* Pointer *)
+	in let edge_t = L.struct_type context  (* Edge type *)
+				(Array.of_list [i8_p_t; i32_t; i8_p_t])
  
 
 	(* Pattern match on A.typ returning a llvm type *)
 	in let ltype_of_typ ltyp = match ltyp with
-		| A.Int -> i32_t
+		| A.Int 	-> i32_t
+		| A.Edge 	-> edge_t
 		(* | A.String(str) -> L.array_type i8_t (length str)   *)
 		| _ 	-> raise (Failure ("Type not implemented\n"))
 
@@ -105,6 +110,18 @@ let translate (globals, functions) =
 				let s = L.build_global_stringptr str "" builder in
 				let zero = L.const_int i32_t 0 in
 				L.build_in_bounds_gep s [|zero|] "" builder
+			| A.Edgedcl(src, w, dst) -> 
+				let src_p = expr builder (A.Litstr(src))
+				and w =  expr builder (A.Litint(w))
+				and dst_p = expr builder (A.Litstr(dst))
+				in let alloc = L.build_alloca edge_t (src ^ "e") builder in
+				ignore (L.build_store src_p 
+					(L.build_gep alloc (Array.of_list [L.const_int i32_t 0]) "" builder) builder);
+				ignore (L.build_store w 
+					(L.build_gep alloc (Array.of_list [L.const_int i32_t 1]) "" builder) builder);
+				ignore (L.build_store dst_p 
+					(L.build_gep alloc (Array.of_list [L.const_int i32_t 2]) "" builder) builder);
+				(L.build_gep alloc (Array.of_list [L.const_int i32_t 0]) "" builder)
 			| A.Id(name) 	-> L.build_load (lookup name) name builder
 			| A.Assign(name, e) -> let e' = expr builder e in
 				ignore (L.build_store e' (lookup name) builder); e'
