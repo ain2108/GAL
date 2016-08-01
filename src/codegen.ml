@@ -22,7 +22,7 @@ let translate (globals, functions) =
 	in let ltype_of_typ ltyp = match ltyp with
 		| A.Int 	-> i32_t
 		| A.Edge 	-> edge_t
-		(* | A.String(str) -> L.array_type i8_t (length str)   *)
+		| A.String  -> i8_p_t
 		| _ 	-> raise (Failure ("Type not implemented\n"))
 
 	
