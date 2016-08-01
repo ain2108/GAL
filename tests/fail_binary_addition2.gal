@@ -1,0 +1,10 @@
+def int main()
+{
+	int a;
+	string b;
+
+	b = "this";
+
+	a = 5 + b;
+
+}

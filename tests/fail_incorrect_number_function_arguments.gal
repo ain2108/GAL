@@ -1,0 +1,12 @@
+def int main()
+{
+
+	test();	
+	
+}
+
+def int test(int a, int b)
+{
+		int c;
+		c = a + b;
+}
