@@ -6,16 +6,16 @@ def int sum(int a, int b){
 def int main(){
     edge e1;
     e1 = |"A", 2, "B"|;
-    
-    list ls;
-    ls = [e1];
+    string hello;
+    hello = "goodbye";
 
+    edge e2;
+    e2 = |"A", 3, "C"|;
 
-    
     int b;
     b = 3;
     
     
-    print_str( "goodbye world" );
+    print_str(hello);
     return 1;
 }

@@ -21,11 +21,15 @@ let translate (globals, functions) =
 	(* Pattern match on A.typ returning a llvm type *)
 	in let ltype_of_typ ltyp = match ltyp with
 		| A.Int 	-> i32_t
-		| A.Edge 	-> edge_t
+		| A.Edge 	-> L.pointer_type edge_t
 		| A.String  -> i8_p_t
 		| _ 	-> raise (Failure ("Type not implemented\n"))
 
-	
+	(* Create the edge declaration *)
+	in let codegen_edgedecl =
+	ignore (L.struct_set_body (L.named_struct_type context "edge") 
+	(Array.of_list [i8_p_t; i32_t; i8_p_t]) false)
+
 	(* Global variables *)
 	in let global_vars =
 		let global_var m (t, n) =
@@ -114,14 +118,21 @@ let translate (globals, functions) =
 				let src_p = expr builder (A.Litstr(src))
 				and w =  expr builder (A.Litint(w))
 				and dst_p = expr builder (A.Litstr(dst))
-				in let alloc = L.build_alloca edge_t (src ^ "e") builder in
-				ignore (L.build_store src_p 
-					(L.build_gep alloc (Array.of_list [L.const_int i32_t 0]) "" builder) builder);
-				ignore (L.build_store w 
-					(L.build_gep alloc (Array.of_list [L.const_int i32_t 1]) "" builder) builder);
-				ignore (L.build_store dst_p 
-					(L.build_gep alloc (Array.of_list [L.const_int i32_t 2]) "" builder) builder);
-				(L.build_gep alloc (Array.of_list [L.const_int i32_t 0]) "" builder)
+				in let alloc = L.build_alloca edge_t ("") builder
+
+				in let src_field_pointer = 
+					L.build_struct_gep alloc 0 "" builder
+				and weight_field_pointer =
+					L.build_struct_gep alloc 1 "" builder
+				and dst_field_pointer = 
+					L.build_struct_gep alloc 2 "" builder
+
+				in 
+					ignore (L.build_store src_p src_field_pointer builder);
+					ignore (L.build_store dst_p dst_field_pointer builder);
+					ignore (L.build_store w weight_field_pointer builder);
+				(* L.build_in_bounds_gep alloc [|(L.const_int i32_t 0)|] "" builder  *)
+					alloc
 			| A.Id(name) 	-> L.build_load (lookup name) name builder
 			| A.Assign(name, e) -> let e' = expr builder e in
 				ignore (L.build_store e' (lookup name) builder); e'
