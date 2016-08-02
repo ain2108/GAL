@@ -27,6 +27,10 @@ def int main(){
     string hello;
     hello = "goodbye";
 
+    list l1;
+    l1 = [e1::|"A", 3, "D"|];
+
+
     edge e2;
     e2 = |"AlphaAlphaAlpha", 3, "C"|;
 

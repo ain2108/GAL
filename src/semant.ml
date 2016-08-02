@@ -196,7 +196,28 @@ let check_func exp_list globs_map func_decl funcs_map =
 				else 
 					(Void, ( " in " ^ func_decl.fname ^ " edge: " ^
 								" bad types ")::exp_list)
-		| Listdcl(_) -> (Listtyp, exp_list)
+		| Listdcl(elist) -> 
+			let rec check_list exp_list = function
+			[] -> List.rev exp_list
+			| hd::[] ->
+				let (v1, exp_list) = get_expression_type vars_map exp_list hd in  
+				check_list exp_list []
+			| hd1::(hd2::tl as tail) ->
+				let (v1, exp_list) = get_expression_type vars_map exp_list hd1 in
+				let (v2, exp_list) = get_expression_type vars_map exp_list hd2 in 
+				if v1 <> v2 then 
+					check_list 
+					((" in " ^ func_decl.fname ^ " list: " ^
+								" bad types of expressions ")::exp_list)
+					[]
+				else
+					check_list exp_list tail
+
+			in let list_exp_list = check_list [] elist
+			in if list_exp_list <> [] then
+				(Void, (exp_list @ list_exp_list))
+			else
+				(Listtyp, exp_list)
 		(* CARE HERE, NOT FINISHED AT ALL *)
 		| Call(fname, actuals) -> 
 			try let fd = StringMap.find fname funcs_map
