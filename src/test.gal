@@ -3,6 +3,18 @@ def int sum(int a, int b){
     return a + b;
 }
 
+def int print_edge(edge e){
+    print_str("(");
+    print_str(source(e));
+    print_str(", ");
+    print_int(weight(e));
+    print_str(", ");
+    print_str(dest(e));
+    print_str(")");
+    print_endline();
+    return 0;
+}
+
 def int main(){
     edge e1;
     e1 = |"A", 2, "B"|;
@@ -10,12 +22,14 @@ def int main(){
     hello = "goodbye";
 
     edge e2;
-    e2 = |"A", 3, "C"|;
+    e2 = |"AlphaAlphaAlpha", 3, "C"|;
+
+    print_edge(e1);
+
+    print_str("hello");
 
     int b;
     b = 3;
-    
-    
-    print_str(hello);
+       
     return 1;
 }

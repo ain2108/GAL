@@ -46,6 +46,9 @@ let translate (globals, functions) =
 	(* Function declaration *)
 	in let printf_func = L.declare_function "printf" printf_t the_module 
 
+(* 	in let src_t = L.function_type i8_p_t [|edge_t|]
+	in let src_func = L.declare_function "src_func" src_t the_module  *)
+
 
 
     (* Builds a user defined function *)
@@ -86,8 +89,9 @@ let translate (globals, functions) =
 		
 		(* BFotmat string needed for printing. *)
 		 (*   Will put format string into %tmt in global area *)
-		let int_format_string = L.build_global_stringptr "%d\n" "ifs" builder in
-		let string_format_string = L.build_global_stringptr "%s\n" "sfs" builder in
+		let int_format_string = L.build_global_stringptr "%d" "ifs" builder in
+		let string_format_string = L.build_global_stringptr "%s" "sfs" builder in
+		let endline_format_string = L.build_global_stringptr "%s\n" "efs" builder in
 
 		let local_vars =
 			let add_formal (t, n) p = 
@@ -118,7 +122,7 @@ let translate (globals, functions) =
 				let src_p = expr builder (A.Litstr(src))
 				and w =  expr builder (A.Litint(w))
 				and dst_p = expr builder (A.Litstr(dst))
-				in let alloc = L.build_alloca edge_t ("") builder
+				in let alloc = L.build_malloc edge_t ("") builder
 
 				in let src_field_pointer = 
 					L.build_struct_gep alloc 0 "" builder
@@ -131,8 +135,8 @@ let translate (globals, functions) =
 					ignore (L.build_store src_p src_field_pointer builder);
 					ignore (L.build_store dst_p dst_field_pointer builder);
 					ignore (L.build_store w weight_field_pointer builder);
-				(* L.build_in_bounds_gep alloc [|(L.const_int i32_t 0)|] "" builder  *)
-					alloc
+				L.build_in_bounds_gep alloc [|(L.const_int i32_t 0)|] "" builder  
+					
 			| A.Id(name) 	-> L.build_load (lookup name) name builder
 			| A.Assign(name, e) -> let e' = expr builder e in
 				ignore (L.build_store e' (lookup name) builder); e'
@@ -147,6 +151,20 @@ let translate (globals, functions) =
 				[| string_format_string; (expr builder e)|]
 				"printf"
 				builder
+			| A.Call("print_endline", []) ->
+				L.build_call printf_func
+				[| endline_format_string; (expr builder (A.Litstr("")))|]
+				"printf"
+				builder
+			| A.Call("source", [e]) -> 
+				let src_field_pointer = L.build_struct_gep (expr builder e) 0 "" builder 
+				in L.build_load src_field_pointer "" builder  
+			| A.Call("weight", [e]) ->
+				let weight_field_pointer = L.build_struct_gep (expr builder e) 1 "" builder 
+				in L.build_load weight_field_pointer "" builder
+			| A.Call("dest", [e]) -> 
+				let dest_field_pointer = L.build_struct_gep (expr builder e) 2 "" builder 
+				in L.build_load dest_field_pointer "" builder 
 			| A.Call(fname, actuals) ->
 				let (fdef, fdecl) = StringMap.find fname function_decls in 
 				let actuals = List.rev (List.map (expr builder) (List.rev actuals)) in 
