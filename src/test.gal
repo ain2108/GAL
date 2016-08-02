@@ -15,6 +15,12 @@ def int print_edge(edge e){
     return 0;
 }
 
+def edge build_edge(string src, int w, string dst){
+    edge e1;
+    e1 = | src, w, dst|;
+    return e1;
+}
+
 def int main(){
     edge e1;
     e1 = |"A", 2, "B"|;
@@ -25,11 +31,9 @@ def int main(){
     e2 = |"AlphaAlphaAlpha", 3, "C"|;
 
     print_edge(e1);
+    e2 = build_edge("alph", 10, "banana");
+    print_edge(e2);
 
-    print_str("hello");
-
-    int b;
-    b = 3;
        
     return 1;
 }

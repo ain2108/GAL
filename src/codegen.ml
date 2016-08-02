@@ -46,11 +46,6 @@ let translate (globals, functions) =
 	(* Function declaration *)
 	in let printf_func = L.declare_function "printf" printf_t the_module 
 
-(* 	in let src_t = L.function_type i8_p_t [|edge_t|]
-	in let src_func = L.declare_function "src_func" src_t the_module  *)
-
-
-
     (* Builds a user defined function *)
 	in let function_decls = 
 		let function_decl map fdecl = (
@@ -71,10 +66,7 @@ let translate (globals, functions) =
 			map)
 		(* Populate the map by folding the list of functions *)
 		in List.fold_left function_decl StringMap.empty functions
-(* 
- 	in let b = ()
- 	in b
- *)
+
 	(* Builds the function body in the module *)
 	in let build_function_body fdecl = 
 
@@ -119,9 +111,9 @@ let translate (globals, functions) =
 				let zero = L.const_int i32_t 0 in
 				L.build_in_bounds_gep s [|zero|] "" builder
 			| A.Edgedcl(src, w, dst) -> 
-				let src_p = expr builder (A.Litstr(src))
-				and w =  expr builder (A.Litint(w))
-				and dst_p = expr builder (A.Litstr(dst))
+				let src_p = expr builder src
+				and w =  expr builder w
+				and dst_p = expr builder dst
 				in let alloc = L.build_malloc edge_t ("") builder
 
 				in let src_field_pointer = 

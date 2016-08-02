@@ -92,7 +92,7 @@ expr:
     | LITINT			{ Litint($1) }
 	| ID				{ Id($1) }
 	| LITSTR			{ Litstr($1) }
-	| BAR LITSTR COMMA LITINT COMMA LITSTR BAR 	{ Edgedcl($2,$4,$6) }
+	| BAR expr COMMA expr COMMA expr BAR 	{ Edgedcl($2,$4,$6) }
 	| LSQBRACE list_list RSQBRACE 			{ Listdcl($2) }
 	| expr PLUS   expr { Binop($1, Add,   $3) }
     | expr MINUS  expr { Binop($1, Sub,   $3) }

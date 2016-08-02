@@ -187,7 +187,15 @@ let check_func exp_list globs_map func_decl funcs_map =
 				(Void,(" in " ^ func_decl.fname ^ " expr: " ^
 					   " illegal assignment to variable " ^ var)::exp_list) 
 				else (rt, exp_list) 
-		| Edgedcl(_, _, _) -> (Edge, exp_list)
+		| Edgedcl(e1, e2, e3) -> 
+			let (v1, exp_list) = get_expression_type vars_map exp_list e1 in
+			let (v2, exp_list) = get_expression_type vars_map exp_list e2 in 
+			let (v3, exp_list) = get_expression_type vars_map exp_list e3 in
+				if v1 = String && v3 = String && v2 = Int then
+					(Edge, exp_list)
+				else 
+					(Void, ( " in " ^ func_decl.fname ^ " edge: " ^
+								" bad types ")::exp_list)
 		| Listdcl(_) -> (Listtyp, exp_list)
 		(* CARE HERE, NOT FINISHED AT ALL *)
 		| Call(fname, actuals) -> 

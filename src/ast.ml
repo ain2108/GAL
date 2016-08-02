@@ -22,7 +22,7 @@ type expr = Litint of int
 	  | Noexpr
 	  | Unop of uop * expr
 	  | Call of string * expr list 
-	  | Edgedcl of string * int * string
+	  | Edgedcl of expr * expr * expr
 	  | Listdcl of expr list
 	  (*  Localdecl of typ * string  *)
 (* Added to support local decls *)
