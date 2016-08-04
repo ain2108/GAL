@@ -18,19 +18,14 @@ let translate (globals, functions) =
 	in let edge_t = L.struct_type context  (* Edge type *)
 				(Array.of_list [i8_p_t; i32_t; i8_p_t])
  
+	in let zero = L.const_int i32_t 0 
+
  	in let node_t = L.named_struct_type context "node" in 
     L.struct_set_body node_t (Array.of_list [L.pointer_type node_t; i8_p_t])  true;
     
 
     let Some(node_t) = L.type_by_name the_module "node" in 
     
-(*
- 	in let node_t = L.struct_type context
- 				(Array.of_list [i8_p_t; i8_p_t])
- 	in let node_t = L.struct_type context
- 				(Array.of_list [L.pointer_type node_t; i8_p_t])
- 	in let node_p_t = L.pointer_type node_t
- *)
 	(* Pattern match on A.typ returning a llvm type *)
 	let ltype_of_typ ltyp = match ltyp with
 		| A.Int 	-> i32_t
@@ -151,6 +146,7 @@ let translate (globals, functions) =
 				L.build_in_bounds_gep alloc [|(L.const_int i32_t 0)|] "" builder  
 			
 			| A.Listdcl(elist) -> 
+				let elist = List.rev elist in 
 				let add_element head_p new_node_p =
 					let new_node_next_field_pointer =
 						L.build_struct_gep new_node_p 0 "" builder in 
@@ -221,13 +217,12 @@ let translate (globals, functions) =
 				in L.build_load dest_field_pointer "" builder 
 			| A.Call("pop", [e]) ->
 				let head_node_p = (expr builder e) in 
-			    let remove_node head_node_pointer = 
-					let next_node_pointer = L.build_struct_gep head_node_p 0 "" builder in 
-					let head_payload_pointer = L.build_struct_gep head_node_p 1 "" builder in 
-					(* ignore (L.build_store next_node_pointer head_node_p builder); *)
-					head_payload_pointer
-				in remove_node head_node_p
-				(* with Not_found -> (raise (Failure("Bad pop"))) *)
+				let head_node_next_node_pointer = L.build_struct_gep head_node_p 0 "" builder in 
+				L.build_load head_node_next_node_pointer "" builder
+			| A.Call("peek", [e]) -> 
+				let head_node_p = (expr builder e) in 
+				let head_node_payload_pointer = L.build_struct_gep head_node_p 1 "" builder in 
+				L.build_load head_node_payload_pointer "" builder
 			| A.Call(fname, actuals) ->
 				let (fdef, fdecl) = StringMap.find fname function_decls in 
 				let actuals = List.rev (List.map (expr builder) (List.rev actuals)) in 

@@ -22,7 +22,7 @@ let _ = (*
   else
     P.fprintf stderr "%s" "ast checked\n";
     let m = Codegen.translate ast in
-    (*    Llvm_analysis.assert_valid_module m; *)  
+    (* Llvm_analysis.assert_valid_module m; *)
     print_string (Llvm.string_of_llmodule m);
     P.fprintf stderr "%s" "code generated\n";
 

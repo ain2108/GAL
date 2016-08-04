@@ -19,7 +19,7 @@ let main_undef_exp = " main not defined ";;
 (* Names of built in functions can be added below *)
 let builtins_list =
 	["print_int"; "print_str";
-	 "length"; "source"; "dest"; "pop"; "weight"; "print_endline"];;
+	 "length"; "source"; "dest"; "pop"; "weight"; "print_endline"; "peek"];;
 
 (* Built in decls *)
 let print_int_fdcl = 
@@ -52,12 +52,15 @@ let print_endline_fdcl =
 
 (* This function needs discussion *)
 let pop_fdcl = 
-	{ typ = String; fname = "pop"; formals = [(Listtyp, "a")];
+	{ typ = Listtyp; fname = "pop"; formals = [(Listtyp, "a")];
 	  locals = []; body = []};;
-
+let peek_fdcl = 
+	{ typ = String; fname = "peek"; formals = [(Listtyp, "a")];
+	  locals = []; body = []};;
 let builtin_fdcl_list =
 	[ print_int_fdcl; print_str_fdcl; length_fdcl; dest_fdcl;
-	  source_fdcl; pop_fdcl; weight_fdcl; print_endline_fdcl ];;
+	  source_fdcl; pop_fdcl; weight_fdcl; print_endline_fdcl;
+	  peek_fdcl ];;
 
 
 (* Static semantic checker of the program. Will return void 
