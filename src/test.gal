@@ -28,8 +28,10 @@ def int main(){
     hello = "goodbye";
 
     list l1;
-    l1 = [e1::|"A", 3, "D"|];
+    l1 = ["A"::"B"::"C"];
 
+    list l2;
+    l2 = ["A"];
 
     edge e2;
     e2 = |"AlphaAlphaAlpha", 3, "C"|;
@@ -37,6 +39,8 @@ def int main(){
     print_edge(e1);
     e2 = build_edge("alph", 10, "banana");
     print_edge(e2);
+
+    print_str(pop(l1)); 
 
        
     return 1;

@@ -52,7 +52,7 @@ let print_endline_fdcl =
 
 (* This function needs discussion *)
 let pop_fdcl = 
-	{ typ = Listtyp; fname = "pop"; formals = [(Listtyp, "a")];
+	{ typ = String; fname = "pop"; formals = [(Listtyp, "a")];
 	  locals = []; body = []};;
 
 let builtin_fdcl_list =
