@@ -177,8 +177,8 @@ let translate (globals, functions) =
 					let head_node = build_node node_t hd in
 					let head_node_len_p = L.build_struct_gep head_node 2 "" builder in 
 					let head_node_next_p =  L.build_struct_gep head_node 0 "" builder in 
-					ignore (L.build_store (L.undef (L.pointer_type node_t)) head_node_next_p builder);
-					ignore (L.build_store one head_node_len_p builder);
+					(* ignore (L.build_store (L.undef (L.pointer_type node_t)) head_node_next_p builder); *)
+					ignore (L.build_store (expr builder (A.Litint(1))) head_node_len_p builder);
 
 					let rec build_list the_head len = function 
 						| [] -> the_head
@@ -187,7 +187,7 @@ let translate (globals, functions) =
 							let new_node = build_node node_t hd in 
 							let new_head = add_element the_head new_node in 
 							let new_head_len_p = L.build_struct_gep new_head 2 "" builder in
-							ignore (L.build_store (zero) head_node_len_p builder);
+							ignore (L.build_store (expr builder (A.Litint(len))) new_head_len_p builder);
 							build_list new_head (len) tl)
 					
 					in build_list head_node 1 tl

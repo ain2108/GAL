@@ -49,14 +49,14 @@ def int main(){
     print_str(peek(l1));
 
     list l3;
-    l3 = ["andbananaofc"::"Lebesque"::"Riemann"::"Poincare"];
+    l3 = ["Lebesque"::"Banana"::"Pretzel"::"A"::"B"::"C"];
 
     int abra;
     abra = 27;
     print_endline();
     print_int(length(l3));
     print_endline();
-    print_int(abra);
+    print_int(weight(e2));
     print_endline();
 
        
