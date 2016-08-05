@@ -65,7 +65,7 @@ def int main(){
     print_int((!(weight(e2))));
     print_endline();
 
-    if (0) {
+    if (!weight(e2)) {
        print_ln("true");
     }else{
        print_ln("false");	

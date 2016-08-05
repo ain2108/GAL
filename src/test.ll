@@ -205,9 +205,11 @@ entry:
   %e228 = load { i8*, i32, i8* }*, { i8*, i32, i8* }** %e2
   %64 = getelementptr inbounds { i8*, i32, i8* }, { i8*, i32, i8* }* %e228, i32 0, i32 1
   %65 = load i32, i32* %64
-  %tmp = xor i32 %65, -1
-  %printf29 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @ifs, i32 0, i32 0), i32 %tmp)
+  %printf29 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @ifs, i32 0, i32 0), i32 0)
   %printf30 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @efs, i32 0, i32 0), i8* getelementptr inbounds ([1 x i8], [1 x i8]* @21, i32 0, i32 0))
+  %e231 = load { i8*, i32, i8* }*, { i8*, i32, i8* }** %e2
+  %66 = getelementptr inbounds { i8*, i32, i8* }, { i8*, i32, i8* }* %e231, i32 0, i32 1
+  %67 = load i32, i32* %66
   br i1 false, label %then, label %else
 
 merge:                                            ; preds = %else, %then
@@ -218,7 +220,7 @@ then:                                             ; preds = %entry
   br label %merge
 
 else:                                             ; preds = %entry
-  %print_ln_result31 = call i32 @print_ln(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @23, i32 0, i32 0))
+  %print_ln_result32 = call i32 @print_ln(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @23, i32 0, i32 0))
   br label %merge
 }
 

@@ -26,8 +26,14 @@ let translate (globals, functions) =
  	in let node_t = L.named_struct_type context "node" in 
     L.struct_set_body node_t (Array.of_list [L.pointer_type node_t; i8_p_t; i32_t ])  true;
     
+    (* Gets a boolean i1_t value from any i_type *)
+    let bool_of_int int_val = 
+		if (L.is_null int_val) then 
+			L.const_int i1_t 0
+		else 
+			L.const_int i1_t 1
 
-    let Some(node_t) = L.type_by_name the_module "node" in 
+    in let Some(node_t) = L.type_by_name the_module "node" in 
     
 	(* Pattern match on A.typ returning a llvm type *)
 	let ltype_of_typ ltyp = match ltyp with
@@ -238,10 +244,7 @@ let translate (globals, functions) =
 				let head_node_len_p =  L.build_struct_gep (expr builder e) 2 "" builder in 
 				L.build_load head_node_len_p  "" builder
 				
-
-
-
-(* 				P.fprintf stderr "%s" "no seg 1 n";
+		(*		P.fprintf stderr "%s" "no seg 1 n";
 				let head_node_p = (expr builder e) in
 				P.fprintf stderr "%s" "no seg 1 n";
 				let head_node_next_p =  L.build_struct_gep head_node_p 0 "" builder in 
@@ -284,9 +287,10 @@ let translate (globals, functions) =
 				v1 v2 "tmp" builder
 			| A.Unop(op, e) ->
 				let e' = expr builder e in 
-				(match op with 
-					| A.Not 	-> L.build_not )
-				e' "tmp" builder 
+				if (L.is_null e') then 
+					L.const_int i32_t 1
+				else 
+					L.const_int i32_t 0
 			| _ -> raise (Failure("expr not supported"))
 
 
@@ -301,22 +305,22 @@ let translate (globals, functions) =
 			| A.Expr(e)   		-> ignore (expr builder e); builder
 			| A.Return(e) 		-> ignore (L.build_ret (expr builder e) builder); builder
 		 	| A.If(p, then_stmt, else_stmt) ->
-				(* Get the predicate value *)
-				let bool_of_int int_val = 
-					if (L.is_null int_val) then 
-						L.const_int i1_t 0
-					else 
-						L.const_int i1_t 1
 				
-				in let bool_val = bool_of_int (expr builder p)
+				(* Get the boolean *)
+				let bool_val = bool_of_int (expr builder p)
 
+				(* Add the basic block *)
 				in let merge_bb 	= L.append_block context "merge" the_function
 				in let then_bb 	   	= L.append_block context "then" the_function 
 				in let else_bb		= L.append_block context "else" the_function 
+				
+				(* Write the statements into their respective blocks, build conditional branch*)
 				in
 					add_terminal (stmt (L.builder_at_end context then_bb) then_stmt) (L.build_br merge_bb);
 					add_terminal (stmt (L.builder_at_end context else_bb) else_stmt) (L.build_br merge_bb);
 					ignore (L.build_cond_br bool_val then_bb else_bb builder);
+				
+				(* Return the builder *)
 				L.builder_at_end context merge_bb
 			| _			  		-> raise (Failure("statement not implemented"))
 
