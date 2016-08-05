@@ -261,8 +261,6 @@ let translate (globals, functions) =
 				in L.const_int i32_t (walker length next_node)  *)
 				(* L.const_int i32_t 10 *)
 
-
-
 			| A.Call(fname, actuals) ->
 				let (fdef, fdecl) = StringMap.find fname function_decls in 
 				let actuals = List.rev (List.map (expr builder) (List.rev actuals)) in 
@@ -301,12 +299,30 @@ let translate (globals, functions) =
 			| A.Localdecl(t, n) -> ignore (add_local builder (t, n)); builder
 			| A.Block(sl) 		-> List.fold_left stmt builder sl
 			| A.Expr(e)   		-> ignore (expr builder e); builder
-			| A.Return(e) 		-> L.build_ret (expr builder e) builder; builder
+			| A.Return(e) 		-> ignore (L.build_ret (expr builder e) builder); builder
+		 	| A.If(p, then_stmt, else_stmt) ->
+				(* Get the predicate value *)
+				let bool_of_int int_val = 
+					if (L.is_null int_val) then 
+						L.const_int i1_t 0
+					else 
+						L.const_int i1_t 1
+				
+				in let bool_val = bool_of_int (expr builder p)
+
+				in let merge_bb 	= L.append_block context "merge" the_function
+				in let then_bb 	   	= L.append_block context "then" the_function 
+				in let else_bb		= L.append_block context "else" the_function 
+				in
+					add_terminal (stmt (L.builder_at_end context then_bb) then_stmt) (L.build_br merge_bb);
+					add_terminal (stmt (L.builder_at_end context else_bb) else_stmt) (L.build_br merge_bb);
+					ignore (L.build_cond_br bool_val then_bb else_bb builder);
+				L.builder_at_end context merge_bb
 			| _			  		-> raise (Failure("statement not implemented"))
 
-		in let builder = stmt builder (A.Block (List.rev fdecl.A.body)) in ()
+		in let builder = stmt builder (A.Block (List.rev fdecl.A.body)) in 
 
-		(* add_terminal builder (L.build_ret (L.const_int (ltype_of_typ A.Int) 0)) *)
+		add_terminal builder (L.build_ret (L.const_int (ltype_of_typ A.Int) 0))
 
 
 	in List.iter build_function_body functions;

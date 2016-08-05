@@ -15,6 +15,12 @@ def int print_edge(edge e){
     return 0;
 }
 
+def int print_ln(string str){
+    print_str(str);
+    print_endline();
+    return 0;
+}
+
 def edge build_edge(string src, int w, string dst){
     edge e1;
     e1 = | src, w, dst|;
@@ -56,9 +62,14 @@ def int main(){
     print_endline();
     print_int(length(l3));
     print_endline();
-    print_int(weight(e2));
+    print_int((!(weight(e2))));
     print_endline();
 
-       
+    if (0) {
+       print_ln("true");
+    }else{
+       print_ln("false");	
+    }
+
     return 1;
 }
