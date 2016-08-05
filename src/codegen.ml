@@ -1,5 +1,6 @@
 module A = Ast
 module L = Llvm
+module P = Printf
 module StringMap = Map.Make(String)
 
 let translate (globals, functions) = 
@@ -19,9 +20,11 @@ let translate (globals, functions) =
 				(Array.of_list [i8_p_t; i32_t; i8_p_t])
  
 	in let zero = L.const_int i32_t 0 
+    in let one = L.const_int i32_t 1
+	in let inc_i32 c = L.const_add c one  
 
  	in let node_t = L.named_struct_type context "node" in 
-    L.struct_set_body node_t (Array.of_list [L.pointer_type node_t; i8_p_t])  true;
+    L.struct_set_body node_t (Array.of_list [L.pointer_type node_t; i8_p_t; i32_t ])  true;
     
 
     let Some(node_t) = L.type_by_name the_module "node" in 
@@ -167,29 +170,32 @@ let translate (globals, functions) =
 					add_payload alloc payload_p 
 
 				in if (elist = []) then
-					raise (Failure("in list implementation"))
+					raise (Failure("empty list assignment"))
 				else 
 					let (hd::tl) = elist in 
 					(* let node_t = get_node_type hd in  *)
-					let head_node = build_node node_t hd in 
-					
-					let rec build_list the_head = function 
+					let head_node = build_node node_t hd in
+					let head_node_len_p = L.build_struct_gep head_node 2 "" builder in 
+					let head_node_next_p =  L.build_struct_gep head_node 0 "" builder in 
+					ignore (L.build_store (L.undef (L.pointer_type node_t)) head_node_next_p builder);
+					ignore (L.build_store one head_node_len_p builder);
+
+					let rec build_list the_head len = function 
 						| [] -> the_head
 						| hd::tl ->(
+							let len = len + 1 in 
 							let new_node = build_node node_t hd in 
 							let new_head = add_element the_head new_node in 
-							build_list new_head tl)
-
-					in build_list head_node tl
+							let new_head_len_p = L.build_struct_gep new_head 2 "" builder in
+							ignore (L.build_store (zero) head_node_len_p builder);
+							build_list new_head (len) tl)
+					
+					in build_list head_node 1 tl
 
 			| A.Id(name) -> L.build_load (lookup name) name builder
 			| A.Assign(name, e) -> 
 				let e' = (expr builder e) in
-				(* if ( L.pointer_type node_t = L.type_of (lookup name)) then
-					let cast = L.build_bitcast (lookup name) (L.type_of e') "" builder in 
-					ignore (L.build_store e' cast builder); e'
-				else  *)
-					ignore (L.build_store e' (lookup name) builder); e'
+				ignore (L.build_store e' (lookup name) builder); e'
 			(* Calling builtins below *)
 			| A.Call("print_int", [e]) ->
 				L.build_call printf_func 
@@ -218,11 +224,45 @@ let translate (globals, functions) =
 			| A.Call("pop", [e]) ->
 				let head_node_p = (expr builder e) in 
 				let head_node_next_node_pointer = L.build_struct_gep head_node_p 0 "" builder in 
+				ignore (L.build_free head_node_p builder);
 				L.build_load head_node_next_node_pointer "" builder
 			| A.Call("peek", [e]) -> 
 				let head_node_p = (expr builder e) in 
+				(* Trying to make the crash graceful here 565jhfdshjgq2 *)
+				if  head_node_p = (L.const_pointer_null (L.type_of head_node_p)) then 
+					raise (Failure("nothing to peek at, sorry"))
+				else
 				let head_node_payload_pointer = L.build_struct_gep head_node_p 1 "" builder in 
 				L.build_load head_node_payload_pointer "" builder
+			| A.Call("length", [e]) ->
+				let head_node_len_p =  L.build_struct_gep (expr builder e) 2 "" builder in 
+				L.build_load head_node_len_p  "" builder
+				
+
+
+
+(* 				P.fprintf stderr "%s" "no seg 1 n";
+				let head_node_p = (expr builder e) in
+				P.fprintf stderr "%s" "no seg 1 n";
+				let head_node_next_p =  L.build_struct_gep head_node_p 0 "" builder in 
+				let length = 0 in  
+
+				let rec walker length current_node = 
+					if not (L.is_undef current_node) then 
+	 			        let length = length + 1 in 
+				        ignore (P.fprintf stderr "%s" "no seg 2 n");
+				        let current_node_next_p = L.build_struct_gep current_node 0 "" builder in
+				        let next_node = (L.build_load current_node_next_p  "" builder) in   
+						walker length next_node
+					else 
+						length
+
+				in let next_node = L.build_load head_node_next_p  "" builder
+				in L.const_int i32_t (walker length next_node)  *)
+				(* L.const_int i32_t 10 *)
+
+
+
 			| A.Call(fname, actuals) ->
 				let (fdef, fdecl) = StringMap.find fname function_decls in 
 				let actuals = List.rev (List.map (expr builder) (List.rev actuals)) in 

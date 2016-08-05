@@ -47,8 +47,17 @@ def int main(){
     l1 = pop(l1);
     print_str("::");
     print_str(peek(l1));
+
+    list l3;
+    l3 = ["andbananaofc"::"Lebesque"::"Riemann"::"Poincare"];
+
+    int abra;
+    abra = 27;
     print_endline();
-    
+    print_int(length(l3));
+    print_endline();
+    print_int(abra);
+    print_endline();
 
        
     return 1;
