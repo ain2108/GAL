@@ -177,7 +177,7 @@ let translate (globals, functions) =
 					let head_node = build_node node_t hd in
 					let head_node_len_p = L.build_struct_gep head_node 2 "" builder in 
 					let head_node_next_p =  L.build_struct_gep head_node 0 "" builder in 
-					(* ignore (L.build_store (L.undef (L.pointer_type node_t)) head_node_next_p builder); *)
+					ignore (L.build_store (L.undef (L.pointer_type node_t)) head_node_next_p builder); 
 					ignore (L.build_store (expr builder (A.Litint(1))) head_node_len_p builder);
 
 					let rec build_list the_head len = function 
@@ -271,9 +271,24 @@ let translate (globals, functions) =
 			| A.Binop(e1, op, e2) ->
 				let v1 = expr builder e1 and v2 = expr builder e2 in 
 				(match op with
-					A.Add -> L.build_add
+					  A.Add 	-> L.build_add
+					| A.Sub 	-> L.build_sub
+					| A.Mult	-> L.build_mul
+					| A.Div 	-> L.build_sdiv
+					| A.And 	-> L.build_and
+					| A.Or 		-> L.build_or 
+					| A.Equal   -> L.build_icmp L.Icmp.Eq
+	  				| A.Less    -> L.build_icmp L.Icmp.Slt
+	  				| A.Leq     -> L.build_icmp L.Icmp.Sle
+	  				| A.Greater -> L.build_icmp L.Icmp.Sgt
+	  				| A.Geq     -> L.build_icmp L.Icmp.Sge
 					| _   -> raise (Failure("operator not supported")))
 				v1 v2 "tmp" builder
+			| A.Unop(op, e) ->
+				let e' = expr builder e in 
+				(match op with 
+					| A.Not 	-> L.build_not )
+				e' "tmp" builder 
 			| _ -> raise (Failure("expr not supported"))
 
 

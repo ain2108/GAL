@@ -66,6 +66,7 @@ entry:
   store i8* getelementptr inbounds ([2 x i8], [2 x i8]* @3, i32 0, i32 0), i8** %6
   %7 = getelementptr inbounds %node, %node* %5, i32 0, i32 2
   %8 = getelementptr inbounds %node, %node* %5, i32 0, i32 0
+  store %node* undef, %node** %8
   store i32 1, i32* %7
   %malloccall2 = tail call i8* @malloc(i32 ptrtoint (%node* getelementptr (%node, %node* null, i32 1) to i32))
   %9 = bitcast i8* %malloccall2 to %node*
@@ -91,6 +92,7 @@ entry:
   store i8* getelementptr inbounds ([2 x i8], [2 x i8]* @6, i32 0, i32 0), i8** %18
   %19 = getelementptr inbounds %node, %node* %17, i32 0, i32 2
   %20 = getelementptr inbounds %node, %node* %17, i32 0, i32 0
+  store %node* undef, %node** %20
   store i32 1, i32* %19
   store %node* %17, %node** %l2
   %e2 = alloca { i8*, i32, i8* }*
@@ -143,6 +145,7 @@ entry:
   store i8* getelementptr inbounds ([2 x i8], [2 x i8]* @13, i32 0, i32 0), i8** %39
   %40 = getelementptr inbounds %node, %node* %38, i32 0, i32 2
   %41 = getelementptr inbounds %node, %node* %38, i32 0, i32 0
+  store %node* undef, %node** %41
   store i32 1, i32* %40
   %malloccall19 = tail call i8* @malloc(i32 ptrtoint (%node* getelementptr (%node, %node* null, i32 1) to i32))
   %42 = bitcast i8* %malloccall19 to %node*
