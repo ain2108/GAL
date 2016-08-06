@@ -42,6 +42,7 @@ rule token = parse
 | "return" { RETURN }
 | "def"	   { DEFINE }
 | "list"   { LISTT }
+| "node"   { LISTT}
 | "edge"   { EDGE }      
 | "int"    { INT }
 | "string" { STRING }

@@ -102,5 +102,17 @@ def int main(){
     print_endline();
     print_list(l3);
     print_int(cadabra);
+
+    print_endline();
+    print_endline();
+/*    print_str("for donovan:)");
+    print_endline();
+
+    node n1;
+    n1 = |"A", 2, "B", 11, "C", 2, "D"|;
+
+    print_list(n1);
+*/
+
     return 1;
 }

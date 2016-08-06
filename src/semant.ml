@@ -54,9 +54,11 @@ let print_endline_fdcl =
 let pop_fdcl = 
 	{ typ = Listtyp; fname = "pop"; formals = [(Listtyp, "a")];
 	  locals = []; body = []};;
+
 let peek_fdcl = 
 	{ typ = String; fname = "peek"; formals = [(Listtyp, "a")];
 	  locals = []; body = []};;
+
 let next_fdcl = 
 	{ typ = Listtyp; fname = "next"; formals = [(Listtyp, "a")];
 	  locals = []; body = []};;

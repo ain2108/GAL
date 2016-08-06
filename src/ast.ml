@@ -3,7 +3,7 @@
    Note: This code was writte on top of Prof. Edwards's 
    		 microc code. We hope this is acceptable. *)
 
-type op = Add | Sub | Mult | Div | Equal |
+type op = Add | Sub | Mult | Div | Equal | 
 	  Less | Leq | Greater | Geq | And | Or |
 	  Eadd | Esub 
 
