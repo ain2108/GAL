@@ -103,6 +103,13 @@ def int main(){
     print_list(l3);
     print_int(cadabra);
 
+
+    list lemma;
+    lemma = []; 
+    lemma = ["A"::"B"];
+    print_list(lemma);
+
+
     print_endline();
     print_endline();
 /*    print_str("for donovan:)");

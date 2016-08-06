@@ -25,6 +25,7 @@ let translate (globals, functions) =
 
  	in let node_t = L.named_struct_type context "node" in 
     L.struct_set_body node_t (Array.of_list [L.pointer_type node_t; i8_p_t; i32_t ])  true;
+
     
 
     let Some(node_t) = L.type_by_name the_module "node" in 
@@ -34,7 +35,8 @@ let translate (globals, functions) =
 		| A.Int 	-> i32_t
 		| A.Edge 	-> L.pointer_type edge_t
 		| A.String  -> i8_p_t
-		| A.Listtyp -> L.pointer_type node_t
+		| A.Listtyp(_) -> 
+					L.pointer_type node_t
 		| _ 	-> raise (Failure ("Type not implemented\n"))
 
  	in let get_node_type expr = match expr with
@@ -174,7 +176,8 @@ let translate (globals, functions) =
 					add_payload alloc payload_p 
 
 				in if (elist = []) then
-					raise (Failure("empty list assignment"))
+					L.const_pointer_null (L.pointer_type node_t)
+					(* raise (Failure("empty list assignment")) *)
 				else 
 					let (hd::tl) = elist in 
 					(* let node_t = get_node_type hd in  *)
