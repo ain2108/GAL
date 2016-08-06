@@ -58,18 +58,29 @@ def int main(){
     l3 = ["Lebesque"::"Banana"::"Pretzel"::"A"::"B"::"C"];
 
     int abra;
-    abra = 27;
+    abra = 20;
     print_endline();
     print_int(length(l3));
     print_endline();
     print_int((!(weight(e2))));
     print_endline();
 
-    if (!weight(e2)) {
+    int baracuda;
+    baracuda = 0;
+    int cadabra;
+    if (0 == 1) {
        print_ln("true");
+       baracuda = 3;
     }else{
-       print_ln("false");	
+       print_ln("false");
+       cadabra = 30;
+       while(cadabra > 0){
+	print_int(abra);
+	print_str(" ");
+	cadabra = cadabra - 10; 
+       }
     }
 
+    print_int(cadabra);
     return 1;
 }

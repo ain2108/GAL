@@ -26,14 +26,8 @@ let translate (globals, functions) =
  	in let node_t = L.named_struct_type context "node" in 
     L.struct_set_body node_t (Array.of_list [L.pointer_type node_t; i8_p_t; i32_t ])  true;
     
-    (* Gets a boolean i1_t value from any i_type *)
-    let bool_of_int int_val = 
-		if (L.is_null int_val) then 
-			L.const_int i1_t 0
-		else 
-			L.const_int i1_t 1
 
-    in let Some(node_t) = L.type_by_name the_module "node" in 
+    let Some(node_t) = L.type_by_name the_module "node" in 
     
 	(* Pattern match on A.typ returning a llvm type *)
 	let ltype_of_typ ltyp = match ltyp with
@@ -125,6 +119,10 @@ let translate (globals, functions) =
 		in let lookup name = 
 			try Hashtbl.find local_hash name 
 			with Not_found -> StringMap.find name global_vars 
+
+		 (* Gets a boolean i1_t value from any i_type *)
+        in let bool_of_int int_val = L.build_is_null int_val "banana" builder
+			
 
 
 		(* We can now describe the action to be taken on ast traversal *)
@@ -271,6 +269,7 @@ let translate (globals, functions) =
 				L.build_call fdef (Array.of_list actuals) result builder
 			| A.Binop(e1, op, e2) ->
 				let v1 = expr builder e1 and v2 = expr builder e2 in 
+				let value = 
 				(match op with
 					  A.Add 	-> L.build_add
 					| A.Sub 	-> L.build_sub
@@ -284,7 +283,8 @@ let translate (globals, functions) =
 	  				| A.Greater -> L.build_icmp L.Icmp.Sgt
 	  				| A.Geq     -> L.build_icmp L.Icmp.Sge
 					| _   -> raise (Failure("operator not supported")))
-				v1 v2 "tmp" builder
+				v1 v2 "tmp" builder  in value (* 
+				L.build_intcast value i32_t "" builder  *)
 			| A.Unop(op, e) ->
 				let e' = expr builder e in 
 				if (L.is_null e') then 
@@ -304,10 +304,9 @@ let translate (globals, functions) =
 			| A.Block(sl) 		-> List.fold_left stmt builder sl
 			| A.Expr(e)   		-> ignore (expr builder e); builder
 			| A.Return(e) 		-> ignore (L.build_ret (expr builder e) builder); builder
-		 	| A.If(p, then_stmt, else_stmt) ->
-				
+		 	| A.If(p, then_stmt, else_stmt) ->	
 				(* Get the boolean *)
-				let bool_val = bool_of_int (expr builder p)
+				let bool_val = (* bool_of_int  *)(expr builder p)
 
 				(* Add the basic block *)
 				in let merge_bb 	= L.append_block context "merge" the_function
@@ -322,6 +321,22 @@ let translate (globals, functions) =
 				
 				(* Return the builder *)
 				L.builder_at_end context merge_bb
+			| A.While(predicate, body) ->
+
+				let pred_bb = L.append_block context "while" the_function in
+	  			ignore (L.build_br pred_bb builder);
+
+	  			let body_bb = L.append_block context "while_body" the_function in
+	  			add_terminal (stmt (L.builder_at_end context body_bb) body)
+	    		(L.build_br pred_bb);
+
+	  			let pred_builder = L.builder_at_end context pred_bb in
+	  			let bool_val =  (* bool_of_int *) (expr pred_builder predicate) in 
+
+	  			let merge_bb = L.append_block context "merge" the_function in
+	  			ignore (L.build_cond_br bool_val body_bb merge_bb pred_builder);
+	  			L.builder_at_end context merge_bb				
+
 			| _			  		-> raise (Failure("statement not implemented"))
 
 		in let builder = stmt builder (A.Block (List.rev fdecl.A.body)) in 
