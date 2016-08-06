@@ -1,3 +1,22 @@
+def int print_list(list l1){
+    int len;
+    len = length(l1);
+    list tmp;
+    tmp = l1;
+    int i;
+    i = 0;
+    print_str("->");
+    while (i < len) {
+    	  print_str(peek(tmp));
+    	  print_str("::");
+    	  tmp = next(tmp);
+    	  i = i + 1;
+    }
+    print_endline();
+
+    return 1;
+}
+
 
 def int sum(int a, int b){
     return a + b;
@@ -80,7 +99,8 @@ def int main(){
 	cadabra = cadabra - 10; 
        }
     }
-
+    print_endline();
+    print_list(l3);
     print_int(cadabra);
     return 1;
 }

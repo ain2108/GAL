@@ -238,6 +238,9 @@ let translate (globals, functions) =
 				else
 				let head_node_payload_pointer = L.build_struct_gep head_node_p 1 "" builder in 
 				L.build_load head_node_payload_pointer "" builder
+			| A.Call("next", [e]) ->
+				let head_node_next_p = L.build_struct_gep (expr builder e) 0 "" builder in 
+				L.build_load head_node_next_p "" builder
 			| A.Call("length", [e]) ->
 				let head_node_len_p =  L.build_struct_gep (expr builder e) 2 "" builder in 
 				L.build_load head_node_len_p  "" builder
