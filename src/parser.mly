@@ -13,7 +13,7 @@
 %token SEMI LPAREN RPAREN LSQBRACE RSQBRACE LBRACE RBRACE BAR COLON LISTSEP COMMA
 %token EPLUS EMINUS PLUS MINUS TIMES DIVIDE ASSIGN NOT 
 %token EQ LT LEQ GT GEQ AND OR 
-%token RETURN IF ELSE FOR INT STRING EDGE LISTT DEFINE WHILE
+%token RETURN IF ELSE FOR INT STRING EDGE SLISTT NLISTT ELISTT ILISTT DEFINE WHILE
 %token <int> LITINT
 %token <string> ID
 %token <string> LITSTR
@@ -56,10 +56,13 @@ formal_list: typ ID 		{ [($1,$2)] }
 	| formal_list COMMA typ ID 	{ ($3,$4) :: $1 }
 
 typ:      
-	INT 		{ Int }
-	| STRING 	{ String }
-	| LISTT 	{ Listtyp }
-	| EDGE 		{ Edge }
+	  INT 		{ Int 		}
+	| STRING 	{ String 	}
+	| SLISTT 	{ SListtyp 	}
+	| EDGE 		{ Edge 		}
+	| NLISTT 	{ NListtyp 	}
+	| ELISTT 	{ EListtyp 	}
+	| ILISTT 	{ IListtyp 	}
 
 func_body: 
 	/*nothing*/ 		{ [] }

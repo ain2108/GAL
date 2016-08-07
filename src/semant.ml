@@ -31,7 +31,7 @@ let print_str_fdcl =
 	  locals = []; body = []};;
 
 let length_fdcl = 
-	{ typ = Int; fname = "length"; formals = [(Listtyp, "a")];
+	{ typ = Int; fname = "slength"; formals = [(SListtyp, "a")];
 	  locals = []; body = []};;
 
 let dest_fdcl = 
@@ -52,25 +52,24 @@ let print_endline_fdcl =
 
 (* This function needs discussion *)
 let pop_fdcl = 
-	{ typ = Listtyp; fname = "pop"; formals = [(Listtyp, "a")];
+	{ typ = SListtyp; fname = "pop"; formals = [(SListtyp, "a")];
 	  locals = []; body = []};;
 
 let speek_fdcl = 
-	{ typ = String; fname = "speek"; formals = [(Listtyp, "a")];
+	{ typ = String; fname = "speek"; formals = [(SListtyp, "a")];
 	  locals = []; body = []};;
 
 let ipeek_fdcl = 
-	{ typ = Int; fname = "ipeek"; formals = [(Listtyp, "a")];
+	{ typ = Int; fname = "ipeek"; formals = [(IListtyp, "a")];
 	  locals = []; body = []};;
 
 let epeek_fdcl = 
-	{ typ = Edge; fname = "epeek"; formals = [(Listtyp, "a")];
+	{ typ = Edge; fname = "epeek"; formals = [(EListtyp, "a")];
 	  locals = []; body = []};;
 
 
-
 let next_fdcl = 
-	{ typ = Listtyp; fname = "next"; formals = [(Listtyp, "a")];
+	{ typ = SListtyp; fname = "snext"; formals = [(SListtyp, "a")];
 	  locals = []; body = []};;
 
 let builtin_fdcl_list =
@@ -157,13 +156,15 @@ let rec check_builtins_defs exp_list expmsg funcs = function
 ;;
 
 (* Helper function to print types *)
-let string_of_typ = function
+let string_of_typ asttype = match asttype with 
 	| Int -> " int "
 	| String -> " string "
-	| Listtyp -> " list "
+	| SListtyp -> " slist "
 	| Edge -> " edge "
-	| Void -> " (bad expression) "		
-  
+	| Void -> " (bad expression) "	
+	| EListtyp -> " elist "	
+  	| NListtyp -> " nlist "
+  	| IListtyp -> " ilist "
 
 (* Function checks bunch of fun stuff in the function structure *)
 let check_func exp_list globs_map func_decl funcs_map =
@@ -193,7 +194,7 @@ let check_func exp_list globs_map func_decl funcs_map =
 				| Greater | Geq | And | Or 
 					when (v1 = Int && v2 = Int) -> (Int, exp_list)
 				(* List operators *)
-				| Eadd | Esub when v1 = Listtyp && v2 = Listtyp -> (Listtyp, exp_list)
+				(* | Eadd | Esub when v1 = Listtyp && v2 = Listtyp -> (Listtyp, exp_list) *)
 				| _ -> (Void, ( " in " ^ func_decl.fname ^ " expr: " ^
 								" illegal binary op ")::exp_list) )
 		| Unop(op, e1) -> get_expression_type vars_map exp_list e1
@@ -216,6 +217,25 @@ let check_func exp_list globs_map func_decl funcs_map =
 					(Void, ( " in " ^ func_decl.fname ^ " edge: " ^
 								" bad types ")::exp_list)
 		| Listdcl(elist) -> 
+			(* Get the type of the first element of the list *)
+			let get_elmt_type decl_list = match decl_list with 
+			| [] -> Nothing
+			| hd::tl -> 
+				let (v1, exp_list) = get_expression_type vars_map exp_list hd in
+				v1
+			in 
+
+			(* Get the type of the list *)
+			let get_list_type elmt_type = match elmt_type with 
+				| Nothing 	-> EmptyListtyp 
+				| Edge 		-> EListtyp
+				| String 	-> SListtyp
+				| Int 		-> IListtyp 
+				| EListtyp  -> NListtyp 
+				| _ 		-> raise (Failure("in list decl process")) 
+
+			in
+
 			let rec check_list exp_list = function
 			[] -> List.rev exp_list
 			| hd::[] ->
@@ -231,12 +251,17 @@ let check_func exp_list globs_map func_decl funcs_map =
 					[]
 				else
 					check_list exp_list tail
+			in 
 
-			in let list_exp_list = check_list [] elist
+			let list_exp_list = check_list [] elist
 			in if list_exp_list <> [] then
 				(Void, (exp_list @ list_exp_list))
 			else
-				(Listtyp, exp_list)
+				let elmt_type = get_elmt_type elist in 
+				let list_typ  = get_list_type elmt_type in 
+				(list_typ, exp_list)
+
+
 		(* CARE HERE, NOT FINISHED AT ALL *)
 		| Call(fname, actuals) -> 
 			try let fd = StringMap.find fname funcs_map

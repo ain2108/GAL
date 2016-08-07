@@ -10,7 +10,10 @@ type op = Add | Sub | Mult | Div | Equal |
 (* List and Edge here are different from below *)
 type uop = Not
 
-type typ = Int | String | Listtyp | Edge | Void
+type typ = Int | String | Listtyp | Edge | Void 
+			| EListtyp | SListtyp | IListtyp | NListtyp 
+			| EmptyListtyp | Nothing
+
 
 type bind = typ * string 
 

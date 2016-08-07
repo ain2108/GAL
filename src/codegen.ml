@@ -64,6 +64,7 @@ let translate (globals, functions) =
 		| A.Edge 	-> L.pointer_type edge_t
 		| A.String  -> i8_p_t
 		| A.Listtyp -> L.pointer_type decl_node_t
+		| A.SListtyp -> L.pointer_type node_t 
 		| _ 	-> raise (Failure ("Type not implemented\n"))
 
  	in let rec get_node_type expr = match expr with
@@ -143,17 +144,17 @@ let translate (globals, functions) =
 
 			let add_formal (t, n) (p, i) = 
 				P.fprintf stderr "%s\n" (L.string_of_lltype (L.type_of p));
-				if (L.type_of p) = ((L.pointer_type decl_node_t)) then
+				(* if (L.type_of p) = ((L.pointer_type decl_node_t)) then
 					( P.fprintf stderr "%s" "cast back needed\n";
 					  P.fprintf stderr "%d in %s" i fdecl.fname ;
-					  
+
 					let good_type = Hashtbl.find cast_hash (fdecl.fname, i) in 
 					let p = L.build_bitcast p (good_type) "" builder in 
 					L.set_value_name n p;
 					let local = L.build_alloca (ltype_of_typ t) n builder in
 					ignore (L.build_store p local builder);
 					Hashtbl.add local_hash n local )
-				else 
+				else  *)
 					(L.set_value_name n p;
 					let local = L.build_alloca (ltype_of_typ t) n builder in
 					ignore (L.build_store p local builder);
@@ -174,7 +175,9 @@ let translate (globals, functions) =
 
 		in let lookup name = 
 			try Hashtbl.find local_hash name 
-			with Not_found -> StringMap.find name global_vars 
+			with Not_found -> (
+				P.fprintf stderr "%s" "in local hash\n";
+				StringMap.find name global_vars )
 
 		 (* Gets a boolean i1_t value from any i_type *)
         in let bool_of_int int_val = L.build_is_null int_val "banana" builder
@@ -264,14 +267,14 @@ let translate (globals, functions) =
 
 				(* Cant add it like this. Need a different comparison. And need to remove
 					old var form the hash map  *)
-				if ((L.pointer_type (L.pointer_type decl_node_t)) = (L.type_of loc_var)) then 
+				(* if ((L.pointer_type (L.pointer_type decl_node_t)) = (L.type_of loc_var)) then 
 					(
 					Hashtbl.remove local_hash name;
 					ignore (add_local_list builder (L.type_of e') name);
 					ignore (L.build_store e' (lookup name) builder); 
 					e' )
 					(* raise (Failure("GOTCHA")) *)
-				else 
+				else  *)
 					(ignore (L.build_store e' (lookup name) builder); e')
 			(* Calling builtins below *)
 			| A.Call("print_int", [e]) ->
@@ -311,10 +314,10 @@ let translate (globals, functions) =
 				else
 				let head_node_payload_pointer = L.build_struct_gep head_node_p 1 "" builder in 
 				L.build_load head_node_payload_pointer "" builder
-			| A.Call("next", [e]) ->
+			| A.Call("snext", [e]) ->
 				let head_node_next_p = L.build_struct_gep (expr builder e) 0 "" builder in 
 				L.build_load head_node_next_p "" builder
-			| A.Call("length", [e]) ->
+			| A.Call("slength", [e]) ->
 				let head_node_len_p =  L.build_struct_gep (expr builder e) 2 "" builder in 
 				L.build_load head_node_len_p  "" builder
 				
@@ -345,11 +348,11 @@ let translate (globals, functions) =
 					let str_ltype = L.string_of_lltype ltype in 
 					(* P.fprintf stderr "%s\n" str_ltype;  *)
 
-					if (contains str_ltype "node") then (
+					(* if (contains str_ltype "node") then (
 						P.fprintf stderr "%s\n" "cast done";
 						Hashtbl.add cast_hash (fname, num) (ltype); 
 						L.build_bitcast lvalue (L.pointer_type decl_node_t) "" builder)
-					else
+					else *)
 						lvalue
 				in 
 
