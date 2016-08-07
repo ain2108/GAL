@@ -15,6 +15,9 @@ let translate (globals, functions) =
 
     in 
 
+    (* To keep track of bitcasts *)
+    let cast_hash = Hashtbl.create 100 in 
+
 	(* Build a context and the module *)
 	let context = L.global_context () in
 	let the_module = L.create_module context "GAL"
@@ -33,7 +36,10 @@ let translate (globals, functions) =
     in let one = L.const_int i32_t 1
 	in let inc_i32 c = L.const_add c one  
 
- 	in let node_t = L.named_struct_type context "node" in 
+	in let decl_node_t = L.named_struct_type context "list_decl" in 
+	L.struct_set_body decl_node_t (Array.of_list [L.pointer_type decl_node_t; L.pointer_type i1_t; i32_t ])  true;
+
+ 	let node_t = L.named_struct_type context "node" in 
     L.struct_set_body node_t (Array.of_list [L.pointer_type node_t; i8_p_t; i32_t ])  true;
 
     let e_node_t = L.named_struct_type context "enode" in 
@@ -49,13 +55,15 @@ let translate (globals, functions) =
     let Some(e_node_t) = L.type_by_name the_module "enode" in 
     let Some(i_node_t) = L.type_by_name the_module "inode" in 
     let Some(l_node_t) = L.type_by_name the_module "lnode" in 
+    let Some(decl_node_t) = L.type_by_name the_module "list_decl" in 
+    
     
 	(* Pattern match on A.typ returning a llvm type *)
 	let ltype_of_typ ltyp = match ltyp with
 		| A.Int 	-> i32_t
 		| A.Edge 	-> L.pointer_type edge_t
 		| A.String  -> i8_p_t
-		| A.Listtyp -> L.pointer_type node_t
+		| A.Listtyp -> L.pointer_type decl_node_t
 		| _ 	-> raise (Failure ("Type not implemented\n"))
 
  	in let rec get_node_type expr = match expr with
@@ -127,14 +135,34 @@ let translate (globals, functions) =
 		let endline_format_string = L.build_global_stringptr "%s\n" "efs" builder in
 
 		let local_vars =
-			let add_formal (t, n) p = 
-				L.set_value_name n p;
-				let local = L.build_alloca (ltype_of_typ t) n builder in
-				ignore (L.build_store p local builder);
-				Hashtbl.add local_hash n local in                                      
 			
+			let rec enumerate i enumed_l = function 
+					| [] -> List.rev enumed_l 
+					| hd::tl -> enumerate (i + 1) ((hd, i)::enumed_l) tl 
+			in 
 
-			List.iter2 add_formal fdecl.A.formals (Array.to_list (L.params the_function)) 
+			let add_formal (t, n) (p, i) = 
+				P.fprintf stderr "%s\n" (L.string_of_lltype (L.type_of p));
+				if (L.type_of p) = ((L.pointer_type decl_node_t)) then
+					( P.fprintf stderr "%s" "cast back needed\n";
+					  P.fprintf stderr "%d in %s" i fdecl.fname ;
+					  
+					let good_type = Hashtbl.find cast_hash (fdecl.fname, i) in 
+					let p = L.build_bitcast p (good_type) "" builder in 
+					L.set_value_name n p;
+					let local = L.build_alloca (ltype_of_typ t) n builder in
+					ignore (L.build_store p local builder);
+					Hashtbl.add local_hash n local )
+				else 
+					(L.set_value_name n p;
+					let local = L.build_alloca (ltype_of_typ t) n builder in
+					ignore (L.build_store p local builder);
+					Hashtbl.add local_hash n local) 
+			in 
+			
+			let params = enumerate 0 [] (Array.to_list (L.params the_function))  
+
+			in List.iter2 add_formal fdecl.A.formals params 
 
 		in let add_local builder (t, n) =
 				let local_var = L.build_alloca (ltype_of_typ t) n builder
@@ -178,7 +206,7 @@ let translate (globals, functions) =
 					ignore (L.build_store src_p src_field_pointer builder);
 					ignore (L.build_store dst_p dst_field_pointer builder);
 					ignore (L.build_store w weight_field_pointer builder);
-				L.build_in_bounds_gep alloc [|(L.const_int i32_t 0)|] "" builder  
+					L.build_in_bounds_gep alloc [|(L.const_int i32_t 0)|] "" builder  
 			
 			| A.Listdcl(elist) -> 
 				let elist = List.rev elist in 
@@ -202,7 +230,7 @@ let translate (globals, functions) =
 					add_payload alloc payload_p 
 
 				in if (elist = []) then
-					L.const_pointer_null (L.pointer_type node_t)
+					L.const_pointer_null (L.pointer_type decl_node_t)
 					(* raise (Failure("empty list assignment")) *)
 				else 
 					let (hd::tl) = elist in 
@@ -234,8 +262,12 @@ let translate (globals, functions) =
 				let loc_var_str = L.string_of_lltype (L.type_of loc_var) in 
 				P.fprintf stderr "%s and %s\n" node_t_str loc_var_str; *)
 
-				if ((L.pointer_type (L.pointer_type node_t)) = (L.type_of loc_var)) then 
-					(ignore (add_local_list builder (L.type_of e') name);
+				(* Cant add it like this. Need a different comparison. And need to remove
+					old var form the hash map  *)
+				if ((L.pointer_type (L.pointer_type decl_node_t)) = (L.type_of loc_var)) then 
+					(
+					Hashtbl.remove local_hash name;
+					ignore (add_local_list builder (L.type_of e') name);
 					ignore (L.build_store e' (lookup name) builder); 
 					e' )
 					(* raise (Failure("GOTCHA")) *)
@@ -307,19 +339,26 @@ let translate (globals, functions) =
 				(* L.const_int i32_t 10 *)
 
 			| A.Call(fname, actuals) ->
-				let bitcast_actuals actual = 
+				let bitcast_actuals (actual, num) = 
 					let lvalue = expr builder actual in 
 					let ltype = L.type_of lvalue in 
 					let str_ltype = L.string_of_lltype ltype in 
 					(* P.fprintf stderr "%s\n" str_ltype;  *)
 
-					if (contains str_ltype "node") then 
-						L.build_bitcast lvalue (L.pointer_type node_t) "" builder
+					if (contains str_ltype "node") then (
+						P.fprintf stderr "%s\n" "cast done";
+						Hashtbl.add cast_hash (fname, num) (ltype); 
+						L.build_bitcast lvalue (L.pointer_type decl_node_t) "" builder)
 					else
 						lvalue
+				in 
 
-				in  
+				let rec enumerate i enumed_l = function 
+					| [] -> List.rev enumed_l 
+					| hd::tl -> enumerate (i + 1) ((hd, i)::enumed_l) tl 
+				in 
 
+				let actuals = (enumerate 0 [] actuals) in  
 				let (fdef, fdecl) = StringMap.find fname function_decls in 
 				let actuals = List.rev (List.map bitcast_actuals (List.rev actuals)) in 
 				let result = fname ^ "_result" in 
