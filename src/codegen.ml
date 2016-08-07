@@ -26,24 +26,34 @@ let translate (globals, functions) =
  	in let node_t = L.named_struct_type context "node" in 
     L.struct_set_body node_t (Array.of_list [L.pointer_type node_t; i8_p_t; i32_t ])  true;
 
-    
+    let e_node_t = L.named_struct_type context "enode" in 
+    L.struct_set_body e_node_t (Array.of_list [L.pointer_type e_node_t; L.pointer_type edge_t; i32_t ])  true;
+
+	let i_node_t = L.named_struct_type context "inode" in 
+    L.struct_set_body i_node_t (Array.of_list [L.pointer_type i_node_t; i32_t; i32_t ])  true;
+
+	let l_node_t = L.named_struct_type context "lnode" in 
+    L.struct_set_body l_node_t (Array.of_list [L.pointer_type l_node_t; L.pointer_type l_node_t; i32_t ])  true;
 
     let Some(node_t) = L.type_by_name the_module "node" in 
+    let Some(e_node_t) = L.type_by_name the_module "enode" in 
+    let Some(i_node_t) = L.type_by_name the_module "inode" in 
+    let Some(l_node_t) = L.type_by_name the_module "lnode" in 
     
 	(* Pattern match on A.typ returning a llvm type *)
 	let ltype_of_typ ltyp = match ltyp with
 		| A.Int 	-> i32_t
 		| A.Edge 	-> L.pointer_type edge_t
 		| A.String  -> i8_p_t
-		| A.Listtyp(_) -> 
-					L.pointer_type node_t
+		| A.Listtyp -> L.pointer_type node_t
 		| _ 	-> raise (Failure ("Type not implemented\n"))
 
- 	in let get_node_type expr = match expr with
-		| A.Litint(num) -> L.struct_type context
-			(Array.of_list [L.pointer_type node_t; i32_p_t]) 
-		| A.Litstr(str) -> L.struct_type context
-			(Array.of_list [L.pointer_type node_t; i8_p_t]) 
+ 	in let rec get_node_type expr = match expr with
+		| A.Litint(num) -> i_node_t
+		| A.Litstr(str) -> node_t
+		| A.Listdcl(somelist) -> l_node_t 
+		| A.Binop(e1, op, e2) -> get_node_type e1
+		| A.Edgedcl(_) -> e_node_t
 		| _ -> raise (Failure(" type not supported in list "))
  
 	(* Create the edge declaration *)
@@ -117,7 +127,11 @@ let translate (globals, functions) =
 		in let add_local builder (t, n) =
 				let local_var = L.build_alloca (ltype_of_typ t) n builder
 				in Hashtbl.add local_hash n local_var 
-		
+
+		in let add_local_list builder ltype n = 
+				let local_var = L.build_alloca (ltype) n builder
+				in Hashtbl.add local_hash n local_var
+
 		in let lookup name = 
 			try Hashtbl.find local_hash name 
 			with Not_found -> StringMap.find name global_vars 
@@ -181,7 +195,8 @@ let translate (globals, functions) =
 				else 
 					let (hd::tl) = elist in 
 					(* let node_t = get_node_type hd in  *)
-					let head_node = build_node node_t hd in
+					let node_t = get_node_type hd in 
+					let head_node = build_node (node_t) hd in
 					let head_node_len_p = L.build_struct_gep head_node 2 "" builder in 
 					let head_node_next_p =  L.build_struct_gep head_node 0 "" builder in 
 					ignore (L.build_store (L.undef (L.pointer_type node_t)) head_node_next_p builder); 
@@ -201,8 +216,19 @@ let translate (globals, functions) =
 
 			| A.Id(name) -> L.build_load (lookup name) name builder
 			| A.Assign(name, e) -> 
+				let loc_var = lookup name in 
 				let e' = (expr builder e) in
-				ignore (L.build_store e' (lookup name) builder); e'
+				(* let node_t_str = (L.string_of_lltype node_t) in 
+				let loc_var_str = L.string_of_lltype (L.type_of loc_var) in 
+				P.fprintf stderr "%s and %s\n" node_t_str loc_var_str; *)
+
+				if ((L.pointer_type (L.pointer_type node_t)) = (L.type_of loc_var)) then 
+					(ignore (add_local_list builder (L.type_of e') name);
+					ignore (L.build_store e' (lookup name) builder); 
+					e' )
+					(* raise (Failure("GOTCHA")) *)
+				else 
+					(ignore (L.build_store e' (lookup name) builder); e')
 			(* Calling builtins below *)
 			| A.Call("print_int", [e]) ->
 				L.build_call printf_func 
@@ -233,7 +259,7 @@ let translate (globals, functions) =
 				let head_node_next_node_pointer = L.build_struct_gep head_node_p 0 "" builder in 
 				ignore (L.build_free head_node_p builder);
 				L.build_load head_node_next_node_pointer "" builder
-			| A.Call("peek", [e]) -> 
+			| A.Call("speek", [e]) | A.Call("ipeek", [e]) | A.Call("epeek", [e])-> 
 				let head_node_p = (expr builder e) in 
 				(* Trying to make the crash graceful here 565jhfdshjgq2 *)
 				if  head_node_p = (L.const_pointer_null (L.type_of head_node_p)) then 

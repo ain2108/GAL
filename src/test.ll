@@ -1,6 +1,7 @@
 ; ModuleID = 'GAL'
 
 %node = type <{ %node*, i8*, i32 }>
+%inode = type <{ %inode*, i32, i32 }>
 
 @ifs = private unnamed_addr constant [3 x i8] c"%d\00"
 @sfs = private unnamed_addr constant [3 x i8] c"%s\00"
@@ -102,20 +103,22 @@ entry:
   store %node* %9, %node** %15
   %16 = getelementptr inbounds %node, %node* %13, i32 0, i32 2
   store i32 3, i32* %16
-  store %node* %13, %node** %l1
+  %l14 = alloca %node*
+  store %node* %13, %node** %l14
   %l2 = alloca %node*
-  %malloccall4 = tail call i8* @malloc(i32 ptrtoint (%node* getelementptr (%node, %node* null, i32 1) to i32))
-  %17 = bitcast i8* %malloccall4 to %node*
+  %malloccall5 = tail call i8* @malloc(i32 ptrtoint (%node* getelementptr (%node, %node* null, i32 1) to i32))
+  %17 = bitcast i8* %malloccall5 to %node*
   %18 = getelementptr inbounds %node, %node* %17, i32 0, i32 1
   store i8* getelementptr inbounds ([2 x i8], [2 x i8]* @6, i32 0, i32 0), i8** %18
   %19 = getelementptr inbounds %node, %node* %17, i32 0, i32 2
   %20 = getelementptr inbounds %node, %node* %17, i32 0, i32 0
   store %node* undef, %node** %20
   store i32 1, i32* %19
-  store %node* %17, %node** %l2
+  %l26 = alloca %node*
+  store %node* %17, %node** %l26
   %e2 = alloca { i8*, i32, i8* }*
-  %malloccall5 = tail call i8* @malloc(i32 ptrtoint ({ i8*, i32, i8* }* getelementptr ({ i8*, i32, i8* }, { i8*, i32, i8* }* null, i32 1) to i32))
-  %21 = bitcast i8* %malloccall5 to { i8*, i32, i8* }*
+  %malloccall7 = tail call i8* @malloc(i32 ptrtoint ({ i8*, i32, i8* }* getelementptr ({ i8*, i32, i8* }, { i8*, i32, i8* }* null, i32 1) to i32))
+  %21 = bitcast i8* %malloccall7 to { i8*, i32, i8* }*
   %22 = getelementptr inbounds { i8*, i32, i8* }, { i8*, i32, i8* }* %21, i32 0, i32 0
   %23 = getelementptr inbounds { i8*, i32, i8* }, { i8*, i32, i8* }* %21, i32 0, i32 1
   %24 = getelementptr inbounds { i8*, i32, i8* }, { i8*, i32, i8* }* %21, i32 0, i32 2
@@ -124,135 +127,159 @@ entry:
   store i32 3, i32* %23
   %25 = getelementptr inbounds { i8*, i32, i8* }, { i8*, i32, i8* }* %21, i32 0
   store { i8*, i32, i8* }* %25, { i8*, i32, i8* }** %e2
-  %e16 = load { i8*, i32, i8* }*, { i8*, i32, i8* }** %e1
-  %print_edge_result = call i32 @print_edge({ i8*, i32, i8* }* %e16)
+  %e18 = load { i8*, i32, i8* }*, { i8*, i32, i8* }** %e1
+  %print_edge_result = call i32 @print_edge({ i8*, i32, i8* }* %e18)
   %build_edge_result = call { i8*, i32, i8* }* @build_edge(i8* getelementptr inbounds ([5 x i8], [5 x i8]* @10, i32 0, i32 0), i32 10, i8* getelementptr inbounds ([7 x i8], [7 x i8]* @9, i32 0, i32 0))
   store { i8*, i32, i8* }* %build_edge_result, { i8*, i32, i8* }** %e2
-  %e27 = load { i8*, i32, i8* }*, { i8*, i32, i8* }** %e2
-  %print_edge_result8 = call i32 @print_edge({ i8*, i32, i8* }* %e27)
-  %l19 = load %node*, %node** %l1
-  %26 = getelementptr inbounds %node, %node* %l19, i32 0, i32 1
+  %e29 = load { i8*, i32, i8* }*, { i8*, i32, i8* }** %e2
+  %print_edge_result10 = call i32 @print_edge({ i8*, i32, i8* }* %e29)
+  %l111 = load %node*, %node** %l14
+  %26 = getelementptr inbounds %node, %node* %l111, i32 0, i32 1
   %27 = load i8*, i8** %26
   %printf = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @sfs, i32 0, i32 0), i8* %27)
-  %l110 = load %node*, %node** %l1
-  %28 = getelementptr inbounds %node, %node* %l110, i32 0, i32 0
-  %29 = bitcast %node* %l110 to i8*
+  %l112 = load %node*, %node** %l14
+  %28 = getelementptr inbounds %node, %node* %l112, i32 0, i32 0
+  %29 = bitcast %node* %l112 to i8*
   tail call void @free(i8* %29)
   %30 = load %node*, %node** %28
-  store %node* %30, %node** %l1
-  %printf11 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @sfs, i32 0, i32 0), i8* getelementptr inbounds ([3 x i8], [3 x i8]* @11, i32 0, i32 0))
-  %l112 = load %node*, %node** %l1
-  %31 = getelementptr inbounds %node, %node* %l112, i32 0, i32 1
+  %l113 = alloca %node*
+  store %node* %30, %node** %l113
+  %printf14 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @sfs, i32 0, i32 0), i8* getelementptr inbounds ([3 x i8], [3 x i8]* @11, i32 0, i32 0))
+  %l115 = load %node*, %node** %l113
+  %31 = getelementptr inbounds %node, %node* %l115, i32 0, i32 1
   %32 = load i8*, i8** %31
-  %printf13 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @sfs, i32 0, i32 0), i8* %32)
-  %l114 = load %node*, %node** %l1
-  %33 = getelementptr inbounds %node, %node* %l114, i32 0, i32 0
-  %34 = bitcast %node* %l114 to i8*
+  %printf16 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @sfs, i32 0, i32 0), i8* %32)
+  %l117 = load %node*, %node** %l113
+  %33 = getelementptr inbounds %node, %node* %l117, i32 0, i32 0
+  %34 = bitcast %node* %l117 to i8*
   tail call void @free(i8* %34)
   %35 = load %node*, %node** %33
-  store %node* %35, %node** %l1
-  %printf15 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @sfs, i32 0, i32 0), i8* getelementptr inbounds ([3 x i8], [3 x i8]* @12, i32 0, i32 0))
-  %l116 = load %node*, %node** %l1
-  %36 = getelementptr inbounds %node, %node* %l116, i32 0, i32 1
+  %l118 = alloca %node*
+  store %node* %35, %node** %l118
+  %printf19 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @sfs, i32 0, i32 0), i8* getelementptr inbounds ([3 x i8], [3 x i8]* @12, i32 0, i32 0))
+  %l120 = load %node*, %node** %l118
+  %36 = getelementptr inbounds %node, %node* %l120, i32 0, i32 1
   %37 = load i8*, i8** %36
-  %printf17 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @sfs, i32 0, i32 0), i8* %37)
+  %printf21 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @sfs, i32 0, i32 0), i8* %37)
   %l3 = alloca %node*
-  %malloccall18 = tail call i8* @malloc(i32 ptrtoint (%node* getelementptr (%node, %node* null, i32 1) to i32))
-  %38 = bitcast i8* %malloccall18 to %node*
+  %malloccall22 = tail call i8* @malloc(i32 ptrtoint (%node* getelementptr (%node, %node* null, i32 1) to i32))
+  %38 = bitcast i8* %malloccall22 to %node*
   %39 = getelementptr inbounds %node, %node* %38, i32 0, i32 1
   store i8* getelementptr inbounds ([2 x i8], [2 x i8]* @13, i32 0, i32 0), i8** %39
   %40 = getelementptr inbounds %node, %node* %38, i32 0, i32 2
   %41 = getelementptr inbounds %node, %node* %38, i32 0, i32 0
   store %node* undef, %node** %41
   store i32 1, i32* %40
-  %malloccall19 = tail call i8* @malloc(i32 ptrtoint (%node* getelementptr (%node, %node* null, i32 1) to i32))
-  %42 = bitcast i8* %malloccall19 to %node*
+  %malloccall23 = tail call i8* @malloc(i32 ptrtoint (%node* getelementptr (%node, %node* null, i32 1) to i32))
+  %42 = bitcast i8* %malloccall23 to %node*
   %43 = getelementptr inbounds %node, %node* %42, i32 0, i32 1
   store i8* getelementptr inbounds ([2 x i8], [2 x i8]* @14, i32 0, i32 0), i8** %43
   %44 = getelementptr inbounds %node, %node* %42, i32 0, i32 0
   store %node* %38, %node** %44
   %45 = getelementptr inbounds %node, %node* %42, i32 0, i32 2
   store i32 2, i32* %45
-  %malloccall20 = tail call i8* @malloc(i32 ptrtoint (%node* getelementptr (%node, %node* null, i32 1) to i32))
-  %46 = bitcast i8* %malloccall20 to %node*
+  %malloccall24 = tail call i8* @malloc(i32 ptrtoint (%node* getelementptr (%node, %node* null, i32 1) to i32))
+  %46 = bitcast i8* %malloccall24 to %node*
   %47 = getelementptr inbounds %node, %node* %46, i32 0, i32 1
   store i8* getelementptr inbounds ([2 x i8], [2 x i8]* @15, i32 0, i32 0), i8** %47
   %48 = getelementptr inbounds %node, %node* %46, i32 0, i32 0
   store %node* %42, %node** %48
   %49 = getelementptr inbounds %node, %node* %46, i32 0, i32 2
   store i32 3, i32* %49
-  %malloccall21 = tail call i8* @malloc(i32 ptrtoint (%node* getelementptr (%node, %node* null, i32 1) to i32))
-  %50 = bitcast i8* %malloccall21 to %node*
+  %malloccall25 = tail call i8* @malloc(i32 ptrtoint (%node* getelementptr (%node, %node* null, i32 1) to i32))
+  %50 = bitcast i8* %malloccall25 to %node*
   %51 = getelementptr inbounds %node, %node* %50, i32 0, i32 1
   store i8* getelementptr inbounds ([8 x i8], [8 x i8]* @16, i32 0, i32 0), i8** %51
   %52 = getelementptr inbounds %node, %node* %50, i32 0, i32 0
   store %node* %46, %node** %52
   %53 = getelementptr inbounds %node, %node* %50, i32 0, i32 2
   store i32 4, i32* %53
-  %malloccall22 = tail call i8* @malloc(i32 ptrtoint (%node* getelementptr (%node, %node* null, i32 1) to i32))
-  %54 = bitcast i8* %malloccall22 to %node*
+  %malloccall26 = tail call i8* @malloc(i32 ptrtoint (%node* getelementptr (%node, %node* null, i32 1) to i32))
+  %54 = bitcast i8* %malloccall26 to %node*
   %55 = getelementptr inbounds %node, %node* %54, i32 0, i32 1
   store i8* getelementptr inbounds ([7 x i8], [7 x i8]* @17, i32 0, i32 0), i8** %55
   %56 = getelementptr inbounds %node, %node* %54, i32 0, i32 0
   store %node* %50, %node** %56
   %57 = getelementptr inbounds %node, %node* %54, i32 0, i32 2
   store i32 5, i32* %57
-  %malloccall23 = tail call i8* @malloc(i32 ptrtoint (%node* getelementptr (%node, %node* null, i32 1) to i32))
-  %58 = bitcast i8* %malloccall23 to %node*
+  %malloccall27 = tail call i8* @malloc(i32 ptrtoint (%node* getelementptr (%node, %node* null, i32 1) to i32))
+  %58 = bitcast i8* %malloccall27 to %node*
   %59 = getelementptr inbounds %node, %node* %58, i32 0, i32 1
   store i8* getelementptr inbounds ([9 x i8], [9 x i8]* @18, i32 0, i32 0), i8** %59
   %60 = getelementptr inbounds %node, %node* %58, i32 0, i32 0
   store %node* %54, %node** %60
   %61 = getelementptr inbounds %node, %node* %58, i32 0, i32 2
   store i32 6, i32* %61
-  store %node* %58, %node** %l3
+  %l328 = alloca %node*
+  store %node* %58, %node** %l328
   %abra = alloca i32
   store i32 20, i32* %abra
-  %printf24 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @efs, i32 0, i32 0), i8* getelementptr inbounds ([1 x i8], [1 x i8]* @19, i32 0, i32 0))
-  %l325 = load %node*, %node** %l3
-  %62 = getelementptr inbounds %node, %node* %l325, i32 0, i32 2
+  %printf29 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @efs, i32 0, i32 0), i8* getelementptr inbounds ([1 x i8], [1 x i8]* @19, i32 0, i32 0))
+  %l330 = load %node*, %node** %l328
+  %62 = getelementptr inbounds %node, %node* %l330, i32 0, i32 2
   %63 = load i32, i32* %62
-  %printf26 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @ifs, i32 0, i32 0), i32 %63)
-  %printf27 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @efs, i32 0, i32 0), i8* getelementptr inbounds ([1 x i8], [1 x i8]* @20, i32 0, i32 0))
-  %e228 = load { i8*, i32, i8* }*, { i8*, i32, i8* }** %e2
-  %64 = getelementptr inbounds { i8*, i32, i8* }, { i8*, i32, i8* }* %e228, i32 0, i32 1
+  %printf31 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @ifs, i32 0, i32 0), i32 %63)
+  %printf32 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @efs, i32 0, i32 0), i8* getelementptr inbounds ([1 x i8], [1 x i8]* @20, i32 0, i32 0))
+  %e233 = load { i8*, i32, i8* }*, { i8*, i32, i8* }** %e2
+  %64 = getelementptr inbounds { i8*, i32, i8* }, { i8*, i32, i8* }* %e233, i32 0, i32 1
   %65 = load i32, i32* %64
-  %printf29 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @ifs, i32 0, i32 0), i32 0)
-  %printf30 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @efs, i32 0, i32 0), i8* getelementptr inbounds ([1 x i8], [1 x i8]* @21, i32 0, i32 0))
+  %printf34 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @ifs, i32 0, i32 0), i32 0)
+  %printf35 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @efs, i32 0, i32 0), i8* getelementptr inbounds ([1 x i8], [1 x i8]* @21, i32 0, i32 0))
   %baracuda = alloca i32
   store i32 0, i32* %baracuda
   %cadabra = alloca i32
   br i1 false, label %then, label %else
 
-merge:                                            ; preds = %merge38, %then
-  %printf39 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @efs, i32 0, i32 0), i8* getelementptr inbounds ([1 x i8], [1 x i8]* @25, i32 0, i32 0))
-  %l340 = load %node*, %node** %l3
-  %print_list_result = call i32 @print_list(%node* %l340)
-  %cadabra41 = load i32, i32* %cadabra
-  %printf42 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @ifs, i32 0, i32 0), i32 %cadabra41)
+merge:                                            ; preds = %merge43, %then
+  %printf44 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @efs, i32 0, i32 0), i8* getelementptr inbounds ([1 x i8], [1 x i8]* @25, i32 0, i32 0))
+  %l345 = load %node*, %node** %l328
+  %print_list_result = call i32 @print_list(%node* %l345)
+  %cadabra46 = load i32, i32* %cadabra
+  %printf47 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @ifs, i32 0, i32 0), i32 %cadabra46)
   %lemma = alloca %node*
-  store %node* null, %node** %lemma
-  %malloccall43 = tail call i8* @malloc(i32 ptrtoint (%node* getelementptr (%node, %node* null, i32 1) to i32))
-  %66 = bitcast i8* %malloccall43 to %node*
+  %lemma48 = alloca %node*
+  store %node* null, %node** %lemma48
+  %malloccall49 = tail call i8* @malloc(i32 ptrtoint (%node* getelementptr (%node, %node* null, i32 1) to i32))
+  %66 = bitcast i8* %malloccall49 to %node*
   %67 = getelementptr inbounds %node, %node* %66, i32 0, i32 1
   store i8* getelementptr inbounds ([2 x i8], [2 x i8]* @26, i32 0, i32 0), i8** %67
   %68 = getelementptr inbounds %node, %node* %66, i32 0, i32 2
   %69 = getelementptr inbounds %node, %node* %66, i32 0, i32 0
   store %node* undef, %node** %69
   store i32 1, i32* %68
-  %malloccall44 = tail call i8* @malloc(i32 ptrtoint (%node* getelementptr (%node, %node* null, i32 1) to i32))
-  %70 = bitcast i8* %malloccall44 to %node*
+  %malloccall50 = tail call i8* @malloc(i32 ptrtoint (%node* getelementptr (%node, %node* null, i32 1) to i32))
+  %70 = bitcast i8* %malloccall50 to %node*
   %71 = getelementptr inbounds %node, %node* %70, i32 0, i32 1
   store i8* getelementptr inbounds ([2 x i8], [2 x i8]* @27, i32 0, i32 0), i8** %71
   %72 = getelementptr inbounds %node, %node* %70, i32 0, i32 0
   store %node* %66, %node** %72
   %73 = getelementptr inbounds %node, %node* %70, i32 0, i32 2
   store i32 2, i32* %73
-  store %node* %70, %node** %lemma
-  %lemma45 = load %node*, %node** %lemma
-  %print_list_result46 = call i32 @print_list(%node* %lemma45)
-  %printf47 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @efs, i32 0, i32 0), i8* getelementptr inbounds ([1 x i8], [1 x i8]* @28, i32 0, i32 0))
-  %printf48 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @efs, i32 0, i32 0), i8* getelementptr inbounds ([1 x i8], [1 x i8]* @29, i32 0, i32 0))
+  %lemma51 = alloca %node*
+  store %node* %70, %node** %lemma51
+  %lemma52 = load %node*, %node** %lemma51
+  %print_list_result53 = call i32 @print_list(%node* %lemma52)
+  %printf54 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @efs, i32 0, i32 0), i8* getelementptr inbounds ([1 x i8], [1 x i8]* @28, i32 0, i32 0))
+  %printf55 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @efs, i32 0, i32 0), i8* getelementptr inbounds ([1 x i8], [1 x i8]* @29, i32 0, i32 0))
+  %bronze = alloca %node*
+  %malloccall56 = tail call i8* @malloc(i32 ptrtoint (%inode* getelementptr (%inode, %inode* null, i32 1) to i32))
+  %74 = bitcast i8* %malloccall56 to %inode*
+  %75 = getelementptr inbounds %inode, %inode* %74, i32 0, i32 1
+  store i32 2, i32* %75
+  %76 = getelementptr inbounds %inode, %inode* %74, i32 0, i32 2
+  %77 = getelementptr inbounds %inode, %inode* %74, i32 0, i32 0
+  store %inode* undef, %inode** %77
+  store i32 1, i32* %76
+  %malloccall57 = tail call i8* @malloc(i32 ptrtoint (%inode* getelementptr (%inode, %inode* null, i32 1) to i32))
+  %78 = bitcast i8* %malloccall57 to %inode*
+  %79 = getelementptr inbounds %inode, %inode* %78, i32 0, i32 1
+  store i32 1, i32* %79
+  %80 = getelementptr inbounds %inode, %inode* %78, i32 0, i32 0
+  store %inode* %74, %inode** %80
+  %81 = getelementptr inbounds %inode, %inode* %78, i32 0, i32 2
+  store i32 2, i32* %81
+  %bronze58 = alloca %inode*
+  store %inode* %78, %inode** %bronze58
   ret i32 1
 
 then:                                             ; preds = %entry
@@ -261,25 +288,25 @@ then:                                             ; preds = %entry
   br label %merge
 
 else:                                             ; preds = %entry
-  %print_ln_result31 = call i32 @print_ln(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @23, i32 0, i32 0))
+  %print_ln_result36 = call i32 @print_ln(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @23, i32 0, i32 0))
   store i32 30, i32* %cadabra
   br label %while
 
 while:                                            ; preds = %while_body, %else
-  %cadabra36 = load i32, i32* %cadabra
-  %tmp37 = icmp sgt i32 %cadabra36, 0
-  br i1 %tmp37, label %while_body, label %merge38
+  %cadabra41 = load i32, i32* %cadabra
+  %tmp42 = icmp sgt i32 %cadabra41, 0
+  br i1 %tmp42, label %while_body, label %merge43
 
 while_body:                                       ; preds = %while
-  %abra32 = load i32, i32* %abra
-  %printf33 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @ifs, i32 0, i32 0), i32 %abra32)
-  %printf34 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @sfs, i32 0, i32 0), i8* getelementptr inbounds ([2 x i8], [2 x i8]* @24, i32 0, i32 0))
-  %cadabra35 = load i32, i32* %cadabra
-  %tmp = sub i32 %cadabra35, 10
+  %abra37 = load i32, i32* %abra
+  %printf38 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @ifs, i32 0, i32 0), i32 %abra37)
+  %printf39 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @sfs, i32 0, i32 0), i8* getelementptr inbounds ([2 x i8], [2 x i8]* @24, i32 0, i32 0))
+  %cadabra40 = load i32, i32* %cadabra
+  %tmp = sub i32 %cadabra40, 10
   store i32 %tmp, i32* %cadabra
   br label %while
 
-merge38:                                          ; preds = %while
+merge43:                                          ; preds = %while
   br label %merge
 }
 
@@ -366,35 +393,37 @@ entry:
   store i32 %1, i32* %len
   %tmp = alloca %node*
   %l13 = load %node*, %node** %l11
-  store %node* %l13, %node** %tmp
+  %tmp4 = alloca %node*
+  store %node* %l13, %node** %tmp4
   %i = alloca i32
   store i32 0, i32* %i
   %printf = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @sfs.14, i32 0, i32 0), i8* getelementptr inbounds ([3 x i8], [3 x i8]* @36, i32 0, i32 0))
   br label %while
 
 while:                                            ; preds = %while_body, %entry
-  %i10 = load i32, i32* %i
-  %len11 = load i32, i32* %len
-  %tmp12 = icmp slt i32 %i10, %len11
-  br i1 %tmp12, label %while_body, label %merge
+  %i12 = load i32, i32* %i
+  %len13 = load i32, i32* %len
+  %tmp14 = icmp slt i32 %i12, %len13
+  br i1 %tmp14, label %while_body, label %merge
 
 while_body:                                       ; preds = %while
-  %tmp4 = load %node*, %node** %tmp
-  %2 = getelementptr inbounds %node, %node* %tmp4, i32 0, i32 1
+  %tmp5 = load %node*, %node** %tmp4
+  %2 = getelementptr inbounds %node, %node* %tmp5, i32 0, i32 1
   %3 = load i8*, i8** %2
-  %printf5 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @sfs.14, i32 0, i32 0), i8* %3)
-  %printf6 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @sfs.14, i32 0, i32 0), i8* getelementptr inbounds ([3 x i8], [3 x i8]* @37, i32 0, i32 0))
-  %tmp7 = load %node*, %node** %tmp
-  %4 = getelementptr inbounds %node, %node* %tmp7, i32 0, i32 0
+  %printf6 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @sfs.14, i32 0, i32 0), i8* %3)
+  %printf7 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @sfs.14, i32 0, i32 0), i8* getelementptr inbounds ([3 x i8], [3 x i8]* @37, i32 0, i32 0))
+  %tmp8 = load %node*, %node** %tmp4
+  %4 = getelementptr inbounds %node, %node* %tmp8, i32 0, i32 0
   %5 = load %node*, %node** %4
-  store %node* %5, %node** %tmp
-  %i8 = load i32, i32* %i
-  %tmp9 = add i32 %i8, 1
-  store i32 %tmp9, i32* %i
+  %tmp9 = alloca %node*
+  store %node* %5, %node** %tmp9
+  %i10 = load i32, i32* %i
+  %tmp11 = add i32 %i10, 1
+  store i32 %tmp11, i32* %i
   br label %while
 
 merge:                                            ; preds = %while
-  %printf13 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @efs.15, i32 0, i32 0), i8* getelementptr inbounds ([1 x i8], [1 x i8]* @38, i32 0, i32 0))
+  %printf15 = call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @efs.15, i32 0, i32 0), i8* getelementptr inbounds ([1 x i8], [1 x i8]* @38, i32 0, i32 0))
   ret i32 1
 }
 

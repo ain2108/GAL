@@ -55,9 +55,19 @@ let pop_fdcl =
 	{ typ = Listtyp; fname = "pop"; formals = [(Listtyp, "a")];
 	  locals = []; body = []};;
 
-let peek_fdcl = 
-	{ typ = String; fname = "peek"; formals = [(Listtyp, "a")];
+let speek_fdcl = 
+	{ typ = String; fname = "speek"; formals = [(Listtyp, "a")];
 	  locals = []; body = []};;
+
+let ipeek_fdcl = 
+	{ typ = Int; fname = "ipeek"; formals = [(Listtyp, "a")];
+	  locals = []; body = []};;
+
+let epeek_fdcl = 
+	{ typ = Edge; fname = "epeek"; formals = [(Listtyp, "a")];
+	  locals = []; body = []};;
+
+
 
 let next_fdcl = 
 	{ typ = Listtyp; fname = "next"; formals = [(Listtyp, "a")];
@@ -66,7 +76,7 @@ let next_fdcl =
 let builtin_fdcl_list =
 	[ print_int_fdcl; print_str_fdcl; length_fdcl; dest_fdcl;
 	  source_fdcl; pop_fdcl; weight_fdcl; print_endline_fdcl;
-	  peek_fdcl; next_fdcl ];;
+	  speek_fdcl; ipeek_fdcl; epeek_fdcl; next_fdcl ];;
 
 
 (* Static semantic checker of the program. Will return void 
