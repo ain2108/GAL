@@ -144,21 +144,10 @@ let translate (globals, functions) =
 
 			let add_formal (t, n) (p, i) = 
 				P.fprintf stderr "%s\n" (L.string_of_lltype (L.type_of p));
-				(* if (L.type_of p) = ((L.pointer_type decl_node_t)) then
-					( P.fprintf stderr "%s" "cast back needed\n";
-					  P.fprintf stderr "%d in %s" i fdecl.fname ;
-
-					let good_type = Hashtbl.find cast_hash (fdecl.fname, i) in 
-					let p = L.build_bitcast p (good_type) "" builder in 
-					L.set_value_name n p;
-					let local = L.build_alloca (ltype_of_typ t) n builder in
-					ignore (L.build_store p local builder);
-					Hashtbl.add local_hash n local )
-				else  *)
-					(L.set_value_name n p;
-					let local = L.build_alloca (ltype_of_typ t) n builder in
-					ignore (L.build_store p local builder);
-					Hashtbl.add local_hash n local) 
+				L.set_value_name n p;
+				let local = L.build_alloca (ltype_of_typ t) n builder in
+				ignore (L.build_store p local builder);
+				Hashtbl.add local_hash n local
 			in 
 			
 			let params = enumerate 0 [] (Array.to_list (L.params the_function))  
@@ -301,7 +290,7 @@ let translate (globals, functions) =
 			| A.Call("dest", [e]) -> 
 				let dest_field_pointer = L.build_struct_gep (expr builder e) 2 "" builder 
 				in L.build_load dest_field_pointer "" builder 
-			| A.Call("pop", [e]) ->
+			| A.Call("spop", [e]) ->
 				let head_node_p = (expr builder e) in 
 				let head_node_next_node_pointer = L.build_struct_gep head_node_p 0 "" builder in 
 				ignore (L.build_free head_node_p builder);

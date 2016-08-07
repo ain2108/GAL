@@ -52,7 +52,7 @@ let print_endline_fdcl =
 
 (* This function needs discussion *)
 let pop_fdcl = 
-	{ typ = SListtyp; fname = "pop"; formals = [(SListtyp, "a")];
+	{ typ = SListtyp; fname = "spop"; formals = [(SListtyp, "a")];
 	  locals = []; body = []};;
 
 let speek_fdcl = 
@@ -66,7 +66,6 @@ let ipeek_fdcl =
 let epeek_fdcl = 
 	{ typ = Edge; fname = "epeek"; formals = [(EListtyp, "a")];
 	  locals = []; body = []};;
-
 
 let next_fdcl = 
 	{ typ = SListtyp; fname = "snext"; formals = [(SListtyp, "a")];
