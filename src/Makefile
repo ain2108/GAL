@@ -8,7 +8,7 @@
 .PHONY : microc.native
 
 gal.native :
-	ocamlbuild -use-ocamlfind -pkgs llvm,llvm.analysis -cflags -w,+a-4 \
+	ocamlbuild -use-ocamlfind -pkgs str,llvm,llvm.analysis -cflags -w,+a-4 \
 		gal.native
 
 

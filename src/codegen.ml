@@ -1,9 +1,19 @@
+
 module A = Ast
 module L = Llvm
 module P = Printf
 module StringMap = Map.Make(String)
 
+
 let translate (globals, functions) = 
+
+	let contains s1 s2 = 
+    let re = Str.regexp_string s2
+    in
+        try ignore (Str.search_forward re s1 0); true
+        with Not_found -> false
+
+    in 
 
 	(* Build a context and the module *)
 	let context = L.global_context () in
@@ -122,6 +132,8 @@ let translate (globals, functions) =
 				let local = L.build_alloca (ltype_of_typ t) n builder in
 				ignore (L.build_store p local builder);
 				Hashtbl.add local_hash n local in                                      
+			
+
 			List.iter2 add_formal fdecl.A.formals (Array.to_list (L.params the_function)) 
 
 		in let add_local builder (t, n) =
@@ -195,24 +207,24 @@ let translate (globals, functions) =
 				else 
 					let (hd::tl) = elist in 
 					(* let node_t = get_node_type hd in  *)
-					let node_t = get_node_type hd in 
-					let head_node = build_node (node_t) hd in
+					let good_node_t = get_node_type hd in 
+					let head_node = build_node (good_node_t) hd in
 					let head_node_len_p = L.build_struct_gep head_node 2 "" builder in 
 					let head_node_next_p =  L.build_struct_gep head_node 0 "" builder in 
-					ignore (L.build_store (L.undef (L.pointer_type node_t)) head_node_next_p builder); 
+					ignore (L.build_store (L.undef (L.pointer_type good_node_t)) head_node_next_p builder); 
 					ignore (L.build_store (expr builder (A.Litint(1))) head_node_len_p builder);
 
 					let rec build_list the_head len = function 
 						| [] -> the_head
 						| hd::tl ->(
 							let len = len + 1 in 
-							let new_node = build_node node_t hd in 
+							let new_node = build_node good_node_t hd in 
 							let new_head = add_element the_head new_node in 
 							let new_head_len_p = L.build_struct_gep new_head 2 "" builder in
 							ignore (L.build_store (expr builder (A.Litint(len))) new_head_len_p builder);
 							build_list new_head (len) tl)
 					
-					in build_list head_node 1 tl
+					in (*  L.build_bitcast *) (build_list head_node 1 tl) (* (L.pointer_type node_t) "" builder *)
 
 			| A.Id(name) -> L.build_load (lookup name) name builder
 			| A.Assign(name, e) -> 
@@ -295,8 +307,21 @@ let translate (globals, functions) =
 				(* L.const_int i32_t 10 *)
 
 			| A.Call(fname, actuals) ->
+				let bitcast_actuals actual = 
+					let lvalue = expr builder actual in 
+					let ltype = L.type_of lvalue in 
+					let str_ltype = L.string_of_lltype ltype in 
+					(* P.fprintf stderr "%s\n" str_ltype;  *)
+
+					if (contains str_ltype "node") then 
+						L.build_bitcast lvalue (L.pointer_type node_t) "" builder
+					else
+						lvalue
+
+				in  
+
 				let (fdef, fdecl) = StringMap.find fname function_decls in 
-				let actuals = List.rev (List.map (expr builder) (List.rev actuals)) in 
+				let actuals = List.rev (List.map bitcast_actuals (List.rev actuals)) in 
 				let result = fname ^ "_result" in 
 				L.build_call fdef (Array.of_list actuals) result builder
 			| A.Binop(e1, op, e2) ->
@@ -319,10 +344,9 @@ let translate (globals, functions) =
 				L.build_intcast value i32_t "" builder  *)
 			| A.Unop(op, e) ->
 				let e' = expr builder e in 
-				if (L.is_null e') then 
-					L.const_int i32_t 1
-				else 
-					L.const_int i32_t 0
+				(match op with 
+					| A.Not -> L.build_not
+					| _ 	-> raise (Failure("expr not supported"))) e' "tmp" builder
 			| _ -> raise (Failure("expr not supported"))
 
 
