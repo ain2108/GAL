@@ -90,7 +90,7 @@ listdecl:
 	| listdecl LISTSEP expr { $3 :: $1 } 
 
 node_syntax:
-	  expr COMMA w_dst_list { List.map (build_edge ~src:$1) $3}
+	  expr COLON w_dst_list { List.map (build_edge ~src:$1) $3}
 
 w_dst_list:
 	  expr COMMA expr 		{[($1, $3)]}
