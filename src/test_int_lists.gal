@@ -115,7 +115,10 @@ def int main(){
     ilist l3;
     l3 = [1::2::3::4::42];
     print_ilist(l3);
-
+    l3 = iadd(27, l3);
+    print_ilist(l3);
+    print_int(ilength(l3));
+    print_endline();
     node n2;
     n2 = |"B": 7, "A", 4, "D"|;
 

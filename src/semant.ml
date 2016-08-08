@@ -100,16 +100,27 @@ let nnext_fdcl =
 	  locals = []; body = []};;
 
 let sadd_fdcl = 
-	{ typ = SListtyp; fname = "sadd"; formals = [(String, "b");(SListtyp, "a")];
+	{ typ = SListtyp; fname = "sadd"; formals = [(String, "b"); (SListtyp, "a")];
 	  locals = []; body = []};;
 
+let eadd_fdcl = 
+	{ typ = EListtyp; fname = "eadd"; formals = [(Edge, "b"); (EListtyp, "a")];
+	  locals = []; body = []};;
+
+let iadd_fdcl = 
+	{ typ = IListtyp; fname = "iadd"; formals = [(Int, "b"); (IListtyp, "a")];
+	  locals = []; body = []};;
+
+let nadd_fdcl = 
+	{ typ = NListtyp; fname = "nadd"; formals = [(EListtyp, "b"); (NListtyp, "a")];
+	  locals = []; body = []};;
 
 let builtin_fdcl_list =
 	[ print_int_fdcl; print_str_fdcl; slength_fdcl; dest_fdcl;
 	  source_fdcl; spop_fdcl; weight_fdcl; print_endline_fdcl;
 	  speek_fdcl; ipeek_fdcl; epeek_fdcl; snext_fdcl; elength_fdcl;
 	  enext_fdcl; inext_fdcl; ilength_fdcl; nnext_fdcl; npeek_fdcl;
-	  nlength_fdcl; sadd_fdcl ];;
+	  nlength_fdcl; sadd_fdcl; eadd_fdcl; iadd_fdcl; nadd_fdcl ];;
 
 
 (* Static semantic checker of the program. Will return void 

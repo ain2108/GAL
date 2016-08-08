@@ -333,7 +333,8 @@ let translate (globals, functions) =
 			| A.Call("slength", [e]) | A.Call("elength", [e]) | A.Call("ilength", [e]) | A.Call("nlength", [e]) ->
 				let head_node_len_p =  L.build_struct_gep (expr builder e) 2 "" builder in 
 				L.build_load head_node_len_p  "" builder
-			| A.Call("sadd", [elmt; the_list]) -> 
+			| A.Call("sadd", [elmt; the_list]) | A.Call("iadd", [elmt; the_list]) 
+			| A.Call("nadd", [elmt; the_list]) | A.Call("eadd", [elmt; the_list]) -> 
 
 				(* Build the new node *)
 				let the_head = (expr builder the_list) in 
@@ -350,9 +351,6 @@ let translate (globals, functions) =
 
 				(* Attach the new head to the old head *) 
 				add_element the_head new_node 
-				
-				(* let new_head_len_p = L.build_struct_gep new_head 2 "" builder in
-				ignore (L.build_store (expr builder (A.Litint(len))) new_head_len_p builder); *)
 
 			| A.Call(fname, actuals) ->
 
