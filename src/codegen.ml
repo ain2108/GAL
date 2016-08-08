@@ -1,9 +1,28 @@
+(* Authors: Donovan Chan, Andrew Feather, Macrina Lobo, 
+			Anton Nefedenkov
+   Note: This code was writte on top of Prof. Edwards's 
+   		 microc code. We hope this is acceptable. *)
+
+
 module A = Ast
 module L = Llvm
 module P = Printf
 module StringMap = Map.Make(String)
 
+
 let translate (globals, functions) = 
+
+	let contains s1 s2 = 
+    let re = Str.regexp_string s2
+    in
+        try ignore (Str.search_forward re s1 0); true
+        with Not_found -> false
+
+    in 
+
+
+    (* To keep track of bitcasts *)
+    let cast_hash = Hashtbl.create 100 in 
 
 	(* Build a context and the module *)
 	let context = L.global_context () in
@@ -23,31 +42,52 @@ let translate (globals, functions) =
     in let one = L.const_int i32_t 1
 	in let inc_i32 c = L.const_add c one  
 
- 	in let node_t = L.named_struct_type context "node" in 
+	in let empty_node_t = L.named_struct_type context "empty" in 
+	L.struct_set_body empty_node_t (Array.of_list [L.pointer_type empty_node_t; L.pointer_type i1_t; i32_t ])  true;
+
+ 	let node_t = L.named_struct_type context "node" in 
     L.struct_set_body node_t (Array.of_list [L.pointer_type node_t; i8_p_t; i32_t ])  true;
-    
+
+    let e_node_t = L.named_struct_type context "enode" in 
+    L.struct_set_body e_node_t (Array.of_list [L.pointer_type e_node_t; L.pointer_type edge_t; i32_t ])  true;
+
+	let i_node_t = L.named_struct_type context "inode" in 
+    L.struct_set_body i_node_t (Array.of_list [L.pointer_type i_node_t; i32_t; i32_t ])  true;
+
+	let n_node_t = L.named_struct_type context "nnode" in 
+    L.struct_set_body n_node_t (Array.of_list [L.pointer_type n_node_t; L.pointer_type e_node_t; i32_t ])  true;
 
     let Some(node_t) = L.type_by_name the_module "node" in 
+    let Some(e_node_t) = L.type_by_name the_module "enode" in 
+    let Some(i_node_t) = L.type_by_name the_module "inode" in  
+    let Some(n_node_t) = L.type_by_name the_module "nnode" in
+    let Some(empty_node_t) = L.type_by_name the_module "empty" in 
+    	
     
 	(* Pattern match on A.typ returning a llvm type *)
 	let ltype_of_typ ltyp = match ltyp with
 		| A.Int 	-> i32_t
 		| A.Edge 	-> L.pointer_type edge_t
 		| A.String  -> i8_p_t
-		| A.Listtyp -> L.pointer_type node_t
+		| A.EmptyListtyp -> L.pointer_type empty_node_t
+		| A.SListtyp -> L.pointer_type node_t 
+		| A.EListtyp -> L.pointer_type e_node_t
+		| A.IListtyp -> L.pointer_type i_node_t
+		| A.NListtyp -> L.pointer_type n_node_t
 		| _ 	-> raise (Failure ("Type not implemented\n"))
 
- 	in let get_node_type expr = match expr with
-		| A.Litint(num) -> L.struct_type context
-			(Array.of_list [L.pointer_type node_t; i32_p_t]) 
-		| A.Litstr(str) -> L.struct_type context
-			(Array.of_list [L.pointer_type node_t; i8_p_t]) 
-		| _ -> raise (Failure(" type not supported in list "))
- 
 	(* Create the edge declaration *)
 	in let codegen_edgedecl =
 	ignore (L.struct_set_body (L.named_struct_type context "edge") 
 	(Array.of_list [i8_p_t; i32_t; i8_p_t]) false)
+
+
+	in let list_type_from_type ocaml_type = match ocaml_type with
+		| A.Int 		-> i_node_t
+		| A.String 		-> node_t 
+		| A.Edge 		-> e_node_t
+		| A.EListtyp	-> n_node_t
+		| _ -> raise (Failure("such lists are not supported "))
 
 	(* Global variables *)
 	in let global_vars =
@@ -89,6 +129,7 @@ let translate (globals, functions) =
 	(* Builds the function body in the module *)
 	in let build_function_body fdecl = 
 
+		let ocaml_local_hash = Hashtbl.create 100 in 
 		let local_hash = Hashtbl.create 100 in 
 
 		(* Get the llvm function from the map *)
@@ -105,29 +146,80 @@ let translate (globals, functions) =
 		let endline_format_string = L.build_global_stringptr "%s\n" "efs" builder in
 
 		let local_vars =
-			let add_formal (t, n) p = 
+			
+			let rec enumerate i enumed_l = function 
+					| [] -> List.rev enumed_l 
+					| hd::tl -> enumerate (i + 1) ((hd, i)::enumed_l) tl 
+			in 
+
+			let add_formal (t, n) (p, i) = 
 				L.set_value_name n p;
 				let local = L.build_alloca (ltype_of_typ t) n builder in
 				ignore (L.build_store p local builder);
-				Hashtbl.add local_hash n local in                                      
-			List.iter2 add_formal fdecl.A.formals (Array.to_list (L.params the_function)) 
+				Hashtbl.add local_hash n local
+			in 
+			
+			let params = enumerate 0 [] (Array.to_list (L.params the_function))  
+
+			in List.iter2 add_formal fdecl.A.formals params 
 
 		in let add_local builder (t, n) =
 				let local_var = L.build_alloca (ltype_of_typ t) n builder
 				in Hashtbl.add local_hash n local_var 
-		
+
+		in let add_local_list builder ltype n = 
+				let local_var = L.build_alloca (ltype) n builder
+				in Hashtbl.add local_hash n local_var
+
 		in let lookup name = 
 			try Hashtbl.find local_hash name 
-			with Not_found -> StringMap.find name global_vars 
+			with Not_found -> StringMap.find name global_vars
+
+		in let rec get_node_type expr = match expr with
+			| A.Litint(num) -> i_node_t
+			| A.Litstr(str) -> node_t
+			| A.Listdcl(somelist) -> 
+				if somelist = [] then 
+					raise (Failure("empty list decl"))
+				else 
+					let hd::tl = somelist in get_node_type hd  
+			| A.Binop(e1, op, e2) -> get_node_type e1
+			| A.Edgedcl(_) 	-> e_node_t
+			| A.Id(name) 	-> 
+				let ocaml_type = (Hashtbl.find ocaml_local_hash name)
+				in  list_type_from_type ocaml_type
+			| _ -> raise (Failure(" type not supported in list "))
+ 
 
 		 (* Gets a boolean i1_t value from any i_type *)
         in let bool_of_int int_val = L.build_is_null int_val "banana" builder
-			
 
 
 		(* We can now describe the action to be taken on ast traversal *)
 		(* Going to first pattern match on the list of expressions *)
-		in let rec expr builder = function
+		in let rec expr builder e = 
+
+			(* Helper to add element to the list *)
+			let add_element head_p new_node_p =
+				let new_node_next_field_pointer =
+					L.build_struct_gep new_node_p 0 "" builder in 
+					ignore (L.build_store head_p 
+					new_node_next_field_pointer builder);
+					new_node_p
+
+			in let add_payload node_p payload_p =
+				let node_payload_pointer =
+					L.build_struct_gep node_p 1 "" builder in 
+					ignore (L.build_store payload_p 
+					node_payload_pointer builder);
+					node_p
+
+			in let build_node node_type payload =
+				let alloc = L.build_malloc node_type ("") builder in
+				let payload_p = expr builder payload in 
+				add_payload alloc payload_p 
+
+			in match e with 
 			| A.Litint(i) -> L.const_int i32_t i 
 			| A.Litstr(str) -> 
 				let s = L.build_global_stringptr str "" builder in
@@ -150,56 +242,70 @@ let translate (globals, functions) =
 					ignore (L.build_store src_p src_field_pointer builder);
 					ignore (L.build_store dst_p dst_field_pointer builder);
 					ignore (L.build_store w weight_field_pointer builder);
-				L.build_in_bounds_gep alloc [|(L.const_int i32_t 0)|] "" builder  
+					L.build_in_bounds_gep alloc [|(L.const_int i32_t 0)|] "" builder  
 			
 			| A.Listdcl(elist) -> 
 				let elist = List.rev elist in 
-				let add_element head_p new_node_p =
-					let new_node_next_field_pointer =
-						L.build_struct_gep new_node_p 0 "" builder in 
-					ignore (L.build_store head_p 
-					new_node_next_field_pointer builder);
-					new_node_p
 
-				in let add_payload node_p payload_p =
-					let node_payload_pointer =
-						L.build_struct_gep node_p 1 "" builder in 
-					ignore (L.build_store payload_p 
-					node_payload_pointer builder);
-					node_p
-
-				in let build_node node_type payload =
-					let alloc = L.build_malloc node_type ("") builder in
-					let payload_p = expr builder payload in 
-					add_payload alloc payload_p 
-
-				in if (elist = []) then
-					raise (Failure("empty list assignment"))
+				if (elist = []) then
+					L.const_pointer_null (L.pointer_type empty_node_t)
+					(* raise (Failure("empty list assignment")) *)
 				else 
 					let (hd::tl) = elist in 
-					(* let node_t = get_node_type hd in  *)
-					let head_node = build_node node_t hd in
+					let good_node_t = get_node_type hd in 
+					let head_node = build_node (good_node_t) hd in
 					let head_node_len_p = L.build_struct_gep head_node 2 "" builder in 
 					let head_node_next_p =  L.build_struct_gep head_node 0 "" builder in 
-					ignore (L.build_store (L.undef (L.pointer_type node_t)) head_node_next_p builder); 
+					ignore (L.build_store (L.undef (L.pointer_type good_node_t)) head_node_next_p builder); 
 					ignore (L.build_store (expr builder (A.Litint(1))) head_node_len_p builder);
 
 					let rec build_list the_head len = function 
 						| [] -> the_head
 						| hd::tl ->(
 							let len = len + 1 in 
-							let new_node = build_node node_t hd in 
+							let new_node = build_node good_node_t hd in 
 							let new_head = add_element the_head new_node in 
 							let new_head_len_p = L.build_struct_gep new_head 2 "" builder in
 							ignore (L.build_store (expr builder (A.Litint(len))) new_head_len_p builder);
 							build_list new_head (len) tl)
 					
-					in build_list head_node 1 tl
+					in (build_list head_node 1 tl) 
 
 			| A.Id(name) -> L.build_load (lookup name) name builder
 			| A.Assign(name, e) -> 
+				let loc_var = lookup name in 
 				let e' = (expr builder e) in
-				ignore (L.build_store e' (lookup name) builder); e'
+
+				(* let node_t_str = L.string_of_lltype (L.type_of loc_var) in 
+				let loc_var_str = L.string_of_lltype (L.type_of e') in 
+				P.fprintf stderr "%s and %s\n" node_t_str loc_var_str; *)
+
+				(* Cant add it like this. Need a different comparison. And need to remove
+					old var form the hash map  *)
+				if ((L.pointer_type empty_node_t) = (L.type_of e')) then 
+					(
+
+					(* This is the ocaml type of the variable *)
+					let list_type = Hashtbl.find ocaml_local_hash name in 
+					
+					(* Cant get to the right type for store instruction, so this: *)
+					let rec get_llvm_node_type ocaml_type = match ocaml_type with 
+						| A.SListtyp -> node_t
+						| A.IListtyp -> i_node_t
+						| A.NListtyp -> n_node_t 
+						| A.EListtyp -> e_node_t
+						| _          -> raise (Failure("list type not supported"))
+					in
+
+					let llvm_node_t = get_llvm_node_type list_type in
+					let dummy_node = L.build_malloc llvm_node_t ("") builder in  
+					let dummy_node_len_p = L.build_struct_gep dummy_node 2 "" builder in 
+					ignore (L.build_store (expr builder (A.Litint(0))) dummy_node_len_p builder);
+					ignore (L.build_store dummy_node loc_var builder); 
+					e' )
+				else  
+					(ignore (L.build_store e' (lookup name) builder); e')
+			
 			(* Calling builtins below *)
 			| A.Call("print_int", [e]) ->
 				L.build_call printf_func 
@@ -225,12 +331,12 @@ let translate (globals, functions) =
 			| A.Call("dest", [e]) -> 
 				let dest_field_pointer = L.build_struct_gep (expr builder e) 2 "" builder 
 				in L.build_load dest_field_pointer "" builder 
-			| A.Call("pop", [e]) ->
+			| A.Call("spop", [e]) ->
 				let head_node_p = (expr builder e) in 
 				let head_node_next_node_pointer = L.build_struct_gep head_node_p 0 "" builder in 
 				ignore (L.build_free head_node_p builder);
 				L.build_load head_node_next_node_pointer "" builder
-			| A.Call("peek", [e]) -> 
+			| A.Call("speek", [e]) | A.Call("ipeek", [e]) | A.Call("epeek", [e]) | A.Call("npeek", [e])-> 
 				let head_node_p = (expr builder e) in 
 				(* Trying to make the crash graceful here 565jhfdshjgq2 *)
 				if  head_node_p = (L.const_pointer_null (L.type_of head_node_p)) then 
@@ -238,36 +344,73 @@ let translate (globals, functions) =
 				else
 				let head_node_payload_pointer = L.build_struct_gep head_node_p 1 "" builder in 
 				L.build_load head_node_payload_pointer "" builder
-			| A.Call("next", [e]) ->
+			| A.Call("snext", [e]) | A.Call("enext", [e]) | A.Call("inext", [e]) | A.Call("nnext", [e])->
 				let head_node_next_p = L.build_struct_gep (expr builder e) 0 "" builder in 
 				L.build_load head_node_next_p "" builder
-			| A.Call("length", [e]) ->
-				let head_node_len_p =  L.build_struct_gep (expr builder e) 2 "" builder in 
-				L.build_load head_node_len_p  "" builder
-				
-		(*		P.fprintf stderr "%s" "no seg 1 n";
-				let head_node_p = (expr builder e) in
-				P.fprintf stderr "%s" "no seg 1 n";
-				let head_node_next_p =  L.build_struct_gep head_node_p 0 "" builder in 
-				let length = 0 in  
+			| A.Call("slength", [e]) | A.Call("elength", [e]) | A.Call("ilength", [e]) | A.Call("nlength", [e]) ->
+				let head_node = expr builder e in 
+				if (L.pointer_type empty_node_t) = (L.type_of head_node) then
+					L.const_int i32_t 0 
+				else 
 
-				let rec walker length current_node = 
-					if not (L.is_undef current_node) then 
-	 			        let length = length + 1 in 
-				        ignore (P.fprintf stderr "%s" "no seg 2 n");
-				        let current_node_next_p = L.build_struct_gep current_node 0 "" builder in
-				        let next_node = (L.build_load current_node_next_p  "" builder) in   
-						walker length next_node
+					let head_node_len_p =  L.build_struct_gep (head_node) 2 "" builder in 
+					L.build_load head_node_len_p  "" builder
+
+			| A.Call("sadd", [elmt; the_list]) | A.Call("iadd", [elmt; the_list]) 
+			| A.Call("nadd", [elmt; the_list]) | A.Call("eadd", [elmt; the_list]) -> 
+
+				(* Build the new node *)
+				let the_head = (expr builder the_list) in 
+				let good_node_t = get_node_type elmt in 
+				let new_node = build_node (good_node_t) elmt in
+
+				(* To accomodate for calls that take an empty list in (?) *)
+				if (L.pointer_type empty_node_t) = (L.type_of the_head) then 
+					let new_node_len_p = L.build_struct_gep new_node 2 "" builder in
+					ignore (L.build_store (L.const_int i32_t 1) new_node_len_p builder);
+					new_node
+				else 
+
+					(* If the length is 0, we should detect this in advance  *)
+					let head_node_len_p =  L.build_struct_gep the_head 2 "" builder in 
+					let llength_val = L.build_load head_node_len_p  "" builder in 
+
+					if (L.is_null llength_val) then 
+						let new_node_len_p = L.build_struct_gep new_node 2 "" builder in
+						ignore (L.build_store (L.const_int i32_t 1) new_node_len_p builder);
+						new_node
+
 					else 
-						length
+ 
+						(* Get the lenght of the list *)
+						let old_length = L.build_load (L.build_struct_gep the_head 2 "" builder) "" builder in
+						let new_length = L.build_add old_length one "" builder in 
+				
+						(* Store the lenght of the list *)
+						let new_node_len_p = L.build_struct_gep new_node 2 "" builder in 
+						ignore (L.build_store new_length new_node_len_p builder);
 
-				in let next_node = L.build_load head_node_next_p  "" builder
-				in L.const_int i32_t (walker length next_node)  *)
-				(* L.const_int i32_t 10 *)
+						(* Attach the new head to the old head *) 
+						add_element the_head new_node 
 
 			| A.Call(fname, actuals) ->
+			
+				(* Will clean up later *)
+				let bitcast_actuals (actual, num) = 
+					let lvalue = expr builder actual in 
+					let ltype = L.type_of lvalue in 
+					let str_ltype = L.string_of_lltype ltype in 
+					lvalue
+				in 
+
+				let rec enumerate i enumed_l = function 
+					| [] -> List.rev enumed_l 
+					| hd::tl -> enumerate (i + 1) ((hd, i)::enumed_l) tl 
+				in 
+
+				let actuals = (enumerate 0 [] actuals) in  
 				let (fdef, fdecl) = StringMap.find fname function_decls in 
-				let actuals = List.rev (List.map (expr builder) (List.rev actuals)) in 
+				let actuals = List.rev (List.map bitcast_actuals (List.rev actuals)) in 
 				let result = fname ^ "_result" in 
 				L.build_call fdef (Array.of_list actuals) result builder
 			| A.Binop(e1, op, e2) ->
@@ -290,10 +433,9 @@ let translate (globals, functions) =
 				L.build_intcast value i32_t "" builder  *)
 			| A.Unop(op, e) ->
 				let e' = expr builder e in 
-				if (L.is_null e') then 
-					L.const_int i32_t 1
-				else 
-					L.const_int i32_t 0
+				(match op with 
+					| A.Not -> L.build_not
+					| _ 	-> raise (Failure("expr not supported"))) e' "tmp" builder
 			| _ -> raise (Failure("expr not supported"))
 
 
@@ -303,7 +445,7 @@ let translate (globals, functions) =
 			| None -> ignore (f builder) 
 
 		in let rec stmt builder = function
-			| A.Localdecl(t, n) -> ignore (add_local builder (t, n)); builder
+			| A.Localdecl(t, n) -> (Hashtbl.add ocaml_local_hash n t; ignore (add_local builder (t, n)); builder)
 			| A.Block(sl) 		-> List.fold_left stmt builder sl
 			| A.Expr(e)   		-> ignore (expr builder e); builder
 			| A.Return(e) 		-> ignore (L.build_ret (expr builder e) builder); builder

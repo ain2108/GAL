@@ -19,8 +19,6 @@ rule token = parse
 | ':'      { COLON }
 | ';'      { SEMI }
 | ','      { COMMA }
-| "+."     { EPLUS }
-| "-."     { EMINUS }
 | '+'      { PLUS }
 | '-'      { MINUS }
 | '*'      { TIMES }
@@ -40,9 +38,11 @@ rule token = parse
 | "else"   { ELSE }
 | "for"    { FOR }
 | "return" { RETURN }
-| "def"	   { DEFINE }
-| "list"   { LISTT }
-| "node"   { LISTT}
+| "slist"  { SLISTT }
+| "node"   { ELISTT }
+| "ilist"  { ILISTT }
+| "elist"  { ELISTT }
+| "nlist"  { NLISTT }
 | "edge"   { EDGE }      
 | "int"    { INT }
 | "string" { STRING }

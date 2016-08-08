@@ -14,17 +14,17 @@ let _ = (*
 
   let lexbuf = Lexing.from_channel stdin in
   let ast = Parser.program Scanner.token lexbuf in
-  P.fprintf stderr "%s" "ast built\n";
+  (* P.fprintf stderr "%s" "ast built\n"; *)
   let exp_list = Semant.check ast in
   if exp_list <> [] then
   	raise (Failure ("\n" ^ (String.concat "\n" exp_list)))
 
   else
-    P.fprintf stderr "%s" "ast checked\n";
+    (* P.fprintf stderr "%s" "ast checked\n"; *)
     let m = Codegen.translate ast in
-    (* Llvm_analysis.assert_valid_module m; *)
+    Llvm_analysis.assert_valid_module m; 
     print_string (Llvm.string_of_llmodule m);
-    P.fprintf stderr "%s" "code generated\n";
+    (* P.fprintf stderr "%s" "code generated\n"; *)
 
 
 

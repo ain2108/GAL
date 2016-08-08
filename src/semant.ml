@@ -30,8 +30,20 @@ let print_str_fdcl =
 	{ typ = String; fname = "print_str"; formals = [(String, "a")];
 	  locals = []; body = []};;
 
-let length_fdcl = 
-	{ typ = Int; fname = "length"; formals = [(Listtyp, "a")];
+let slength_fdcl = 
+	{ typ = Int; fname = "slength"; formals = [(SListtyp, "a")];
+	  locals = []; body = []};;
+
+let elength_fdcl = 
+	{ typ = Int; fname = "elength"; formals = [(EListtyp, "a")];
+	  locals = []; body = []};;
+
+let ilength_fdcl = 
+	{ typ = Int; fname = "ilength"; formals = [(IListtyp, "a")];
+	  locals = []; body = []};;
+
+let nlength_fdcl = 
+	{ typ = Int; fname = "nlength"; formals = [(NListtyp, "a")];
 	  locals = []; body = []};;
 
 let dest_fdcl = 
@@ -51,22 +63,64 @@ let print_endline_fdcl =
 	  locals = []; body = []};;
 
 (* This function needs discussion *)
-let pop_fdcl = 
-	{ typ = Listtyp; fname = "pop"; formals = [(Listtyp, "a")];
+let spop_fdcl = 
+	{ typ = SListtyp; fname = "spop"; formals = [(SListtyp, "a")];
 	  locals = []; body = []};;
 
-let peek_fdcl = 
-	{ typ = String; fname = "peek"; formals = [(Listtyp, "a")];
+let speek_fdcl = 
+	{ typ = String; fname = "speek"; formals = [(SListtyp, "a")];
 	  locals = []; body = []};;
 
-let next_fdcl = 
-	{ typ = Listtyp; fname = "next"; formals = [(Listtyp, "a")];
+let ipeek_fdcl = 
+	{ typ = Int; fname = "ipeek"; formals = [(IListtyp, "a")];
+	  locals = []; body = []};;
+
+let epeek_fdcl = 
+	{ typ = Edge; fname = "epeek"; formals = [(EListtyp, "a")];
+	  locals = []; body = []};;
+
+let npeek_fdcl = 
+	{ typ = EListtyp; fname = "npeek"; formals = [(NListtyp, "a")];
+	  locals = []; body = []};;
+
+let snext_fdcl = 
+	{ typ = SListtyp; fname = "snext"; formals = [(SListtyp, "a")];
+	  locals = []; body = []};;
+
+let enext_fdcl = 
+	{ typ = EListtyp; fname = "enext"; formals = [(EListtyp, "a")];
+	  locals = []; body = []};;
+
+let inext_fdcl = 
+	{ typ = IListtyp; fname = "inext"; formals = [(IListtyp, "a")];
+	  locals = []; body = []};;
+
+let nnext_fdcl = 
+	{ typ = NListtyp; fname = "nnext"; formals = [(NListtyp, "a")];
+	  locals = []; body = []};;
+
+let sadd_fdcl = 
+	{ typ = SListtyp; fname = "sadd"; formals = [(String, "b"); (SListtyp, "a")];
+	  locals = []; body = []};;
+
+let eadd_fdcl = 
+	{ typ = EListtyp; fname = "eadd"; formals = [(Edge, "b"); (EListtyp, "a")];
+	  locals = []; body = []};;
+
+let iadd_fdcl = 
+	{ typ = IListtyp; fname = "iadd"; formals = [(Int, "b"); (IListtyp, "a")];
+	  locals = []; body = []};;
+
+let nadd_fdcl = 
+	{ typ = NListtyp; fname = "nadd"; formals = [(EListtyp, "b"); (NListtyp, "a")];
 	  locals = []; body = []};;
 
 let builtin_fdcl_list =
-	[ print_int_fdcl; print_str_fdcl; length_fdcl; dest_fdcl;
-	  source_fdcl; pop_fdcl; weight_fdcl; print_endline_fdcl;
-	  peek_fdcl; next_fdcl ];;
+	[ print_int_fdcl; print_str_fdcl; slength_fdcl; dest_fdcl;
+	  source_fdcl; spop_fdcl; weight_fdcl; print_endline_fdcl;
+	  speek_fdcl; ipeek_fdcl; epeek_fdcl; snext_fdcl; elength_fdcl;
+	  enext_fdcl; inext_fdcl; ilength_fdcl; nnext_fdcl; npeek_fdcl;
+	  nlength_fdcl; sadd_fdcl; eadd_fdcl; iadd_fdcl; nadd_fdcl ];;
 
 
 (* Static semantic checker of the program. Will return void 
@@ -147,13 +201,15 @@ let rec check_builtins_defs exp_list expmsg funcs = function
 ;;
 
 (* Helper function to print types *)
-let string_of_typ = function
+let string_of_typ asttype = match asttype with 
 	| Int -> " int "
 	| String -> " string "
-	| Listtyp -> " list "
+	| SListtyp -> " slist "
 	| Edge -> " edge "
-	| Void -> " (bad expression) "		
-  
+	| Void -> " (bad expression) "	
+	| EListtyp -> " elist "	
+  	| NListtyp -> " nlist "
+  	| IListtyp -> " ilist "
 
 (* Function checks bunch of fun stuff in the function structure *)
 let check_func exp_list globs_map func_decl funcs_map =
@@ -183,7 +239,7 @@ let check_func exp_list globs_map func_decl funcs_map =
 				| Greater | Geq | And | Or 
 					when (v1 = Int && v2 = Int) -> (Int, exp_list)
 				(* List operators *)
-				| Eadd | Esub when v1 = Listtyp && v2 = Listtyp -> (Listtyp, exp_list)
+				(* | Eadd | Esub when v1 = Listtyp && v2 = Listtyp -> (Listtyp, exp_list) *)
 				| _ -> (Void, ( " in " ^ func_decl.fname ^ " expr: " ^
 								" illegal binary op ")::exp_list) )
 		| Unop(op, e1) -> get_expression_type vars_map exp_list e1
@@ -192,7 +248,7 @@ let check_func exp_list globs_map func_decl funcs_map =
 				(* print_string (" assignment to " ^ var ^ "\n"); *)
 			let (lt, exp_list) = get_type_of_id exp_list vars_map var in
 			let (rt, exp_list) = get_expression_type vars_map exp_list e
-				in if lt <> rt || rt = Void then 
+				in if (lt <> rt && rt <> EmptyListtyp) || rt = Void then 
 				(Void,(" in " ^ func_decl.fname ^ " expr: " ^
 					   " illegal assignment to variable " ^ var)::exp_list) 
 				else (rt, exp_list) 
@@ -206,6 +262,25 @@ let check_func exp_list globs_map func_decl funcs_map =
 					(Void, ( " in " ^ func_decl.fname ^ " edge: " ^
 								" bad types ")::exp_list)
 		| Listdcl(elist) -> 
+			(* Get the type of the first element of the list *)
+			let get_elmt_type decl_list = match decl_list with 
+			| [] -> Nothing
+			| hd::tl -> 
+				let (v1, exp_list) = get_expression_type vars_map exp_list hd in
+				v1
+			in 
+
+			(* Get the type of the list *)
+			let get_list_type elmt_type = match elmt_type with 
+				| Nothing 	-> EmptyListtyp 
+				| Edge 		-> EListtyp
+				| String 	-> SListtyp
+				| Int 		-> IListtyp 
+				| EListtyp  -> NListtyp 
+				| _ 		-> raise (Failure("in list decl process")) 
+
+			in
+
 			let rec check_list exp_list = function
 			[] -> List.rev exp_list
 			| hd::[] ->
@@ -221,12 +296,17 @@ let check_func exp_list globs_map func_decl funcs_map =
 					[]
 				else
 					check_list exp_list tail
+			in 
 
-			in let list_exp_list = check_list [] elist
+			let list_exp_list = check_list [] elist
 			in if list_exp_list <> [] then
 				(Void, (exp_list @ list_exp_list))
 			else
-				(Listtyp, exp_list)
+				let elmt_type = get_elmt_type elist in 
+				let list_typ  = get_list_type elmt_type in 
+				(list_typ, exp_list)
+
+
 		(* CARE HERE, NOT FINISHED AT ALL *)
 		| Call(fname, actuals) -> 
 			try let fd = StringMap.find fname funcs_map
