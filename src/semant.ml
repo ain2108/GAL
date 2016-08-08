@@ -19,7 +19,7 @@ let main_undef_exp = " main not defined ";;
 (* Names of built in functions can be added below *)
 let builtins_list =
 	["print_int"; "print_str";
-	 "length"; "source"; "dest"; "pop"];;
+	 "length"; "source"; "dest"; "pop"; "weight"; "print_endline"; "peek"];;
 
 (* Built in decls *)
 let print_int_fdcl = 
@@ -42,14 +42,31 @@ let source_fdcl =
 	{ typ = String; fname = "source"; formals = [(Edge, "a")];
 	  locals = []; body = []};;
 
+let weight_fdcl = 
+	{ typ = Int; fname = "weight"; formals = [(Edge, "a")];
+	  locals = []; body = []};;
+
+let print_endline_fdcl = 
+	{ typ = Int; fname = "print_endline"; formals = [];
+	  locals = []; body = []};;
+
 (* This function needs discussion *)
 let pop_fdcl = 
-	{ typ = Listtyp; fname = "source"; formals = [(Listtyp, "a")];
+	{ typ = Listtyp; fname = "pop"; formals = [(Listtyp, "a")];
+	  locals = []; body = []};;
+
+let peek_fdcl = 
+	{ typ = String; fname = "peek"; formals = [(Listtyp, "a")];
+	  locals = []; body = []};;
+
+let next_fdcl = 
+	{ typ = Listtyp; fname = "next"; formals = [(Listtyp, "a")];
 	  locals = []; body = []};;
 
 let builtin_fdcl_list =
 	[ print_int_fdcl; print_str_fdcl; length_fdcl; dest_fdcl;
-	  source_fdcl; pop_fdcl ];;
+	  source_fdcl; pop_fdcl; weight_fdcl; print_endline_fdcl;
+	  peek_fdcl; next_fdcl ];;
 
 
 (* Static semantic checker of the program. Will return void 
@@ -179,8 +196,37 @@ let check_func exp_list globs_map func_decl funcs_map =
 				(Void,(" in " ^ func_decl.fname ^ " expr: " ^
 					   " illegal assignment to variable " ^ var)::exp_list) 
 				else (rt, exp_list) 
-		| Edgedcl(_, _, _) -> (Edge, exp_list)
-		| Listdcl(_) -> (Listtyp, exp_list)
+		| Edgedcl(e1, e2, e3) -> 
+			let (v1, exp_list) = get_expression_type vars_map exp_list e1 in
+			let (v2, exp_list) = get_expression_type vars_map exp_list e2 in 
+			let (v3, exp_list) = get_expression_type vars_map exp_list e3 in
+				if v1 = String && v3 = String && v2 = Int then
+					(Edge, exp_list)
+				else 
+					(Void, ( " in " ^ func_decl.fname ^ " edge: " ^
+								" bad types ")::exp_list)
+		| Listdcl(elist) -> 
+			let rec check_list exp_list = function
+			[] -> List.rev exp_list
+			| hd::[] ->
+				let (v1, exp_list) = get_expression_type vars_map exp_list hd in  
+				check_list exp_list []
+			| hd1::(hd2::tl as tail) ->
+				let (v1, exp_list) = get_expression_type vars_map exp_list hd1 in
+				let (v2, exp_list) = get_expression_type vars_map exp_list hd2 in 
+				if v1 <> v2 then 
+					check_list 
+					((" in " ^ func_decl.fname ^ " list: " ^
+								" bad types of expressions ")::exp_list)
+					[]
+				else
+					check_list exp_list tail
+
+			in let list_exp_list = check_list [] elist
+			in if list_exp_list <> [] then
+				(Void, (exp_list @ list_exp_list))
+			else
+				(Listtyp, exp_list)
 		(* CARE HERE, NOT FINISHED AT ALL *)
 		| Call(fname, actuals) -> 
 			try let fd = StringMap.find fname funcs_map
@@ -255,6 +301,17 @@ let check_func exp_list globs_map func_decl funcs_map =
 						 " for loop: bad types of expressions. Type * Int * Type expected. ")
 						::exp_list)
 						tl
+			| While(cond, loop) ->
+					let (cond_typ, exp_list) = get_expression_type vars_map exp_list cond in 
+					if cond_typ = Int then 
+						helper vars_map (helper vars_map exp_list [loop]) tl
+					else
+						helper vars_map
+						((" in " ^ func_decl.fname ^ 
+						 " while loop: bad type of conditional expression ")
+						::exp_list)
+						tl
+
 			| Block(sl) -> (match sl with
 					| [Return(_) as s] -> 
 						helper vars_map (helper vars_map exp_list [s]) tl 
