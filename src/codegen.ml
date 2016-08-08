@@ -65,6 +65,8 @@ let translate (globals, functions) =
 		| A.String  -> i8_p_t
 		| A.Listtyp -> L.pointer_type decl_node_t
 		| A.SListtyp -> L.pointer_type node_t 
+		| A.EListtyp -> L.pointer_type e_node_t
+		| A.IListtyp -> L.pointer_type i_node_t
 		| _ 	-> raise (Failure ("Type not implemented\n"))
 
  	in let rec get_node_type expr = match expr with
@@ -303,10 +305,10 @@ let translate (globals, functions) =
 				else
 				let head_node_payload_pointer = L.build_struct_gep head_node_p 1 "" builder in 
 				L.build_load head_node_payload_pointer "" builder
-			| A.Call("snext", [e]) ->
+			| A.Call("snext", [e]) | A.Call("enext", [e]) | A.Call("inext", [e])->
 				let head_node_next_p = L.build_struct_gep (expr builder e) 0 "" builder in 
 				L.build_load head_node_next_p "" builder
-			| A.Call("slength", [e]) ->
+			| A.Call("slength", [e]) | A.Call("elength", [e]) | A.Call("ilength", [e]) ->
 				let head_node_len_p =  L.build_struct_gep (expr builder e) 2 "" builder in 
 				L.build_load head_node_len_p  "" builder
 				

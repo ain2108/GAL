@@ -30,8 +30,16 @@ let print_str_fdcl =
 	{ typ = String; fname = "print_str"; formals = [(String, "a")];
 	  locals = []; body = []};;
 
-let length_fdcl = 
+let slength_fdcl = 
 	{ typ = Int; fname = "slength"; formals = [(SListtyp, "a")];
+	  locals = []; body = []};;
+
+let elength_fdcl = 
+	{ typ = Int; fname = "elength"; formals = [(EListtyp, "a")];
+	  locals = []; body = []};;
+
+let ilength_fdcl = 
+	{ typ = Int; fname = "ilength"; formals = [(IListtyp, "a")];
 	  locals = []; body = []};;
 
 let dest_fdcl = 
@@ -51,7 +59,7 @@ let print_endline_fdcl =
 	  locals = []; body = []};;
 
 (* This function needs discussion *)
-let pop_fdcl = 
+let spop_fdcl = 
 	{ typ = SListtyp; fname = "spop"; formals = [(SListtyp, "a")];
 	  locals = []; body = []};;
 
@@ -67,14 +75,24 @@ let epeek_fdcl =
 	{ typ = Edge; fname = "epeek"; formals = [(EListtyp, "a")];
 	  locals = []; body = []};;
 
-let next_fdcl = 
+let snext_fdcl = 
 	{ typ = SListtyp; fname = "snext"; formals = [(SListtyp, "a")];
 	  locals = []; body = []};;
 
+let enext_fdcl = 
+	{ typ = EListtyp; fname = "enext"; formals = [(EListtyp, "a")];
+	  locals = []; body = []};;
+
+let inext_fdcl = 
+	{ typ = IListtyp; fname = "inext"; formals = [(IListtyp, "a")];
+	  locals = []; body = []};;
+
+
 let builtin_fdcl_list =
-	[ print_int_fdcl; print_str_fdcl; length_fdcl; dest_fdcl;
-	  source_fdcl; pop_fdcl; weight_fdcl; print_endline_fdcl;
-	  speek_fdcl; ipeek_fdcl; epeek_fdcl; next_fdcl ];;
+	[ print_int_fdcl; print_str_fdcl; slength_fdcl; dest_fdcl;
+	  source_fdcl; spop_fdcl; weight_fdcl; print_endline_fdcl;
+	  speek_fdcl; ipeek_fdcl; epeek_fdcl; snext_fdcl; elength_fdcl;
+	  enext_fdcl; inext_fdcl; ilength_fdcl ];;
 
 
 (* Static semantic checker of the program. Will return void 
