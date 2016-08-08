@@ -147,7 +147,6 @@ let translate (globals, functions) =
 			in 
 
 			let add_formal (t, n) (p, i) = 
-				P.fprintf stderr "%s\n" (L.string_of_lltype (L.type_of p));
 				L.set_value_name n p;
 				let local = L.build_alloca (ltype_of_typ t) n builder in
 				ignore (L.build_store p local builder);
@@ -168,9 +167,7 @@ let translate (globals, functions) =
 
 		in let lookup name = 
 			try Hashtbl.find local_hash name 
-			with Not_found -> (
-				P.fprintf stderr "%s" "in local hash\n";
-				StringMap.find name global_vars )
+			with Not_found -> StringMap.find name global_vars
 
 		in let rec get_node_type expr = match expr with
 			| A.Litint(num) -> i_node_t
@@ -270,21 +267,8 @@ let translate (globals, functions) =
 			| A.Assign(name, e) -> 
 				let loc_var = lookup name in 
 				let e' = (expr builder e) in
-				(* let node_t_str = (L.string_of_lltype node_t) in 
-				let loc_var_str = L.string_of_lltype (L.type_of loc_var) in 
-				P.fprintf stderr "%s and %s\n" node_t_str loc_var_str; *)
-
-				(* Cant add it like this. Need a different comparison. And need to remove
-					old var form the hash map  *)
-				(* if ((L.pointer_type (L.pointer_type decl_node_t)) = (L.type_of loc_var)) then 
-					(
-					Hashtbl.remove local_hash name;
-					ignore (add_local_list builder (L.type_of e') name);
-					ignore (L.build_store e' (lookup name) builder); 
-					e' )
-					(* raise (Failure("GOTCHA")) *)
-				else  *)
-					(ignore (L.build_store e' (lookup name) builder); e')
+				(ignore (L.build_store e' (lookup name) builder); e')
+			
 			(* Calling builtins below *)
 			| A.Call("print_int", [e]) ->
 				L.build_call printf_func 
@@ -329,40 +313,15 @@ let translate (globals, functions) =
 			| A.Call("slength", [e]) | A.Call("elength", [e]) | A.Call("ilength", [e]) | A.Call("nlength", [e]) ->
 				let head_node_len_p =  L.build_struct_gep (expr builder e) 2 "" builder in 
 				L.build_load head_node_len_p  "" builder
-				
-		(*		P.fprintf stderr "%s" "no seg 1 n";
-				let head_node_p = (expr builder e) in
-				P.fprintf stderr "%s" "no seg 1 n";
-				let head_node_next_p =  L.build_struct_gep head_node_p 0 "" builder in 
-				let length = 0 in  
-
-				let rec walker length current_node = 
-					if not (L.is_undef current_node) then 
-	 			        let length = length + 1 in 
-				        ignore (P.fprintf stderr "%s" "no seg 2 n");
-				        let current_node_next_p = L.build_struct_gep current_node 0 "" builder in
-				        let next_node = (L.build_load current_node_next_p  "" builder) in   
-						walker length next_node
-					else 
-						length
-
-				in let next_node = L.build_load head_node_next_p  "" builder
-				in L.const_int i32_t (walker length next_node)  *)
-				(* L.const_int i32_t 10 *)
 
 			| A.Call(fname, actuals) ->
+				
+				(* Will clean up later *)
 				let bitcast_actuals (actual, num) = 
 					let lvalue = expr builder actual in 
 					let ltype = L.type_of lvalue in 
 					let str_ltype = L.string_of_lltype ltype in 
-					(* P.fprintf stderr "%s\n" str_ltype;  *)
-
-					(* if (contains str_ltype "node") then (
-						P.fprintf stderr "%s\n" "cast done";
-						Hashtbl.add cast_hash (fname, num) (ltype); 
-						L.build_bitcast lvalue (L.pointer_type decl_node_t) "" builder)
-					else *)
-						lvalue
+					lvalue
 				in 
 
 				let rec enumerate i enumed_l = function 
