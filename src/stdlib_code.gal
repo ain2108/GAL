@@ -223,9 +223,102 @@ nlist nadd_back(nlist l1,node i){
     return l1;
 }
 
+ilist iconcat(ilist l1, ilist l2){
+    
+    l1 = irev(l1);
+    int len_l2;
+    len_l2 = ilength(l2);
+    int temp_element;
+
+    while(!(len_l2==0)){
+
+        temp_element = ipeek(l2);
+        l1 = iadd(temp_element,l1);
+        l2 = inext(l2);
+
+        len_l2 = len_l2 - 1;
+    }
+
+    l1 = irev(l1);
+    return l1;
+}
+
+slist sconcat(slist l1, slist l2){
+    
+    l1 = srev(l1);
+    int len_l2;
+    len_l2 = slength(l2);
+    string temp_element;
+
+    while(!(len_l2==0)){
+
+        temp_element = speek(l2);
+        l1 = sadd(temp_element,l1);
+        l2 = snext(l2);
+
+        len_l2 = len_l2 - 1;
+    }
+
+    l1 = srev(l1);
+    return l1;
+}
+
+elist econcat(elist l1, elist l2){
+    
+    l1 = erev(l1);
+    int len_l2;
+    len_l2 = elength(l2);
+    edge temp_element;
+
+    while(!(len_l2==0)){
+
+        temp_element = epeek(l2);
+        l1 = eadd(temp_element,l1);
+        l2 = enext(l2);
+
+        len_l2 = len_l2 - 1;
+    }
+
+    l1 = erev(l1);
+    return l1;
+}
+
+nlist nconcat(nlist l1, nlist l2){
+    
+    l1 = nrev(l1);
+    int len_l2;
+    len_l2 = nlength(l2);
+    node temp_element;
+
+    while(!(len_l2==0)){
+
+        temp_element = npeek(l2);
+        l1 = nadd(temp_element,l1);
+        l2 = nnext(l2);
+
+        len_l2 = len_l2 - 1;
+    }
+
+    l1 = nrev(l1);
+    return l1;
+}
 
 int main(){
 
+    nlist l1;
+    nlist l2;
+    node n1;
+    node n2;
+    n1 = |"A":2,"B"|;
+    n2 = |"C":3,"D"|;
+    l1 = [n1];
+    l2 = [n2];
+    nlist l3;
+    l3 = nconcat(l1,l2);
+    print_nlist(l3);
+
+    
+    /*
     node n1;
     n1 = |"A": 2, "B", 11, "C", 2, "D"|;
     nlist n2;
@@ -235,7 +328,7 @@ int main(){
     n3 = nadd_back(n2,|"D":3,"HELLO"|);
     print_nlist(n3);
 
-    /*
+    
     slist l1;
     l1 = ["A"::"B"::"C"];
     print_slist(l1);
