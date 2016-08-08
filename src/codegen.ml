@@ -296,11 +296,6 @@ let translate (globals, functions) =
 					let dummy_node = L.build_malloc llvm_node_t ("") builder in  
 					let dummy_node_len_p = L.build_struct_gep dummy_node 2 "" builder in 
 					ignore (L.build_store (expr builder (A.Litint(0))) dummy_node_len_p builder);
-
-					P.fprintf stderr "%s\n" "BOOM";
-					(* let good_node_t = L.type_of *)
-					(* Hashtbl.remove local_hash name;
-					ignore (add_local_list builder (L.type_of e') name); *)
 					ignore (L.build_store dummy_node loc_var builder); 
 					e' )
 				else  
@@ -348,8 +343,14 @@ let translate (globals, functions) =
 				let head_node_next_p = L.build_struct_gep (expr builder e) 0 "" builder in 
 				L.build_load head_node_next_p "" builder
 			| A.Call("slength", [e]) | A.Call("elength", [e]) | A.Call("ilength", [e]) | A.Call("nlength", [e]) ->
-				let head_node_len_p =  L.build_struct_gep (expr builder e) 2 "" builder in 
-				L.build_load head_node_len_p  "" builder
+				let head_node = expr builder e in 
+				if (L.pointer_type empty_node_t) = (L.type_of head_node) then
+					L.const_int i32_t 0 
+				else 
+
+					let head_node_len_p =  L.build_struct_gep (head_node) 2 "" builder in 
+					L.build_load head_node_len_p  "" builder
+
 			| A.Call("sadd", [elmt; the_list]) | A.Call("iadd", [elmt; the_list]) 
 			| A.Call("nadd", [elmt; the_list]) | A.Call("eadd", [elmt; the_list]) -> 
 
@@ -357,12 +358,6 @@ let translate (globals, functions) =
 				let the_head = (expr builder the_list) in 
 				let good_node_t = get_node_type elmt in 
 				let new_node = build_node (good_node_t) elmt in
-
-
-				(* let node_t_str = L.string_of_lltype (L.type_of the_head) in 
-				let loc_var_str = L.string_of_lltype (empty_node_t) in 
-				P.fprintf stderr "%s and %s\n" node_t_str loc_var_str; *)
-
 
 				(* To accomodate for calls that take an empty list in (?) *)
 				if (L.pointer_type empty_node_t) = (L.type_of the_head) then 
@@ -394,8 +389,7 @@ let translate (globals, functions) =
 						add_element the_head new_node 
 
 			| A.Call(fname, actuals) ->
-
-				
+			
 				(* Will clean up later *)
 				let bitcast_actuals (actual, num) = 
 					let lvalue = expr builder actual in 
