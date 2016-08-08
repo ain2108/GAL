@@ -320,12 +320,13 @@ int main(){
     print_int(banana);
     print_endline();
 
+
     l5 = sadd("hello", l5);
 
     print_slist(l5);
     print_sl_len(l5);
 
-    string can;
+    /*string can;
     string orange;
     can = "panda";
     orange = "batman";

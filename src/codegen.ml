@@ -24,6 +24,9 @@ let translate (globals, functions) =
     (* To keep track of bitcasts *)
     let cast_hash = Hashtbl.create 100 in 
 
+    (* Holding global string constants *)
+    let glob_str_const_hash = Hashtbl.create 200 in 
+
 	(* Build a context and the module *)
 	let context = L.global_context () in
 	let the_module = L.create_module context "GAL"
@@ -156,7 +159,8 @@ let translate (globals, functions) =
 				L.set_value_name n p;
 				let local = L.build_alloca (ltype_of_typ t) n builder in
 				ignore (L.build_store p local builder);
-				Hashtbl.add local_hash n local
+				Hashtbl.add local_hash n local;
+				Hashtbl.add ocaml_local_hash n t;
 			in 
 			
 			let params = enumerate 0 [] (Array.to_list (L.params the_function))  
@@ -224,7 +228,9 @@ let translate (globals, functions) =
 			| A.Litstr(str) -> 
 				let s = L.build_global_stringptr str "" builder in
 				let zero = L.const_int i32_t 0 in
-				L.build_in_bounds_gep s [|zero|] "" builder
+				let lvalue = L.build_in_bounds_gep s [|zero|] "" builder in 
+				Hashtbl.add glob_str_const_hash lvalue str;
+				lvalue
 			| A.Edgedcl(src, w, dst) -> 
 				let src_p = expr builder src
 				and w =  expr builder w
@@ -360,6 +366,7 @@ let translate (globals, functions) =
 			| A.Call("nadd", [elmt; the_list]) | A.Call("eadd", [elmt; the_list]) -> 
 
 				(* Build the new node *)
+				(* let elmt = (expr builder the_list) in *)
 				let the_head = (expr builder the_list) in 
 				let good_node_t = get_node_type elmt in 
 				let new_node = build_node (good_node_t) elmt in
@@ -393,8 +400,16 @@ let translate (globals, functions) =
 						(* Attach the new head to the old head *) 
 						add_element the_head new_node 
 			| A.Call("str_comp", [s1;s2]) ->
-				let v1 = expr builder s1 and v2 = expr builder s2 in 
-				let v1str = L.string_of_llvalue v1 and v2str = L.string_of_llvalue v2 in 
+				let v1 = (expr builder s1) and v2 = expr builder s2 in 
+				let v1str = Hashtbl.find glob_str_const_hash v1
+				and v2str = Hashtbl.find glob_str_const_hash v2 in 
+
+				(* let space = Str.regexp_string " " in 
+
+				let tokenize s = Str.search_forward per_regex s 1 in 
+
+				let Some(v1name_pos) = get_name v1str and Some(v2name_pos) = get_name v2str in  *)
+
 				P.fprintf stderr "%s and %s\n" v1str v2str;
 				L.const_int i32_t 0 
 
