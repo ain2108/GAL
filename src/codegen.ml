@@ -365,7 +365,7 @@ let translate (globals, functions) =
 			| A.Call("nadd", [elmt; the_list]) | A.Call("eadd", [elmt; the_list]) -> 
 
 				(* Build the new node *)
-				let elmt = (expr builder the_list) in 
+				(* let elmt = (expr builder the_list) in *)
 				let the_head = (expr builder the_list) in 
 				let good_node_t = get_node_type elmt in 
 				let new_node = build_node (good_node_t) elmt in

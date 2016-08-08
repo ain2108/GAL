@@ -242,7 +242,7 @@ int main(){
     l40 = nrev(l4);
     print_nlist(l40);
 
-    /*
+    
     slist l5;
     l5 = [];
 
@@ -257,7 +257,7 @@ int main(){
     print_slist(l5);
     print_sl_len(l5);
 
-    string can;
+    /*string can;
     string orange;
     can = "panda";
     orange = "batman";
@@ -265,7 +265,7 @@ int main(){
     int comparison;
     comparison = str_comp(can, orange);
     print_int(comparison);
-    print_endline(); 
+    print_endline(); */
 
 
     return 1;
