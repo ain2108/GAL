@@ -37,8 +37,8 @@ let translate (globals, functions) =
     in let one = L.const_int i32_t 1
 	in let inc_i32 c = L.const_add c one  
 
-	in let decl_node_t = L.named_struct_type context "list_decl" in 
-	L.struct_set_body decl_node_t (Array.of_list [L.pointer_type decl_node_t; L.pointer_type i1_t; i32_t ])  true;
+	in let empty_node_t = L.named_struct_type context "empty" in 
+	L.struct_set_body empty_node_t (Array.of_list [L.pointer_type empty_node_t; L.pointer_type i1_t; i32_t ])  true;
 
  	let node_t = L.named_struct_type context "node" in 
     L.struct_set_body node_t (Array.of_list [L.pointer_type node_t; i8_p_t; i32_t ])  true;
@@ -56,6 +56,7 @@ let translate (globals, functions) =
     let Some(e_node_t) = L.type_by_name the_module "enode" in 
     let Some(i_node_t) = L.type_by_name the_module "inode" in  
     let Some(n_node_t) = L.type_by_name the_module "nnode" in
+    let Some(empty_node_t) = L.type_by_name the_module "empty" in 
     	
     
 	(* Pattern match on A.typ returning a llvm type *)
@@ -63,7 +64,7 @@ let translate (globals, functions) =
 		| A.Int 	-> i32_t
 		| A.Edge 	-> L.pointer_type edge_t
 		| A.String  -> i8_p_t
-		(* | A.Listtyp -> L.pointer_type decl_node_t *)
+		| A.EmptyListtyp -> L.pointer_type empty_node_t
 		| A.SListtyp -> L.pointer_type node_t 
 		| A.EListtyp -> L.pointer_type e_node_t
 		| A.IListtyp -> L.pointer_type i_node_t
@@ -240,27 +241,9 @@ let translate (globals, functions) =
 			
 			| A.Listdcl(elist) -> 
 				let elist = List.rev elist in 
-				(* let add_element head_p new_node_p =
-					let new_node_next_field_pointer =
-						L.build_struct_gep new_node_p 0 "" builder in 
-					ignore (L.build_store head_p 
-					new_node_next_field_pointer builder);
-					new_node_p
-
-				in let add_payload node_p payload_p =
-					let node_payload_pointer =
-						L.build_struct_gep node_p 1 "" builder in 
-					ignore (L.build_store payload_p 
-					node_payload_pointer builder);
-					node_p
-
-				in let build_node node_type payload =
-					let alloc = L.build_malloc node_type ("") builder in
-					let payload_p = expr builder payload in 
-					add_payload alloc payload_p  *)
 
 				if (elist = []) then
-					L.const_pointer_null (L.pointer_type decl_node_t)
+					L.const_pointer_null (L.pointer_type empty_node_t)
 					(* raise (Failure("empty list assignment")) *)
 				else 
 					let (hd::tl) = elist in 
@@ -287,7 +270,41 @@ let translate (globals, functions) =
 			| A.Assign(name, e) -> 
 				let loc_var = lookup name in 
 				let e' = (expr builder e) in
-				(ignore (L.build_store e' (lookup name) builder); e')
+
+				(* let node_t_str = L.string_of_lltype (L.type_of loc_var) in 
+				let loc_var_str = L.string_of_lltype (L.type_of e') in 
+				P.fprintf stderr "%s and %s\n" node_t_str loc_var_str; *)
+
+				(* Cant add it like this. Need a different comparison. And need to remove
+					old var form the hash map  *)
+				if ((L.pointer_type empty_node_t) = (L.type_of e')) then 
+					(
+
+					(* This is the ocaml type of the variable *)
+					let list_type = Hashtbl.find ocaml_local_hash name in 
+					
+					(* Cant get to the right type for store instruction, so this: *)
+					let rec get_llvm_node_type ocaml_type = match ocaml_type with 
+						| A.SListtyp -> node_t
+						| A.IListtyp -> i_node_t
+						| A.NListtyp -> n_node_t 
+						| A.EListtyp -> e_node_t
+						| _          -> raise (Failure("list type not supported"))
+					in
+
+					let llvm_node_t = get_llvm_node_type list_type in
+					let dummy_node = L.build_malloc llvm_node_t ("") builder in  
+					let dummy_node_len_p = L.build_struct_gep dummy_node 2 "" builder in 
+					ignore (L.build_store (expr builder (A.Litint(0))) dummy_node_len_p builder);
+
+					P.fprintf stderr "%s\n" "BOOM";
+					(* let good_node_t = L.type_of *)
+					(* Hashtbl.remove local_hash name;
+					ignore (add_local_list builder (L.type_of e') name); *)
+					ignore (L.build_store dummy_node loc_var builder); 
+					e' )
+				else  
+					(ignore (L.build_store e' (lookup name) builder); e')
 			
 			(* Calling builtins below *)
 			| A.Call("print_int", [e]) ->
@@ -341,16 +358,40 @@ let translate (globals, functions) =
 				let good_node_t = get_node_type elmt in 
 				let new_node = build_node (good_node_t) elmt in
 
-				(* Get the lenght of the list *)
-				let old_length = L.build_load (L.build_struct_gep the_head 2 "" builder) "" builder in
-				let new_length = L.build_add old_length one "" builder in 
-				
-				(* Store the lenght of the list *)
-				let new_node_len_p = L.build_struct_gep new_node 2 "" builder in 
-				ignore (L.build_store new_length new_node_len_p builder);
 
-				(* Attach the new head to the old head *) 
-				add_element the_head new_node 
+				(* let node_t_str = L.string_of_lltype (L.type_of the_head) in 
+				let loc_var_str = L.string_of_lltype (empty_node_t) in 
+				P.fprintf stderr "%s and %s\n" node_t_str loc_var_str; *)
+
+
+				(* To accomodate for calls that take an empty list in (?) *)
+				if (L.pointer_type empty_node_t) = (L.type_of the_head) then 
+					let new_node_len_p = L.build_struct_gep new_node 2 "" builder in
+					ignore (L.build_store (L.const_int i32_t 1) new_node_len_p builder);
+					new_node
+				else 
+
+					(* If the length is 0, we should detect this in advance  *)
+					let head_node_len_p =  L.build_struct_gep the_head 2 "" builder in 
+					let llength_val = L.build_load head_node_len_p  "" builder in 
+
+					if (L.is_null llength_val) then 
+						let new_node_len_p = L.build_struct_gep new_node 2 "" builder in
+						ignore (L.build_store (L.const_int i32_t 1) new_node_len_p builder);
+						new_node
+
+					else 
+ 
+						(* Get the lenght of the list *)
+						let old_length = L.build_load (L.build_struct_gep the_head 2 "" builder) "" builder in
+						let new_length = L.build_add old_length one "" builder in 
+				
+						(* Store the lenght of the list *)
+						let new_node_len_p = L.build_struct_gep new_node 2 "" builder in 
+						ignore (L.build_store new_length new_node_len_p builder);
+
+						(* Attach the new head to the old head *) 
+						add_element the_head new_node 
 
 			| A.Call(fname, actuals) ->
 

@@ -248,7 +248,7 @@ let check_func exp_list globs_map func_decl funcs_map =
 				(* print_string (" assignment to " ^ var ^ "\n"); *)
 			let (lt, exp_list) = get_type_of_id exp_list vars_map var in
 			let (rt, exp_list) = get_expression_type vars_map exp_list e
-				in if lt <> rt || rt = Void then 
+				in if (lt <> rt && rt <> EmptyListtyp) || rt = Void then 
 				(Void,(" in " ^ func_decl.fname ^ " expr: " ^
 					   " illegal assignment to variable " ^ var)::exp_list) 
 				else (rt, exp_list) 

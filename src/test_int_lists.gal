@@ -92,6 +92,7 @@ int print_nlist(nlist l1){
 }
 
 int main(){
+
     
     slist l1;
     l1 = ["A"::"B"::"C"];
@@ -127,6 +128,13 @@ int main(){
     nlist l4;
     l4 = [n1::n2];
     print_nlist(l4);
+
+    slist l5;
+    l5 = [];
+    l5 = sadd("hello", l5);
+
+    print_slist(l5);
+    print_sl_len(l5);
 
 
     return 1;

@@ -40,7 +40,6 @@ rule token = parse
 | "else"   { ELSE }
 | "for"    { FOR }
 | "return" { RETURN }
-| "def"	   { DEFINE }
 | "slist"  { SLISTT }
 | "node"   { ELISTT }
 | "ilist"  { ILISTT }
