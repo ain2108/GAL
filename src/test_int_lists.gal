@@ -97,6 +97,15 @@ def int main(){
     l1 = ["A"::"B"::"C"];
     print_slist(l1);
 
+    string s1;
+    s1 = "Hello";
+    l1 = sadd(s1, l1);
+    print_slist(l1);
+    print_sl_len(l1);
+    l1 = spop(l1);
+    print_slist(l1);
+    print_sl_len(l1);
+
     node n1;
     n1 = |"A": 2, "B", 11, "C", 2, "D"|;
     elist l2;

@@ -187,12 +187,33 @@ let translate (globals, functions) =
 
 		 (* Gets a boolean i1_t value from any i_type *)
         in let bool_of_int int_val = L.build_is_null int_val "banana" builder
-			
 
 
 		(* We can now describe the action to be taken on ast traversal *)
 		(* Going to first pattern match on the list of expressions *)
-		in let rec expr builder = function
+		in let rec expr builder e = 
+
+			(* Helper to add element to the list *)
+			let add_element head_p new_node_p =
+				let new_node_next_field_pointer =
+					L.build_struct_gep new_node_p 0 "" builder in 
+					ignore (L.build_store head_p 
+					new_node_next_field_pointer builder);
+					new_node_p
+
+			in let add_payload node_p payload_p =
+				let node_payload_pointer =
+					L.build_struct_gep node_p 1 "" builder in 
+					ignore (L.build_store payload_p 
+					node_payload_pointer builder);
+					node_p
+
+			in let build_node node_type payload =
+				let alloc = L.build_malloc node_type ("") builder in
+				let payload_p = expr builder payload in 
+				add_payload alloc payload_p 
+
+			in match e with 
 			| A.Litint(i) -> L.const_int i32_t i 
 			| A.Litstr(str) -> 
 				let s = L.build_global_stringptr str "" builder in
@@ -219,7 +240,7 @@ let translate (globals, functions) =
 			
 			| A.Listdcl(elist) -> 
 				let elist = List.rev elist in 
-				let add_element head_p new_node_p =
+				(* let add_element head_p new_node_p =
 					let new_node_next_field_pointer =
 						L.build_struct_gep new_node_p 0 "" builder in 
 					ignore (L.build_store head_p 
@@ -236,14 +257,13 @@ let translate (globals, functions) =
 				in let build_node node_type payload =
 					let alloc = L.build_malloc node_type ("") builder in
 					let payload_p = expr builder payload in 
-					add_payload alloc payload_p 
+					add_payload alloc payload_p  *)
 
-				in if (elist = []) then
+				if (elist = []) then
 					L.const_pointer_null (L.pointer_type decl_node_t)
 					(* raise (Failure("empty list assignment")) *)
 				else 
 					let (hd::tl) = elist in 
-					(* let node_t = get_node_type hd in  *)
 					let good_node_t = get_node_type hd in 
 					let head_node = build_node (good_node_t) hd in
 					let head_node_len_p = L.build_struct_gep head_node 2 "" builder in 
@@ -261,7 +281,7 @@ let translate (globals, functions) =
 							ignore (L.build_store (expr builder (A.Litint(len))) new_head_len_p builder);
 							build_list new_head (len) tl)
 					
-					in (*  L.build_bitcast *) (build_list head_node 1 tl) (* (L.pointer_type node_t) "" builder *)
+					in (build_list head_node 1 tl) 
 
 			| A.Id(name) -> L.build_load (lookup name) name builder
 			| A.Assign(name, e) -> 
@@ -313,8 +333,29 @@ let translate (globals, functions) =
 			| A.Call("slength", [e]) | A.Call("elength", [e]) | A.Call("ilength", [e]) | A.Call("nlength", [e]) ->
 				let head_node_len_p =  L.build_struct_gep (expr builder e) 2 "" builder in 
 				L.build_load head_node_len_p  "" builder
+			| A.Call("sadd", [elmt; the_list]) -> 
+
+				(* Build the new node *)
+				let the_head = (expr builder the_list) in 
+				let good_node_t = get_node_type elmt in 
+				let new_node = build_node (good_node_t) elmt in
+
+				(* Get the lenght of the list *)
+				let old_length = L.build_load (L.build_struct_gep the_head 2 "" builder) "" builder in
+				let new_length = L.build_add old_length one "" builder in 
+				
+				(* Store the lenght of the list *)
+				let new_node_len_p = L.build_struct_gep new_node 2 "" builder in 
+				ignore (L.build_store new_length new_node_len_p builder);
+
+				(* Attach the new head to the old head *) 
+				add_element the_head new_node 
+				
+				(* let new_head_len_p = L.build_struct_gep new_head 2 "" builder in
+				ignore (L.build_store (expr builder (A.Litint(len))) new_head_len_p builder); *)
 
 			| A.Call(fname, actuals) ->
+
 				
 				(* Will clean up later *)
 				let bitcast_actuals (actual, num) = 
