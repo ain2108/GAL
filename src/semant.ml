@@ -42,6 +42,10 @@ let ilength_fdcl =
 	{ typ = Int; fname = "ilength"; formals = [(IListtyp, "a")];
 	  locals = []; body = []};;
 
+let nlength_fdcl = 
+	{ typ = Int; fname = "nlength"; formals = [(NListtyp, "a")];
+	  locals = []; body = []};;
+
 let dest_fdcl = 
 	{ typ = String; fname = "dest"; formals = [(Edge, "a")];
 	  locals = []; body = []};;
@@ -75,6 +79,10 @@ let epeek_fdcl =
 	{ typ = Edge; fname = "epeek"; formals = [(EListtyp, "a")];
 	  locals = []; body = []};;
 
+let npeek_fdcl = 
+	{ typ = EListtyp; fname = "npeek"; formals = [(NListtyp, "a")];
+	  locals = []; body = []};;
+
 let snext_fdcl = 
 	{ typ = SListtyp; fname = "snext"; formals = [(SListtyp, "a")];
 	  locals = []; body = []};;
@@ -87,12 +95,17 @@ let inext_fdcl =
 	{ typ = IListtyp; fname = "inext"; formals = [(IListtyp, "a")];
 	  locals = []; body = []};;
 
+let nnext_fdcl = 
+	{ typ = NListtyp; fname = "nnext"; formals = [(NListtyp, "a")];
+	  locals = []; body = []};;
+
 
 let builtin_fdcl_list =
 	[ print_int_fdcl; print_str_fdcl; slength_fdcl; dest_fdcl;
 	  source_fdcl; spop_fdcl; weight_fdcl; print_endline_fdcl;
 	  speek_fdcl; ipeek_fdcl; epeek_fdcl; snext_fdcl; elength_fdcl;
-	  enext_fdcl; inext_fdcl; ilength_fdcl ];;
+	  enext_fdcl; inext_fdcl; ilength_fdcl; nnext_fdcl; npeek_fdcl;
+	  nlength_fdcl ];;
 
 
 (* Static semantic checker of the program. Will return void 

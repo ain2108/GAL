@@ -15,6 +15,7 @@ let translate (globals, functions) =
 
     in 
 
+
     (* To keep track of bitcasts *)
     let cast_hash = Hashtbl.create 100 in 
 
@@ -48,39 +49,39 @@ let translate (globals, functions) =
 	let i_node_t = L.named_struct_type context "inode" in 
     L.struct_set_body i_node_t (Array.of_list [L.pointer_type i_node_t; i32_t; i32_t ])  true;
 
-	let l_node_t = L.named_struct_type context "lnode" in 
-    L.struct_set_body l_node_t (Array.of_list [L.pointer_type l_node_t; L.pointer_type l_node_t; i32_t ])  true;
+	let n_node_t = L.named_struct_type context "nnode" in 
+    L.struct_set_body n_node_t (Array.of_list [L.pointer_type n_node_t; L.pointer_type e_node_t; i32_t ])  true;
 
     let Some(node_t) = L.type_by_name the_module "node" in 
     let Some(e_node_t) = L.type_by_name the_module "enode" in 
-    let Some(i_node_t) = L.type_by_name the_module "inode" in 
-    let Some(l_node_t) = L.type_by_name the_module "lnode" in 
-    let Some(decl_node_t) = L.type_by_name the_module "list_decl" in 
-    
+    let Some(i_node_t) = L.type_by_name the_module "inode" in  
+    let Some(n_node_t) = L.type_by_name the_module "nnode" in
+    	
     
 	(* Pattern match on A.typ returning a llvm type *)
 	let ltype_of_typ ltyp = match ltyp with
 		| A.Int 	-> i32_t
 		| A.Edge 	-> L.pointer_type edge_t
 		| A.String  -> i8_p_t
-		| A.Listtyp -> L.pointer_type decl_node_t
+		(* | A.Listtyp -> L.pointer_type decl_node_t *)
 		| A.SListtyp -> L.pointer_type node_t 
 		| A.EListtyp -> L.pointer_type e_node_t
 		| A.IListtyp -> L.pointer_type i_node_t
+		| A.NListtyp -> L.pointer_type n_node_t
 		| _ 	-> raise (Failure ("Type not implemented\n"))
 
- 	in let rec get_node_type expr = match expr with
-		| A.Litint(num) -> i_node_t
-		| A.Litstr(str) -> node_t
-		| A.Listdcl(somelist) -> l_node_t 
-		| A.Binop(e1, op, e2) -> get_node_type e1
-		| A.Edgedcl(_) -> e_node_t
-		| _ -> raise (Failure(" type not supported in list "))
- 
 	(* Create the edge declaration *)
 	in let codegen_edgedecl =
 	ignore (L.struct_set_body (L.named_struct_type context "edge") 
 	(Array.of_list [i8_p_t; i32_t; i8_p_t]) false)
+
+
+	in let list_type_from_type ocaml_type = match ocaml_type with
+		| A.Int 		-> i_node_t
+		| A.String 		-> node_t 
+		| A.Edge 		-> e_node_t
+		| A.EListtyp	-> n_node_t
+		| _ -> raise (Failure("such lists are not supported "))
 
 	(* Global variables *)
 	in let global_vars =
@@ -122,6 +123,7 @@ let translate (globals, functions) =
 	(* Builds the function body in the module *)
 	in let build_function_body fdecl = 
 
+		let ocaml_local_hash = Hashtbl.create 100 in 
 		let local_hash = Hashtbl.create 100 in 
 
 		(* Get the llvm function from the map *)
@@ -169,6 +171,22 @@ let translate (globals, functions) =
 			with Not_found -> (
 				P.fprintf stderr "%s" "in local hash\n";
 				StringMap.find name global_vars )
+
+		in let rec get_node_type expr = match expr with
+			| A.Litint(num) -> i_node_t
+			| A.Litstr(str) -> node_t
+			| A.Listdcl(somelist) -> 
+				if somelist = [] then 
+					raise (Failure("empty list decl"))
+				else 
+					let hd::tl = somelist in get_node_type hd  
+			| A.Binop(e1, op, e2) -> get_node_type e1
+			| A.Edgedcl(_) 	-> e_node_t
+			| A.Id(name) 	-> 
+				let ocaml_type = (Hashtbl.find ocaml_local_hash name)
+				in  list_type_from_type ocaml_type
+			| _ -> raise (Failure(" type not supported in list "))
+ 
 
 		 (* Gets a boolean i1_t value from any i_type *)
         in let bool_of_int int_val = L.build_is_null int_val "banana" builder
@@ -297,7 +315,7 @@ let translate (globals, functions) =
 				let head_node_next_node_pointer = L.build_struct_gep head_node_p 0 "" builder in 
 				ignore (L.build_free head_node_p builder);
 				L.build_load head_node_next_node_pointer "" builder
-			| A.Call("speek", [e]) | A.Call("ipeek", [e]) | A.Call("epeek", [e])-> 
+			| A.Call("speek", [e]) | A.Call("ipeek", [e]) | A.Call("epeek", [e]) | A.Call("npeek", [e])-> 
 				let head_node_p = (expr builder e) in 
 				(* Trying to make the crash graceful here 565jhfdshjgq2 *)
 				if  head_node_p = (L.const_pointer_null (L.type_of head_node_p)) then 
@@ -305,10 +323,10 @@ let translate (globals, functions) =
 				else
 				let head_node_payload_pointer = L.build_struct_gep head_node_p 1 "" builder in 
 				L.build_load head_node_payload_pointer "" builder
-			| A.Call("snext", [e]) | A.Call("enext", [e]) | A.Call("inext", [e])->
+			| A.Call("snext", [e]) | A.Call("enext", [e]) | A.Call("inext", [e]) | A.Call("nnext", [e])->
 				let head_node_next_p = L.build_struct_gep (expr builder e) 0 "" builder in 
 				L.build_load head_node_next_p "" builder
-			| A.Call("slength", [e]) | A.Call("elength", [e]) | A.Call("ilength", [e]) ->
+			| A.Call("slength", [e]) | A.Call("elength", [e]) | A.Call("ilength", [e]) | A.Call("nlength", [e]) ->
 				let head_node_len_p =  L.build_struct_gep (expr builder e) 2 "" builder in 
 				L.build_load head_node_len_p  "" builder
 				
@@ -389,7 +407,7 @@ let translate (globals, functions) =
 			| None -> ignore (f builder) 
 
 		in let rec stmt builder = function
-			| A.Localdecl(t, n) -> ignore (add_local builder (t, n)); builder
+			| A.Localdecl(t, n) -> (Hashtbl.add ocaml_local_hash n t; ignore (add_local builder (t, n)); builder)
 			| A.Block(sl) 		-> List.fold_left stmt builder sl
 			| A.Expr(e)   		-> ignore (expr builder e); builder
 			| A.Return(e) 		-> ignore (L.build_ret (expr builder e) builder); builder
