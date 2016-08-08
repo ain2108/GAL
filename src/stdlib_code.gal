@@ -182,7 +182,75 @@ nlist nrev(nlist l1){
     }
     return temp_l1;
 }
+
+
+ilist iadd_back(ilist l1,int i){
+
+    
+    ilist temp;
+    int element;
+    element = i;
+    temp = l1;
+    temp = irev(temp);
+    temp = iadd(element,temp);
+    temp = irev(temp);
+    return temp;
+
+}
+
+slist sadd_back(slist l1,string i){
+
+    
+    slist temp;
+    string element;
+    element = i;
+    temp = l1;
+    temp = srev(temp);
+    temp = sadd(element,temp);
+    temp = srev(temp);
+    return temp;
+
+}
+
+elist eadd_back(elist l1,edge i){
+
+    
+    elist temp;
+    edge element;
+    element = i;
+    temp = l1;
+    temp = erev(temp);
+    temp = eadd(element,temp);
+    temp = erev(temp);
+    return temp;
+
+}
+
+nlist nadd_back(nlist l1,node i){
+
+    
+    nlist temp;
+    node element;
+    element = i;
+    temp = l1;
+    temp = nrev(temp);
+    temp = nadd(element,temp);
+    temp = nrev(temp);
+    return temp;
+
+}
+
+
 int main(){
+
+    node n1;
+    n1 = |"A": 2, "B", 11, "C", 2, "D"|;
+    nlist n2;
+    n2 = [n1];
+    print_nlist(n2);
+    nlist n3;
+    n3 = nadd_back(n2,|"D":3,"HELLO"|);
+    print_nlist(n3);
 
     /*
     slist l1;
@@ -213,9 +281,9 @@ int main(){
     elist l30;
     l30 = erev(l2);
     print_elist(l30);
-    */
+    
 
-    /*
+    
     ilist l3;
     l3 = [1::2::3::4::42];
     print_ilist(l3);
@@ -227,9 +295,9 @@ int main(){
     print_ilist(l3);
     print_int(ilength(l3));
     print_endline();
-    */
+    
 
-
+    
     node n2;
     n2 = |"B": 7, "A", 4, "D"|;
     node n1;
@@ -241,8 +309,9 @@ int main(){
     nlist l40;
     l40 = nrev(l4);
     print_nlist(l40);
+    
 
-    /*
+    
     slist l5;
     l5 = [];
 
