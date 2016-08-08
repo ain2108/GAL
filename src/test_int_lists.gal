@@ -1,10 +1,10 @@
-def int print_sl_len(slist lister){
+int print_sl_len(slist lister){
     print_int(slength(lister));
     print_endline();
     return 0;
 }
 
-def int print_slist(slist l1){
+int print_slist(slist l1){
     int len;
     len = slength(l1);
     slist tmp;
@@ -23,7 +23,7 @@ def int print_slist(slist l1){
     return 1;
 }
 
-def int print_edge(edge e){
+int print_edge(edge e){
     print_str("|");
     print_str(source(e));
     print_str(", ");
@@ -34,7 +34,7 @@ def int print_edge(edge e){
     return 0;
 }
 
-def int print_elist(elist l1){
+int print_elist(elist l1){
     int len;
     len = elength(l1);
     elist tmp;
@@ -53,7 +53,7 @@ def int print_elist(elist l1){
     return 1;
 }
 
-def int print_ilist(ilist l1){
+int print_ilist(ilist l1){
     int len;
     len = ilength(l1);
     ilist tmp;
@@ -72,7 +72,7 @@ def int print_ilist(ilist l1){
     return 1;
 }
 
-def int print_nlist(nlist l1){
+int print_nlist(nlist l1){
     int len;
     len = nlength(l1);
     nlist tmp;
@@ -91,7 +91,7 @@ def int print_nlist(nlist l1){
     return 1;
 }
 
-def int main(){
+int main(){
     
     slist l1;
     l1 = ["A"::"B"::"C"];
@@ -119,6 +119,8 @@ def int main(){
     print_ilist(l3);
     print_int(ilength(l3));
     print_endline();
+
+
     node n2;
     n2 = |"B": 7, "A", 4, "D"|;
 

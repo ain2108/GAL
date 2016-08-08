@@ -43,10 +43,10 @@ decls: /*nothing */ {[],[]}
 vdecl: typ ID SEMI { ($1, $2) }
 
 fdecl:
-	DEFINE typ ID LPAREN formals_opts RPAREN LBRACE func_body RBRACE
-	{{ typ = $2; fname = $3; formals = $5; 
-		locals = Help.get_vardecls [] $8; 
-		body = $8 }}
+	typ ID LPAREN formals_opts RPAREN LBRACE func_body RBRACE
+	{{ typ = $1; fname = $2; formals = $4; 
+		locals = Help.get_vardecls [] $7; 
+		body = $7 }}
 
 formals_opts: 
 	/* nothing */ 			{ [] } 
