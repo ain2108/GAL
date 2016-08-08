@@ -392,6 +392,11 @@ let translate (globals, functions) =
 
 						(* Attach the new head to the old head *) 
 						add_element the_head new_node 
+			| A.Call("str_comp", [s1;s2]) ->
+				let v1 = expr builder s1 and v2 = expr builder s2 in 
+				let v1str = L.string_of_llvalue v1 and v2str = L.string_of_llvalue v2 in 
+				P.fprintf stderr "%s and %s\n" v1str v2str;
+				L.const_int i32_t 0 
 
 			| A.Call(fname, actuals) ->
 			

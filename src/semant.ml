@@ -115,12 +115,18 @@ let nadd_fdcl =
 	{ typ = NListtyp; fname = "nadd"; formals = [(EListtyp, "b"); (NListtyp, "a")];
 	  locals = []; body = []};;
 
+let str_comp_fdcl = 
+	{ typ = Int; fname = "str_comp"; formals = [(String, "a"); (String, "b")];
+	  locals = []; body = []};;
+
+
 let builtin_fdcl_list =
 	[ print_int_fdcl; print_str_fdcl; slength_fdcl; dest_fdcl;
 	  source_fdcl; spop_fdcl; weight_fdcl; print_endline_fdcl;
 	  speek_fdcl; ipeek_fdcl; epeek_fdcl; snext_fdcl; elength_fdcl;
 	  enext_fdcl; inext_fdcl; ilength_fdcl; nnext_fdcl; npeek_fdcl;
-	  nlength_fdcl; sadd_fdcl; eadd_fdcl; iadd_fdcl; nadd_fdcl ];;
+	  nlength_fdcl; sadd_fdcl; eadd_fdcl; iadd_fdcl; nadd_fdcl;
+	  str_comp_fdcl ];;
 
 
 (* Static semantic checker of the program. Will return void 
