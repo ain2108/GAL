@@ -187,57 +187,40 @@ nlist nrev(nlist l1){
 ilist iadd_back(ilist l1,int i){
 
     
-    ilist temp;
-    int element;
-    element = i;
-    temp = l1;
-    temp = irev(temp);
-    temp = iadd(element,temp);
-    temp = irev(temp);
-    return temp;
+    l1 = irev(l1);
+    l1 = iadd(i,l1);
+    l1 = irev(l1);
+    return l1;
 
 }
 
 slist sadd_back(slist l1,string i){
 
     
-    slist temp;
-    string element;
-    element = i;
-    temp = l1;
-    temp = srev(temp);
-    temp = sadd(element,temp);
-    temp = srev(temp);
-    return temp;
+    l1 = srev(l1);
+    l1 = sadd(i,l1);
+    l1 = srev(l1);
+    return l1;
 
 }
 
 elist eadd_back(elist l1,edge i){
 
     
-    elist temp;
-    edge element;
-    element = i;
-    temp = l1;
-    temp = erev(temp);
-    temp = eadd(element,temp);
-    temp = erev(temp);
-    return temp;
+    l1 = erev(l1);
+    l1 = eadd(i,l1);
+    l1 = erev(l1);
+    return l1;
 
 }
 
 nlist nadd_back(nlist l1,node i){
 
-    
-    nlist temp;
-    node element;
-    element = i;
-    temp = l1;
-    temp = nrev(temp);
-    temp = nadd(element,temp);
-    temp = nrev(temp);
-    return temp;
 
+    l1 = nrev(l1);
+    l1 = nadd(i,l1);
+    l1 = nrev(l1);
+    return l1;
 }
 
 
