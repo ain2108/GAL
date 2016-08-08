@@ -159,7 +159,8 @@ let translate (globals, functions) =
 				L.set_value_name n p;
 				let local = L.build_alloca (ltype_of_typ t) n builder in
 				ignore (L.build_store p local builder);
-				Hashtbl.add local_hash n local
+				Hashtbl.add local_hash n local;
+				Hashtbl.add ocaml_local_hash n t;
 			in 
 			
 			let params = enumerate 0 [] (Array.to_list (L.params the_function))  
