@@ -5,6 +5,9 @@
    		 microc code. We hope this is acceptable. *)
     open Ast
     open Help
+
+    let build_edge ~src (weight, dst) = 
+    	Edgedcl(src, weight, dst)
 %}
 
 %token SEMI LPAREN RPAREN LSQBRACE RSQBRACE LBRACE RBRACE BAR COLON LISTSEP COMMA
@@ -86,13 +89,20 @@ listdecl:
 	  expr  				{ [$1] }
 	| listdecl LISTSEP expr { $3 :: $1 } 
 
+node_syntax:
+	  expr COMMA w_dst_list { List.map (build_edge ~src:$1) $3}
+
+w_dst_list:
+	  expr COMMA expr 		{[($1, $3)]}
+	| expr COMMA expr COMMA w_dst_list {($1, $3)::$5}
 
 expr:
       /* typ ID            { Localdecl($1, $2)} */
+    | BAR node_syntax BAR {Listdcl($2)}
     | LITINT			{ Litint($1) }
 	| ID				{ Id($1) }
 	| LITSTR			{ Litstr($1) }
-	| BAR LITSTR COMMA LITINT COMMA LITSTR BAR 	{ Edgedcl($2,$4,$6) }
+	| BAR expr COMMA expr COMMA expr BAR 	{ Edgedcl($2,$4,$6) }
 	| LSQBRACE list_list RSQBRACE 			{ Listdcl($2) }
 	| expr PLUS   expr { Binop($1, Add,   $3) }
     | expr MINUS  expr { Binop($1, Sub,   $3) }

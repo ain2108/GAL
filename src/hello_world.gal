@@ -1,0 +1,7 @@
+
+def int main(){
+    string greeting;
+    greeting = "hello world";
+    print_str(greeting);
+    return 0;
+}

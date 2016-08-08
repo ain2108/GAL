@@ -3,12 +3,13 @@
    Note: This code was writte on top of Prof. Edwards's 
    		 microc code. We hope this is acceptable. *)
 
-type op = Add | Sub | Mult | Div | Equal |
+type op = Add | Sub | Mult | Div | Equal | 
 	  Less | Leq | Greater | Geq | And | Or |
 	  Eadd | Esub 
 
 (* List and Edge here are different from below *)
 type uop = Not
+
 type typ = Int | String | Listtyp | Edge | Void
 
 type bind = typ * string 
@@ -22,7 +23,7 @@ type expr = Litint of int
 	  | Noexpr
 	  | Unop of uop * expr
 	  | Call of string * expr list 
-	  | Edgedcl of string * int * string
+	  | Edgedcl of expr * expr * expr
 	  | Listdcl of expr list
 	  (*  Localdecl of typ * string  *)
 (* Added to support local decls *)
