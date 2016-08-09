@@ -1,4 +1,4 @@
-def int main()
+int main()
 {
 
 	int x;
@@ -11,7 +11,7 @@ def int main()
 	
 }
 
-def int test()
+int test()
 {
 		int c;
 		c = 7;

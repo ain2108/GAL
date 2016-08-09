@@ -1,4 +1,4 @@
-def int main(){
+int main(){
     print_int(1);
     return 1;
 }

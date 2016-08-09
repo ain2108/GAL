@@ -1,1 +1,4 @@
-Fatal error: exception Parsing.Parse_error
+Fatal error: exception Failure("
+ in main expr:  illegal assignment to variable e1
+ in main edge:  bad types
+ in main var:  unknown identifier x")

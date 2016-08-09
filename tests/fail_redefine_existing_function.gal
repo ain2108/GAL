@@ -1,6 +1,6 @@
-def int print_int() {}
+int print_int() {}
 
-def int main()
+int main()
 {
 	
 

@@ -1,8 +1,6 @@
-
-
 int a;
 
-def int main(int a, int a)
+int main(int a, int a)
 {
 	
 	int b;

@@ -1,5 +1,5 @@
 
-def int x()
+int x()
 {
 	int a;
 	int b;
