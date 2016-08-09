@@ -1,4 +1,4 @@
-def int main()
+int main()
 {
 	edge e1;
 	edge e2;
@@ -8,8 +8,8 @@ def int main()
 	e2 = |"B",7,"C"|;
 	e3 = |"C",2,"A"|;
 
-	list x;
-	x = [A::2::3];
+	elist l1;
+	l1 = [e1];
 
 	return 1;
 

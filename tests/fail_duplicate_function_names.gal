@@ -1,17 +1,17 @@
 
-def int main(int x, int y)
+int main(int x, int y)
 {
 	
 
 }
 
-def int this()
+int this()
 {
 	
 
 }
 
-def int this()
+int this()
 {
 	
 	

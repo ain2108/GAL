@@ -55,7 +55,7 @@ Compare() {
 Run() {
     echo $* 1>&2
     eval $* || {
-    SignalError "$1 failed on $*"
+    #SignalError "$1 failed on $*"
     return 1
     }
 }
@@ -87,7 +87,7 @@ Check() {
 
     generatedfiles="$generatedfiles ${basename}.ll ${basename}.out" &&
     Run "$GAL" "<" $1 ">" "${basename}.ll" &&
-    Run "$LLI" "${basename}.ll" ">" "${basename}.out" &&
+    Run "$LLI" "${basename}.ll" ">" "${basename}.out"
     Compare ${basename}.out ${reffile}.out ${basename}.diff
 
     # Report the status and clean up the generated files

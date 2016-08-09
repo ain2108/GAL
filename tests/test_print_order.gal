@@ -1,0 +1,9 @@
+int main(){
+	print_int(6);
+	print_endline();
+	print_str("Hello");
+	print_endline();
+	print_int(903);
+	print_endline();
+    return 1;
+}

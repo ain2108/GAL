@@ -1,5 +1,5 @@
 /* fail-assign1.mc */
-def int main()
+int main()
 {
   int a;
   int b;
