@@ -25,7 +25,7 @@
 %left AND
 %left EQ 
 %left LT GT LEQ GEQ
-%left PLUS MINUS EPLUS EMINUS
+%left PLUS MINUS
 %left TIMES DIVIDE
 %right NOT  
 
@@ -111,8 +111,6 @@ expr:
     | expr MINUS  expr { Binop($1, Sub,   $3) }
  	| expr TIMES  expr { Binop($1, Mult,  $3) }
     | expr DIVIDE expr { Binop($1, Div,   $3) }
-    | expr EPLUS expr  { Binop($1, Eadd,  $3) }
-    | expr EMINUS expr { Binop($1, Esub,  $3) }
     | expr EQ     expr { Binop($1, Equal, $3) }
     | expr LT     expr { Binop($1, Less,  $3) }
     | expr LEQ    expr { Binop($1, Leq,   $3) }
