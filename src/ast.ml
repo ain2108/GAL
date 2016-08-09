@@ -21,7 +21,6 @@ type expr = Litint of int
 	  | Id of string
 	  | Binop of expr * op * expr
 	  | Assign of string * expr
-	  | Boolit of int    (* KIV *)
 	  | Noexpr
 	  | Unop of uop * expr
 	  | Call of string * expr list 

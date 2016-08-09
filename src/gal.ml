@@ -1,5 +1,3 @@
-open Semant;; 
-
 type action = Ast | LLVM_IR | Compile;;
 
 module P = Printf;;

@@ -12,17 +12,13 @@ module StringMap = Map.Make(String)
 
 let translate (globals, functions) = 
 
-	let contains s1 s2 = 
+	(* let contains s1 s2 = 
     let re = Str.regexp_string s2
     in
         try ignore (Str.search_forward re s1 0); true
         with Not_found -> false
 
-    in 
-
-
-    (* To keep track of bitcasts *)
-    let cast_hash = Hashtbl.create 100 in 
+    in  *)
 
     (* Holding global string constants *)
     let glob_str_const_hash = Hashtbl.create 200 in 
@@ -37,13 +33,10 @@ let translate (globals, functions) =
 	and i1_t = L.i1_type context  		(* Needed for predicates *)
     
     in let i8_p_t = L.pointer_type i8_t 	(* Pointer *)
-	in let i32_p_t = L.pointer_type i32_t
 	in let edge_t = L.struct_type context  (* Edge type *)
 				(Array.of_list [i8_p_t; i32_t; i8_p_t])
- 
-	in let zero = L.const_int i32_t 0 
+
     in let one = L.const_int i32_t 1
-	in let inc_i32 c = L.const_add c one  
 
 	in let empty_node_t = L.named_struct_type context "empty" in 
 	L.struct_set_body empty_node_t (Array.of_list [L.pointer_type empty_node_t; L.pointer_type i1_t; i32_t ])  true;
@@ -60,11 +53,11 @@ let translate (globals, functions) =
 	let n_node_t = L.named_struct_type context "nnode" in 
     L.struct_set_body n_node_t (Array.of_list [L.pointer_type n_node_t; L.pointer_type e_node_t; i32_t ])  true;
 
-    let Some(node_t) = L.type_by_name the_module "node" in 
+(*     let Some(node_t) = L.type_by_name the_module "node" in 
     let Some(e_node_t) = L.type_by_name the_module "enode" in 
     let Some(i_node_t) = L.type_by_name the_module "inode" in  
     let Some(n_node_t) = L.type_by_name the_module "nnode" in
-    let Some(empty_node_t) = L.type_by_name the_module "empty" in 
+    let Some(empty_node_t) = L.type_by_name the_module "empty" in  *)
     	
     
 	(* Pattern match on A.typ returning a llvm type *)
@@ -78,11 +71,6 @@ let translate (globals, functions) =
 		| A.IListtyp -> L.pointer_type i_node_t
 		| A.NListtyp -> L.pointer_type n_node_t
 		| _ 	-> raise (Failure ("Type not implemented\n"))
-
-	(* Create the edge declaration *)
-	in let codegen_edgedecl =
-	ignore (L.struct_set_body (L.named_struct_type context "edge") 
-	(Array.of_list [i8_p_t; i32_t; i8_p_t]) false)
 
 
 	in let list_type_from_type ocaml_type = match ocaml_type with
@@ -148,14 +136,14 @@ let translate (globals, functions) =
 		let string_format_string = L.build_global_stringptr "%s" "sfs" builder in
 		let endline_format_string = L.build_global_stringptr "%s\n" "efs" builder in
 
-		let local_vars =
+		let _ =
 			
 			let rec enumerate i enumed_l = function 
 					| [] -> List.rev enumed_l 
 					| hd::tl -> enumerate (i + 1) ((hd, i)::enumed_l) tl 
 			in 
 
-			let add_formal (t, n) (p, i) = 
+			let add_formal (t, n) (p, _) = 
 				L.set_value_name n p;
 				let local = L.build_alloca (ltype_of_typ t) n builder in
 				ignore (L.build_store p local builder);
@@ -170,33 +158,29 @@ let translate (globals, functions) =
 		in let add_local builder (t, n) =
 				let local_var = L.build_alloca (ltype_of_typ t) n builder
 				in Hashtbl.add local_hash n local_var 
-
+(* 
 		in let add_local_list builder ltype n = 
 				let local_var = L.build_alloca (ltype) n builder
-				in Hashtbl.add local_hash n local_var
+				in Hashtbl.add local_hash n local_var *)
 
 		in let lookup name = 
 			try Hashtbl.find local_hash name 
 			with Not_found -> StringMap.find name global_vars
 
 		in let rec get_node_type expr = match expr with
-			| A.Litint(num) -> i_node_t
-			| A.Litstr(str) -> node_t
+			| A.Litint(_) -> i_node_t
+			| A.Litstr(_) -> node_t
 			| A.Listdcl(somelist) -> 
 				if somelist = [] then 
 					raise (Failure("empty list decl"))
 				else 
-					let hd::tl = somelist in get_node_type hd  
-			| A.Binop(e1, op, e2) -> get_node_type e1
+					let hd::_ = somelist in get_node_type hd  
+			| A.Binop(e1, _, _) -> get_node_type e1
 			| A.Edgedcl(_) 	-> e_node_t
 			| A.Id(name) 	-> 
 				let ocaml_type = (Hashtbl.find ocaml_local_hash name)
 				in  list_type_from_type ocaml_type
 			| _ -> raise (Failure(" type not supported in list "))
- 
-
-		 (* Gets a boolean i1_t value from any i_type *)
-        in let bool_of_int int_val = L.build_is_null int_val "banana" builder
 
 
 		(* We can now describe the action to be taken on ast traversal *)
@@ -295,7 +279,7 @@ let translate (globals, functions) =
 					let list_type = Hashtbl.find ocaml_local_hash name in 
 					
 					(* Cant get to the right type for store instruction, so this: *)
-					let rec get_llvm_node_type ocaml_type = match ocaml_type with 
+					let get_llvm_node_type ocaml_type = match ocaml_type with 
 						| A.SListtyp -> node_t
 						| A.IListtyp -> i_node_t
 						| A.NListtyp -> n_node_t 
@@ -416,10 +400,8 @@ let translate (globals, functions) =
 			| A.Call(fname, actuals) ->
 			
 				(* Will clean up later *)
-				let bitcast_actuals (actual, num) = 
+				let bitcast_actuals (actual, _) = 
 					let lvalue = expr builder actual in 
-					let ltype = L.type_of lvalue in 
-					let str_ltype = L.string_of_lltype ltype in 
 					lvalue
 				in 
 
@@ -429,7 +411,7 @@ let translate (globals, functions) =
 				in 
 
 				let actuals = (enumerate 0 [] actuals) in  
-				let (fdef, fdecl) = StringMap.find fname function_decls in 
+				let (fdef, _) = StringMap.find fname function_decls in 
 				let actuals = List.rev (List.map bitcast_actuals (List.rev actuals)) in 
 				let result = fname ^ "_result" in 
 				L.build_call fdef (Array.of_list actuals) result builder
@@ -447,15 +429,12 @@ let translate (globals, functions) =
 	  				| A.Less    -> L.build_icmp L.Icmp.Slt
 	  				| A.Leq     -> L.build_icmp L.Icmp.Sle
 	  				| A.Greater -> L.build_icmp L.Icmp.Sgt
-	  				| A.Geq     -> L.build_icmp L.Icmp.Sge
-					| _   -> raise (Failure("operator not supported")))
-				v1 v2 "tmp" builder  in value (* 
-				L.build_intcast value i32_t "" builder  *)
+	  				| A.Geq     -> L.build_icmp L.Icmp.Sge)
+				v1 v2 "tmp" builder  in value 
 			| A.Unop(op, e) ->
 				let e' = expr builder e in 
 				(match op with 
-					| A.Not -> L.build_not
-					| _ 	-> raise (Failure("expr not supported"))) e' "tmp" builder
+					| A.Not -> L.build_not) e' "tmp" builder
 			| _ -> raise (Failure("expr not supported"))
 
 
@@ -471,7 +450,7 @@ let translate (globals, functions) =
 			| A.Return(e) 		-> ignore (L.build_ret (expr builder e) builder); builder
 		 	| A.If(p, then_stmt, else_stmt) ->	
 				(* Get the boolean *)
-				let bool_val = (* bool_of_int  *)(expr builder p)
+				let bool_val = (expr builder p)
 
 				(* Add the basic block *)
 				in let merge_bb 	= L.append_block context "merge" the_function
