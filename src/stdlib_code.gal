@@ -1,0 +1,420 @@
+int print_sl_len(slist lister){
+    print_int(slength(lister));
+    print_endline();
+    return 0;
+}
+
+int print_slist(slist l1){
+    int len;
+    len = slength(l1);
+    slist tmp;
+    tmp = l1;
+    int i;
+    i = 0;
+    print_str("->");
+    while (i < len) {
+          print_str(speek(tmp));
+          print_str("::");
+          tmp = snext(tmp);
+          i = i + 1;
+    }
+    print_endline();
+
+    return 1;
+}
+
+int print_edge(edge e){
+    print_str("|");
+    print_str(source(e));
+    print_str(", ");
+    print_int(weight(e));
+    print_str(", ");
+    print_str(dest(e));
+    print_str("|");
+    return 0;
+}
+
+int print_elist(elist l1){
+    int len;
+    len = elength(l1);
+    elist tmp;
+    tmp = l1;
+    int i;
+    i = 0;
+    print_str("->");
+    while (i < len) {
+          print_edge(epeek(tmp));
+          print_str("::");
+          tmp = enext(tmp);
+          i = i + 1;
+    }
+    print_endline();
+
+    return 1;
+}
+
+int print_ilist(ilist l1){
+    int len;
+    len = ilength(l1);
+    ilist tmp;
+    tmp = l1;
+    int i;
+    i = 0;
+    print_str("->");
+    while (i < len) {
+          print_int(ipeek(tmp));
+          print_str("::");
+          tmp = inext(tmp);
+          i = i + 1;
+    }
+    print_endline();
+
+    return 1;
+}
+
+int print_nlist(nlist l1){
+    int len;
+    len = nlength(l1);
+    nlist tmp;
+    tmp = l1;
+    int i;
+    i = 0;
+    print_str("->");
+    while (i < len) {
+          print_elist(npeek(tmp));
+          print_str("::");
+          tmp = nnext(tmp);
+          i = i + 1;
+    }
+    print_endline();
+
+    return 1;
+}
+
+ilist irev(ilist l1){
+    
+    int len_l1;
+    len_l1 = ilength(l1);
+    ilist temp_l1; 
+    temp_l1 = [];
+    int temp_element;
+    
+    while(!(len_l1 ==0)){
+
+        /*adds the first element of the list l1 to temp_l1*/
+        temp_element = ipeek(l1);
+        temp_l1 = iadd(temp_element,temp_l1);
+
+        /*advances the head of the list*/
+        l1 = inext(l1);
+
+        len_l1 = len_l1 - 1; 
+
+    }
+    return temp_l1;
+}
+
+slist srev(slist l1){
+    
+    int len_l1;
+    len_l1 = slength(l1);
+    slist temp_l1; 
+    temp_l1 = [];
+    string temp_element;
+    
+    while(!(len_l1 ==0)){
+
+        /*adds the first element of the list l1 to temp_l1*/
+        temp_element = speek(l1);
+        temp_l1 = sadd(temp_element,temp_l1);
+
+        /*advances the head of the list*/
+        l1 = snext(l1);
+
+        len_l1 = len_l1 - 1; 
+
+    }
+    return temp_l1;
+}
+
+elist erev(elist l1){
+    
+    int len_l1;
+    len_l1 = elength(l1);
+    elist temp_l1; 
+    temp_l1 = [];
+    edge temp_element;
+    
+    while(!(len_l1 ==0)){
+
+        /*adds the first element of the list l1 to temp_l1*/
+        temp_element = epeek(l1);
+        temp_l1 = eadd(temp_element,temp_l1);
+
+        /*advances the head of the list*/
+        l1 = enext(l1);
+
+        len_l1 = len_l1 - 1; 
+
+    }
+    return temp_l1;
+}
+
+nlist nrev(nlist l1){
+    
+    int len_l1;
+    len_l1 = nlength(l1);
+    nlist temp_l1; 
+    temp_l1 = [];
+    node temp_element;
+    
+    while(!(len_l1 ==0)){
+
+        /*adds the first element of the list l1 to temp_l1*/
+        temp_element = npeek(l1);
+        temp_l1 = nadd(temp_element,temp_l1);
+
+        /*advances the head of the list*/
+        l1 = nnext(l1);
+
+        len_l1 = len_l1 - 1; 
+
+    }
+    return temp_l1;
+}
+
+
+ilist iadd_back(ilist l1,int i){
+
+    
+    l1 = irev(l1);
+    l1 = iadd(i,l1);
+    l1 = irev(l1);
+    return l1;
+
+}
+
+slist sadd_back(slist l1,string i){
+
+    
+    l1 = srev(l1);
+    l1 = sadd(i,l1);
+    l1 = srev(l1);
+    return l1;
+
+}
+
+elist eadd_back(elist l1,edge i){
+
+    
+    l1 = erev(l1);
+    l1 = eadd(i,l1);
+    l1 = erev(l1);
+    return l1;
+
+}
+
+nlist nadd_back(nlist l1,node i){
+
+
+    l1 = nrev(l1);
+    l1 = nadd(i,l1);
+    l1 = nrev(l1);
+    return l1;
+}
+
+ilist iconcat(ilist l1, ilist l2){
+    
+    l1 = irev(l1);
+    int len_l2;
+    len_l2 = ilength(l2);
+    int temp_element;
+
+    while(!(len_l2==0)){
+
+        temp_element = ipeek(l2);
+        l1 = iadd(temp_element,l1);
+        l2 = inext(l2);
+
+        len_l2 = len_l2 - 1;
+    }
+
+    l1 = irev(l1);
+    return l1;
+}
+
+slist sconcat(slist l1, slist l2){
+    
+    l1 = srev(l1);
+    int len_l2;
+    len_l2 = slength(l2);
+    string temp_element;
+
+    while(!(len_l2==0)){
+
+        temp_element = speek(l2);
+        l1 = sadd(temp_element,l1);
+        l2 = snext(l2);
+
+        len_l2 = len_l2 - 1;
+    }
+
+    l1 = srev(l1);
+    return l1;
+}
+
+elist econcat(elist l1, elist l2){
+    
+    l1 = erev(l1);
+    int len_l2;
+    len_l2 = elength(l2);
+    edge temp_element;
+
+    while(!(len_l2==0)){
+
+        temp_element = epeek(l2);
+        l1 = eadd(temp_element,l1);
+        l2 = enext(l2);
+
+        len_l2 = len_l2 - 1;
+    }
+
+    l1 = erev(l1);
+    return l1;
+}
+
+nlist nconcat(nlist l1, nlist l2){
+    
+    l1 = nrev(l1);
+    int len_l2;
+    len_l2 = nlength(l2);
+    node temp_element;
+
+    while(!(len_l2==0)){
+
+        temp_element = npeek(l2);
+        l1 = nadd(temp_element,l1);
+        l2 = nnext(l2);
+
+        len_l2 = len_l2 - 1;
+    }
+
+    l1 = nrev(l1);
+    return l1;
+}
+
+int main(){
+
+    nlist l1;
+    nlist l2;
+    node n1;
+    node n2;
+    n1 = |"A":2,"B"|;
+    n2 = |"C":3,"D"|;
+    l1 = [n1];
+    l2 = [n2];
+    nlist l3;
+    l3 = nconcat(l1,l2);
+    print_nlist(l3);
+
+    
+    /*
+    node n1;
+    n1 = |"A": 2, "B", 11, "C", 2, "D"|;
+    nlist n2;
+    n2 = [n1];
+    print_nlist(n2);
+    nlist n3;
+    n3 = nadd_back(n2,|"D":3,"HELLO"|);
+    print_nlist(n3);
+
+    
+    slist l1;
+    l1 = ["A"::"B"::"C"];
+    print_slist(l1);
+    slist l20;
+    l20 = srev(l1);
+    print_slist(l20);
+
+    
+    string s1;
+    s1 = "Hello";
+    l1 = sadd(s1, l1);
+    print_slist(l1);
+    print_sl_len(l1);
+    l1 = spop(l1);
+    print_slist(l1);
+    print_sl_len(l1);
+    
+
+    node n1;
+    n1 = |"A": 2, "B", 11, "C", 2, "D"|;
+    
+    
+    elist l2;
+    l2 = n1;
+    print_elist(l2);
+    elist l30;
+    l30 = erev(l2);
+    print_elist(l30);
+    
+
+    
+    ilist l3;
+    l3 = [1::2::3::4::42];
+    print_ilist(l3);
+    ilist l10;
+    l10 = irev(l3);
+    print_ilist(l10);
+
+    l3 = iadd(27, l3);
+    print_ilist(l3);
+    print_int(ilength(l3));
+    print_endline();
+    
+
+    
+    node n2;
+    n2 = |"B": 7, "A", 4, "D"|;
+    node n1;
+    n1 = |"A": 2, "B", 11, "C", 2, "D"|;
+
+    nlist l4;
+    l4 = [n1::n2];
+    print_nlist(l4);
+    nlist l40;
+    l40 = nrev(l4);
+    print_nlist(l40);
+    
+
+    
+    slist l5;
+    l5 = [];
+
+    int banana;
+    banana = slength(l5);
+    print_int(banana);
+    print_endline();
+
+
+    l5 = sadd("hello", l5);
+
+    print_slist(l5);
+    print_sl_len(l5);
+
+    /*string can;
+    string orange;
+    can = "panda";
+    orange = "batman";
+
+    int comparison;
+    comparison = str_comp(can, orange);
+    print_int(comparison);
+    print_endline(); */
+
+
+    return 1;
+}
+
+
+

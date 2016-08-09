@@ -4,13 +4,12 @@
    		 microc code. We hope this is acceptable. *)
 
 type op = Add | Sub | Mult | Div | Equal | 
-	  Less | Leq | Greater | Geq | And | Or |
-	  Eadd | Esub 
+	  Less | Leq | Greater | Geq | And | Or 
 
 (* List and Edge here are different from below *)
 type uop = Not
 
-type typ = Int | String | Listtyp | Edge | Void 
+type typ = Int | String |  Edge | Void 
 			| EListtyp | SListtyp | IListtyp | NListtyp 
 			| EmptyListtyp | Nothing
 
@@ -22,7 +21,6 @@ type expr = Litint of int
 	  | Id of string
 	  | Binop of expr * op * expr
 	  | Assign of string * expr
-	  | Boolit of int    (* KIV *)
 	  | Noexpr
 	  | Unop of uop * expr
 	  | Call of string * expr list 
