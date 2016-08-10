@@ -1,3 +1,131 @@
+elist get_most_edges_node(nlist graph){
+    
+    int len;
+    len = nlength(graph);
+    int i;
+    i = 0;
+
+    ilist lengths;
+    lengths = []; 
+
+    nlist temp;
+    temp = graph;
+
+    /* Get the number of edges */
+    while( (i < len) && (len > 0)){
+        lengths = iadd(elength(npeek(temp)), lengths);
+        temp = nnext(temp);
+        i = i + 1;
+    }
+    lengths = irev(lengths);
+
+    len = ilength(lengths);
+    i = 0;
+    int longest;
+    longest = 0;
+    int order;
+    order = 1; 
+
+    while( (i < len) && (len > 0)){
+        if(longest < ipeek(lengths)){
+            longest = ipeek(lengths); 
+            order = i + 1; 
+        }else{} 
+        lengths = inext(lengths);
+        i = i + 1;
+    }
+
+    temp = graph;
+    elist result;
+    result = [];
+
+    while(order > 1){
+        temp = nnext(temp);
+    }
+
+    result = npeek(temp);
+    return result;
+}
+
+edge get_heaviest_graph_edge(nlist l1){
+    
+    int len;
+    len = nlength(l1);
+    int i;
+    i = 0;
+    int heaviest_w;
+    heaviest_w = 0;
+
+    edge heaviest;
+    heaviest = |"EMPTY", 0, "EMPTY"|; 
+
+    elist temp;
+    temp = []; 
+
+    while( (i < len) && (len > 0) ){
+        
+        /* Get the head of the list and move forward */
+        temp = npeek(l1);
+        l1 = nnext(l1);
+
+        /* Get the weight of the element */ 
+        if( heaviest_w < weight(get_heaviest_edge(temp)) ){
+            heaviest_w = weight(get_heaviest_edge(temp));
+            heaviest = get_heaviest_edge(temp);
+        }else{}
+
+        /* Increment */
+        i = i + 1; 
+    }
+
+    return heaviest;
+}
+
+/* Function will return the ehaviest edge of the node */
+edge get_heaviest_edge(node n1){
+    
+    int len;
+    len = elength(n1);
+    int i;
+    i = 0;
+
+    int heaviest_w;
+    heaviest_w = 0;
+
+    edge heaviest;
+    heaviest = |"EMPTY", 0, "EMPTY"|; 
+
+    edge temp;
+    temp = |"", 0, ""|;
+
+    /* Iterate through the list, compare weights of edges */ 
+    while( (i < len) && (len > 0) ){
+        
+        /* Get the head of the list and move forward */
+        temp = epeek(n1);
+        n1 = enext(n1);
+
+        /* Get the weight of the element */ 
+        if( heaviest_w < weight(temp) ){
+            heaviest_w = weight(temp);
+            heaviest = temp;
+        }else{}
+
+        /* Increment */
+        i = i + 1; 
+    }
+
+    return heaviest;
+}
+
+
+int print_line(string str){
+    print_str(str);
+    print_endline();
+    return 0;
+}
+
+
 int print_sl_len(slist lister){
     print_int(slength(lister));
     print_endline();

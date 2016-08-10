@@ -1,15 +1,6 @@
-elist get_node_with_most_edges(nlist graph){
-	
-	elist temp;
-	temp = [];
-
-	return temp;
-}
-
-
-
 int main(){
 	
+	print_endline();
 
 	/* Declare our nodes above */ 
 	node n1;
@@ -21,7 +12,7 @@ int main(){
     node n4;
     n4 = |"D": 20, "A", 7, "B"|; 
 
-    /* Lets print them to see what we got */
+    print_line("Lets print them to see what we got:");
     print_elist(n1);
     print_elist(n2);
     print_elist(n3);
@@ -34,12 +25,34 @@ int main(){
     elist n5;
     n5 = [|"E", 24, "D"|::|"E", 13, "B"|];
 
-    /* Lets put the nodes into a list of nodes, also known as a graph */ 
+    print_line("We can also print them as a graph:"); 
     nlist graph;
     graph = [n1::n2::n3::n4::n5];  
 
     /* We can use a different function to print this graph */ 
     print_nlist(graph);
+    print_endline();
+
+    print_line("Lets get the heaviest edge of the node n1:");
+    edge heaviest;
+    heaviest = get_heaviest_edge(n1); 
+    print_edge(heaviest);
+    print_endline();
+
+    print_line("How about the heaviest edge in our graph? Sure:");
+    heaviest = get_heaviest_graph_edge(graph);
+    print_edge(heaviest);
+    print_endline();
+
+    print_line("Lets get the node that has the most edges");
+    node important;
+    important = get_most_edges_node(graph);
+    print_line(source(epeek(important)));
+
+
+
+
+
 
 
 

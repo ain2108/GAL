@@ -12,6 +12,14 @@ module StringMap = Map.Make(String)
 
 let translate (globals, functions) = 
 
+	let the_funcs_map = StringMap.empty in 
+	let the_funcs_map = 
+		List.fold_left 
+		(fun map fdecl -> StringMap.add fdecl.A.fname fdecl.A.typ map)
+		the_funcs_map
+		functions 
+	in 
+
     (* Holding global string constants *)
     let glob_str_const_hash = Hashtbl.create 200 in 
 
@@ -165,6 +173,23 @@ let translate (globals, functions) =
 			| A.Id(name) 	-> 
 				let ocaml_type = (Hashtbl.find ocaml_local_hash name)
 				in  list_type_from_type ocaml_type
+			| A.Call("iadd", _) | A.Call("inext", _) ->
+				i_node_t
+			| A.Call("eadd", _) | A.Call("enext", _) ->
+				e_node_t
+			| A.Call("sadd", _) | A.Call("snext", _) ->
+				node_t
+			| A.Call("nadd", _) | A.Call("nnext", _) ->
+				n_node_t
+			| A.Call("ilength", _) | A.Call("slength", _) | A.Call("nlength", _) | A.Call("elength", _) ->
+				i_node_t
+			| A.Call(fname, _) ->
+				let ftype = StringMap.find fname the_funcs_map in 
+				ltype_of_typ ftype
+				(* try let fdecl = List.find 
+				(fun fdecl -> if fdecl.A.fname = fname then true else false)
+				functions 
+				in (ltype_of_typ fdecl.A.typ) with Not_found -> in  *)
 			| _ -> raise (Failure(" type not supported in list "))
 
 
