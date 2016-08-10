@@ -1,0 +1,32 @@
+int print_ilist(ilist l1){
+    int len;
+    len = ilength(l1);
+    ilist tmp;
+    tmp = l1;
+    int i;
+    i = 0;
+    print_str("->");
+    while (i < len) {
+          print_int(ipeek(tmp));
+          print_str("::");
+          tmp = inext(tmp);
+          i = i + 1;
+    }
+    print_endline();
+
+    return 1;
+}
+
+int main()
+{
+	
+	ilist x;
+
+	x = [1];
+	x = iadd(2,x);
+	x = iadd(100,x);
+
+
+	print_ilist(x);
+	return 1;
+}
