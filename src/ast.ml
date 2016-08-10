@@ -3,8 +3,8 @@
    Note: This code was writte on top of Prof. Edwards's 
    		 microc code. We hope this is acceptable. *)
 
-type op = Add | Sub | Mult | Div | Equal | 
-	  Less | Leq | Greater | Geq | And | Or 
+type op = Add | Sub | Mult | Div | Equal | Neq |
+	  		Less | Leq | Greater | Geq | And | Or 
 
 (* List and Edge here are different from below *)
 type uop = Not

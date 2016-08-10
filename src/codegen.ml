@@ -392,16 +392,19 @@ let translate (globals, functions) =
 
 						(* Attach the new head to the old head *) 
 						add_element the_head new_node 
-			| A.Call("str_comp", [s1;s2]) ->
+			| A.Call("streq", [s1;s2]) ->
 				let v1 = (expr builder s1) and v2 = expr builder s2 in 
 				let v1value = L.build_load (L.build_load  (L.global_initializer v1)  "" builder) "" builder in 
 				let v2value = L.build_load (L.build_load  (L.global_initializer v2)  "" builder) "" builder in 
 
-				if v2value = v1value then 
-					L.const_int i32_t 0 
-				else
-					L.const_int i32_t 1
+				let str = L.string_of_lltype (L.type_of v2value) in 
 
+				let result = (L.build_icmp L.Icmp.Eq v1value v2value "" builder) in 
+				let result = L.build_not result "" builder in 
+				let result = L.build_intcast result i32_t "" builder in 
+				result
+			(*
+ *)
 			| A.Call(fname, actuals) ->
 			
 				(* Will clean up later *)
@@ -431,6 +434,7 @@ let translate (globals, functions) =
 					| A.And 	-> L.build_and
 					| A.Or 		-> L.build_or 
 					| A.Equal   -> L.build_icmp L.Icmp.Eq
+					| A.Neq 	-> L.build_icmp L.Icmp.Ne
 	  				| A.Less    -> L.build_icmp L.Icmp.Slt
 	  				| A.Leq     -> L.build_icmp L.Icmp.Sle
 	  				| A.Greater -> L.build_icmp L.Icmp.Sgt

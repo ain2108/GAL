@@ -49,13 +49,5 @@ int main(){
     important = get_most_edges_node(graph);
     print_line(source(epeek(important)));
 
-
-
-
-
-
-
-
-
     return 0;
 }
