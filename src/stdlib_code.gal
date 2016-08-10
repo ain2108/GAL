@@ -303,6 +303,7 @@ nlist nconcat(nlist l1, nlist l2){
     return l1;
 }
 
+/*
 int main(){
 
     nlist l1;
@@ -318,7 +319,6 @@ int main(){
     print_nlist(l3);
 
     
-    /*
     node n1;
     n1 = |"A": 2, "B", 11, "C", 2, "D"|;
     nlist n2;
@@ -402,19 +402,19 @@ int main(){
     print_slist(l5);
     print_sl_len(l5);
 
-    /*string can;
+    string can;
     string orange;
     can = "panda";
     orange = "batman";
 
     int comparison;
-    comparison = str_comp(can, orange);
+    comparison = str_comp(can, can);
     print_int(comparison);
-    print_endline(); */
+    print_endline(); 
 
 
     return 1;
 }
-
+*/
 
 

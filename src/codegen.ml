@@ -12,14 +12,6 @@ module StringMap = Map.Make(String)
 
 let translate (globals, functions) = 
 
-	(* let contains s1 s2 = 
-    let re = Str.regexp_string s2
-    in
-        try ignore (Str.search_forward re s1 0); true
-        with Not_found -> false
-
-    in  *)
-
     (* Holding global string constants *)
     let glob_str_const_hash = Hashtbl.create 200 in 
 
@@ -52,13 +44,6 @@ let translate (globals, functions) =
 
 	let n_node_t = L.named_struct_type context "nnode" in 
     L.struct_set_body n_node_t (Array.of_list [L.pointer_type n_node_t; L.pointer_type e_node_t; i32_t ])  true;
-
-(*     let Some(node_t) = L.type_by_name the_module "node" in 
-    let Some(e_node_t) = L.type_by_name the_module "enode" in 
-    let Some(i_node_t) = L.type_by_name the_module "inode" in  
-    let Some(n_node_t) = L.type_by_name the_module "nnode" in
-    let Some(empty_node_t) = L.type_by_name the_module "empty" in  *)
-    	
     
 	(* Pattern match on A.typ returning a llvm type *)
 	let ltype_of_typ ltyp = match ltyp with
@@ -210,11 +195,14 @@ let translate (globals, functions) =
 			in match e with 
 			| A.Litint(i) -> L.const_int i32_t i 
 			| A.Litstr(str) -> 
-				let s = L.build_global_stringptr str "" builder in
+				let s = L.build_global_stringptr str str builder in
 				let zero = L.const_int i32_t 0 in
-				let lvalue = L.build_in_bounds_gep s [|zero|] "" builder in 
+				let lvalue = L.build_in_bounds_gep s [|zero|] str builder in
+				let lv_str = L.string_of_llvalue s in 
+				(* P.fprintf stderr "%s\n" lv_str; *)
+
 				Hashtbl.add glob_str_const_hash lvalue str;
-				lvalue
+				s
 			| A.Edgedcl(src, w, dst) -> 
 				let src_p = expr builder src
 				and w =  expr builder w
@@ -265,10 +253,6 @@ let translate (globals, functions) =
 			| A.Assign(name, e) -> 
 				let loc_var = lookup name in 
 				let e' = (expr builder e) in
-
-				(* let node_t_str = L.string_of_lltype (L.type_of loc_var) in 
-				let loc_var_str = L.string_of_lltype (L.type_of e') in 
-				P.fprintf stderr "%s and %s\n" node_t_str loc_var_str; *)
 
 				(* Cant add it like this. Need a different comparison. And need to remove
 					old var form the hash map  *)
@@ -385,17 +369,13 @@ let translate (globals, functions) =
 						add_element the_head new_node 
 			| A.Call("str_comp", [s1;s2]) ->
 				let v1 = (expr builder s1) and v2 = expr builder s2 in 
-				let v1str = Hashtbl.find glob_str_const_hash v1
-				and v2str = Hashtbl.find glob_str_const_hash v2 in 
+				let v1value = L.build_load (L.build_load  (L.global_initializer v1)  "" builder) "" builder in 
+				let v2value = L.build_load (L.build_load  (L.global_initializer v2)  "" builder) "" builder in 
 
-				(* let space = Str.regexp_string " " in 
-
-				let tokenize s = Str.search_forward per_regex s 1 in 
-
-				let Some(v1name_pos) = get_name v1str and Some(v2name_pos) = get_name v2str in  *)
-
-				P.fprintf stderr "%s and %s\n" v1str v2str;
-				L.const_int i32_t 0 
+				if v2value = v1value then 
+					L.const_int i32_t 0 
+				else
+					L.const_int i32_t 1
 
 			| A.Call(fname, actuals) ->
 			
