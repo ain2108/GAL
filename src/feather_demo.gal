@@ -3,8 +3,6 @@ slist dijkstra(nlist l1){
     slist path;
     path = ["A"];
 
-    
-
     int len;
     len = nlength(l1);
     nlist tmp;
@@ -23,20 +21,34 @@ slist dijkstra(nlist l1){
     ilist node_distance;
     slist node_prev
 
+    distance_to_source ilist;
+    distance_to_source_labels slist;
+    ilist = [0];
+    slist = ['A']
+
+    i = 1;
+    while (i < len)
+    {
+
+        ilist = iadd_back(ilist,0);
+        
+        i = i +1;
+
+    }
+    i = 0
+
     while (i < len) {
         
         temp_edge = npeek(tmp);
         
-        edge_len = elength(temp_edge);
+        number_of_edges = elength(temp_edge);
         edge_tmp = temp_edge;
         
         edge_i = 0;
-        print_str("->");
 
         visited_set = iadd(i,visited_set);
 
         print_endline();
-        
 
         tmp = nnext(tmp);
         i = i + 1;
