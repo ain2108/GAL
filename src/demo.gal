@@ -41,6 +41,19 @@ int main(){
     graph = npop(graph);
     print_nlist(graph);
 
+
+    slist testpops;
+    testpops = ["A"::"B"::"C"];
+    print_slist(testpops);
+    testpops = spop(testpops);
+    print_slist(testpops);
+    testpops = spop(testpops);
+    print_slist(testpops);
+    
+    
+
+
+
     print_line("Lets get the heaviest edge of the node n1:");
     edge heaviest;
     heaviest = get_heaviest_edge(n1); 
