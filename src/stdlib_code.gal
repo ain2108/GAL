@@ -440,16 +440,14 @@ int main(){
     edge e3;
     e2 = |"A",2,"B"|;
     e3 = |"A",2,"B"|;
-    if(e2 == e3){
-        print_str("THIS WORKS");
-    }
-    else{}
+    
+    int i;
+    i = streq("A","A");
 
     n1 = eadd(|"H",10,"L"|,n1);
     print_elist(n1);
 
 
-    
     node n1;
     n1 = |"A": 2, "B", 11, "C", 2, "D"|;
     nlist n2;
