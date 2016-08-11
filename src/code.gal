@@ -2,7 +2,7 @@ int compareEdge(edge e1, edge e2){
     int op;
     op = -1;
     
-    if((source(e1) == source(e2)) && (dest(e1)==dest(e2) && (weight(e1) == weight(e2)){
+    if((streq(source(e1),source(e2)) && (streq(dest(e1),dest(e2)) && (weight(e1) == weight(e2)){
         op = 1;
     }
     else{
@@ -11,6 +11,7 @@ int compareEdge(edge e1, edge e2){
     
     return op;
 }
+/*
 
 int compareNode(node n1, node n2){
 
@@ -192,7 +193,7 @@ ilist edgeFind(edge e1, elist isIn){
         }
     }
     return opList;
-}
+}*/
     
 /*testing with main*/
 int main(){
@@ -215,31 +216,6 @@ int main(){
     checker = compareEdge(e1,e2);
     print_int(checker);
     
-    e2 = e1;
-    print_line("compareEdge:1");
-    checker = compareEdge(e1,e2);
-    print_int(checker);
-    
-    /*testing compareNode*/
-    print_line("compareNode:0");
-    checker = compareNode(n1,n2);
-    print_int(checker);
-    print_line("compareNode:1");
-    n1 = n2;
-    checker = compareNode(n1,n2);
-    print_int checker;
-    
-    /*testing get_vertex_names*/
-    /*print_line("get_vertex_names");
-    print_string(
-    */
-    /*testing stringFind*/
-    
-    /*testing intFind*/
-    
-    /*testing nodeFind*/
-    
-    /*testing edgeFind*/
     
     
     
