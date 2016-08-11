@@ -193,7 +193,8 @@ ilist edgeFind(edge e1, elist isIn){
     }
     return opList;
 }
-    
+
+/*fixed*/
 /*testing with main*/
 int main(){
     
@@ -210,41 +211,26 @@ int main(){
     
     node n2;
     n2 = |"B": 7, "C", 3, "A", 20, "D"|;
-    /*testing compareEdge*/
-    print_line("compareEdge:0");
+    
+    
+    print_str("compareEdge:0");
     checker = compareEdge(e1,e2);
     print_int(checker);
     
     e2 = e1;
-    print_line("compareEdge:1");
+    print_str("compareEdge:1");
     checker = compareEdge(e1,e2);
     print_int(checker);
     
-    /*testing compareNode*/
-    print_line("compareNode:0");
+    
+    print_str("compareNode:0");
     checker = compareNode(n1,n2);
     print_int(checker);
-    print_line("compareNode:1");
+    print_str("compareNode:1");
     n1 = n2;
     checker = compareNode(n1,n2);
-    print_int checker;
-    
-    /*testing get_vertex_names*/
-    /*print_line("get_vertex_names");
-    print_string(
-    */
-    /*testing stringFind*/
-    
-    /*testing intFind*/
-    
-    /*testing nodeFind*/
-    
-    /*testing edgeFind*/
-    
-    
-    
+    print_int(checker);
+
     
     return 1;
 }
-
-
