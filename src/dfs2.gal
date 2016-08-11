@@ -1,0 +1,49 @@
+slist DFS(nlist graph, string root)
+{
+	slist visited;
+	string vertex_seen;
+	slist stack; 
+	stack = [];
+	visited =["DUMMY"];
+	stack = sadd(root, stack);	
+	print_slist(stack);
+	print_endline();
+	vertex_seen = speek(visited);
+	print_str(vertex_seen);
+	print_endline();
+
+	
+	while(slength(stack)>0)
+	{
+		vertex_seen = speek(stack);
+		stack = spop(stack);
+		if (streq(vertex_seen,speek(visited))!= 0){
+			visited = sadd_back(visited,vertex_seen);
+			
+
+		}
+	}
+	return visited;
+	
+}
+
+
+int main()
+{
+	
+	node n1;
+	n1 = |"A":1,"B",2,"C"|;
+	node n2;
+	n2 = |"B":3,"D",4,"E"|;
+	node n3;
+	n3 = |"C":5,"F",6,"G"|;
+
+	nlist new_graph;
+	new_graph = [n1::n2::n3];
+
+	/*print_nlist(new_graph);
+*/	
+	slist testing;
+	testing = DFS(new_graph,"A");
+
+}
