@@ -11,7 +11,7 @@ LLI="/usr/local/opt/llvm/bin/lli"
 
 # Path to the microc compiler.  Usually "./microc.native"
 # Try "_build/microc.native" if ocamlbuild was unable to create a symbolic link.
-GAL="./src/gal.native"
+GAL="./gal.native"
 #GAL="_build/microc.native"
 
 # Set time limit for all operations
@@ -162,7 +162,7 @@ if [ $# -ge 1 ]
 then
     files=$@
 else
-    files="tests/test_*.gal tests/fail_*.gal"
+    files="../tests/test_*.gal ../tests/fail_*.gal"
 fi
 
 for file in $files

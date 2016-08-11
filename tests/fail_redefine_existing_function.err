@@ -1,2 +1,5 @@
 Fatal error: exception Failure("
- cannot redefine print_int")
+ in print_edge fcall: print_int expects 0 arguments
+ in print_ilist fcall: print_int expects 0 arguments
+ cannot redefine print_int
+ in print_sl_len fcall: print_int expects 0 arguments ")
