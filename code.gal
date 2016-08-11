@@ -1,0 +1,307 @@
+int compareEdge(edge e1, edge e2){
+    int op;
+    op = -1;
+    
+    if(streq((source(e1),source(e2))) && streq((dest(e1),dest(e2)) && (weight(e1) == weight(e2)){
+        op = 1;
+    }
+    else{
+        op = 0;
+    }
+    
+    return op;
+}
+
+int compareNode(node n1, node n2){
+
+    
+    int op;
+    op = 0;
+    int lenNode1;
+    int lenNode2;
+    lenNode1 = elength(n1);
+    lenNode2 = elength(n2);
+    
+    int count;
+    count = 0;
+    
+    edge temp1;
+    temp1 = [];
+    
+    edge temp2;
+    temp2 = [];
+    
+    node temp1;
+    temp1 = n1;
+    
+    node temp2;
+    temp2 = n2;
+    
+    int check;
+    check =1;
+    
+    if(lenNode1!=lenNode2){
+        return 0;
+    }
+    else{
+        
+        while(count<lenNode1){
+            check = 0;
+            temp1 = epeek(temp1);
+            
+            while(count2<lenNode2){/*check with each edge of n2*/
+                temp2 = epeek(temp2);
+                if(compareEdge(temp1,temp2)==1){
+                    check = 1;
+                    break;
+                }
+                
+                    
+                count2 = count2 + 1;
+            }
+            temp2= n2;
+            count = count + 1;
+            
+        }
+        if(check==1){
+            return 1;
+        }
+        else{
+            return 0;
+        }
+    }
+    
+    
+}
+        
+
+slist get_vertex_names(elist graphIP){
+    int lenGraph = elength(graphIP);
+    int count;
+    count = lenGraph;
+    slist vertex_name;
+    vertex_name = [];
+    
+    edge eTemp;
+    /*elist = eTemp2;
+    eTemp2 = [];*/
+    elist graphTemp;
+    graphTemp = graphIP;
+    string sTemp;
+    
+    /*ilist iTemp;
+    iTemp = [];*/
+    
+    while(count>0){
+        count = count - 1;
+        eTemp = epeek(graphTemp);
+        
+        sTemp = source(eTemp);
+        /*check if encountered before*/
+        stringFind(sTemp, vertex_name);
+        if(slength == 0){
+            /*add to output*/
+            sadd(sTemp,vertex_name);
+        }
+        else{
+            continue:
+        }
+    }
+    
+    return vertex_name;
+}
+
+
+ilist stringFind(string s1, slist isIn){
+    /*returns indices where s1 is present in isIn*/
+    /*returns empty list if absent*/
+    
+    int listLen;
+    ilist = opList;
+    opList = [];
+    while(listLen>0){
+        listLen = listLen - 1;
+        if(streq(isIn[listLen],s1)){
+            /*add index to opList*/
+            iconcat(listLen,opList);
+        }
+        else{
+            continue:
+        }
+    }
+    
+    return opList;
+    
+}
+
+ilist intFind(int i1, ilist isIn){
+    /*returns indices were i1 is present in isIn*/
+    /*returns empty list if absent*/
+    int listLen;
+    ilist = opList;
+    opList = [];
+    listLen = ilength(isIn);
+    while(listLen>0){
+        listLen = listLen - 1;
+        if(isIn[listLen] == i1){
+            /*add to opList*/
+            iconcat(listLen,opList);
+        }
+        else{
+            continue:
+        }
+    }
+    return opList;
+}
+
+ilist nodeFind(node n1, nlist isIn){
+    /*find if a node is present in a list of nodes*/
+    /*returns empty ist if absent*/
+    int listLen;
+    ilist = opList;
+    opList = [];
+    listLen = nlength(isIn);
+    while(listLen>0){
+        listLen = listLen - 1;
+        if(compareNode([listLen],n1)){
+            /*add to opList*/
+            iconcat(listLen,opList);
+        }
+        else{
+            continue:
+        }
+    }
+    return opList;    
+}    
+
+ilist edgeFind(edge e1, elist isIn){
+    /*returns indicses where e1 is present in elist*/
+    /*returns empty list if absent*/
+    int listLen;
+    ilist = opList;
+    opList = [];
+    listLen = elength(isIn);
+    while(listLen>0){
+        listLen = listLen - 1;
+        if(compareEdge(isIn[listLen],e1)){/* CHECK!!!*/
+            /*add to opList*/
+            iconcat(listLen,opList);
+        }
+        else{
+            continue:
+        }
+    }
+    return opList;
+}
+    
+/*testing with main*/
+int main(){
+    
+    int checker;
+    checker = 0;
+    
+    edge e1;
+    e1 = |"E", 24, "D"|;
+    edge e2;
+    e2 = |"E", 13, "B"|;
+    
+    node n1;
+    n1 = |"A": 2, "B", 11, "C", 4, "D", 14, "E"|; 
+    
+    node n2;
+    n2 = |"B": 7, "C", 3, "A", 20, "D"|;
+    
+    slist s1;
+    s1 = ["A","B","C","D","E"];
+    
+    slist s2;
+    
+    slist s3;
+    s3 = ["A","B","A"];
+    
+    ilist i1;
+    i1 = [1,2,3];
+    
+    ilist i2;
+    i2 = [1,2,1];
+    
+    ilist checkiList;
+    checkiList = [];
+    
+    int lenCheck;
+    lenCheck = -1;
+    
+    /*testing compareEdge*/
+    print_line("compareEdge:0");
+    checker = compareEdge(e1,e2);
+    print_int(checker);
+    
+    e2 = e1;
+    print_line("compareEdge:1");
+    checker = compareEdge(e1,e2);
+    print_int(checker);
+    
+    /*testing compareNode*/
+    print_line("compareNode:0");
+    checker = compareNode(n1,n2);
+    print_int(checker);
+    print_line("compareNode:1");
+    n2 = n1;
+    checker = compareNode(n1,n2);
+    print_int checker;
+    
+    /*testing get_vertex_names*/
+    print_line("get_vertex_names");/*from list of e*/
+    print_line("expected");
+    print_string(s1);
+    print_line("actual")
+    s2 = get_vertex_names(n1);
+        
+    
+    /*testing stringFind*/
+    print_line("testing stringFind");
+    print_string("op:0");/*no places*/
+    checkiList = stringFind("F",s1);
+    lenCheck = ilength(checkiList);
+    print_int(lenCheck);
+    /*oneplace*/
+    print_string("op:1");
+    checkiList = stringFind("C",s1);
+    lenCheck = ilength(checkiList);
+    print_int(lenCheck);
+    /*two places*/
+    print_string("op:2");
+    checkiList = stringFind("A",s3);
+    lenCheck = ilength(checkiList);
+    print_int(lenCheck);
+    
+    
+    /*testing intFind*/
+    print_line("testing intFind");
+    print_string("op:0");/*no places*/
+    checkiList = intFind(4,i1);
+    lenCheck = ilength(checkiList);
+    print_int(lenCheck);
+    /*oneplace*/
+    print_string("op:1");
+    checkiList = intFind(1,i1);
+    lenCheck = ilength(checkiList);
+    print_int(lenCheck);
+    /*two places*/
+    print_string("op:2");
+    checkiList = intFind(1,i2);
+    lenCheck = ilength(checkiList);
+    print_int(lenCheck);
+    
+    /*testing nodeFind*/
+    
+    
+    /*testing edgeFind*/
+    
+    
+    
+    
+    return 1;
+}
+
+
