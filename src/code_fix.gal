@@ -1,0 +1,25 @@
+ilist edgeFind(edge e1, elist isIn){
+    /*returns indicses where e1 is present in elist*/
+    /*returns empty list if absent*/
+    
+    int listLen;
+    ilist opList;
+    opList = [];
+    listLen = elength(isIn);
+
+    while(listLen>0){
+        listLen = listLen - 1;
+        
+        if(compareEdge(isIn[listLen],e1)){
+            opList = iconcat(isIn[listLen],opList);
+        }
+        
+    }
+    
+    return opList;
+}
+
+int main()
+{
+    
+}

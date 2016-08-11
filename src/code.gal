@@ -193,8 +193,14 @@ ilist edgeFind(edge e1, elist isIn){
         }
     }
     return opList;
+<<<<<<< HEAD
 }*/
     
+=======
+}
+
+/*fixed*/
+>>>>>>> d4836030ea231653a83bce0cd6f7407341715986
 /*testing with main*/
 int main(){
     
@@ -211,16 +217,32 @@ int main(){
     
     node n2;
     n2 = |"B": 7, "C", 3, "A", 20, "D"|;
-    /*testing compareEdge*/
-    print_line("compareEdge:0");
+    
+    
+    print_str("compareEdge:0");
+    checker = compareEdge(e1,e2);
+    print_int(checker);
+    
+<<<<<<< HEAD
+    
+    
+    
+=======
+    e2 = e1;
+    print_str("compareEdge:1");
     checker = compareEdge(e1,e2);
     print_int(checker);
     
     
-    
-    
+    print_str("compareNode:0");
+    checker = compareNode(n1,n2);
+    print_int(checker);
+    print_str("compareNode:1");
+    n1 = n2;
+    checker = compareNode(n1,n2);
+    print_int(checker);
+
+>>>>>>> d4836030ea231653a83bce0cd6f7407341715986
     
     return 1;
 }
-
-
