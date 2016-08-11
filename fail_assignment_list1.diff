@@ -1,6 +1,0 @@
-1,2c1
-< Fatal error: exception Failure("
-<  in main expr:  illegal assignment to variable l1")
----
-> Fatal error: exception Failure("statement not implemented")
-\ No newline at end of file

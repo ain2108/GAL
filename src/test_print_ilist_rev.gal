@@ -1,7 +1,0 @@
-int main()
-{
-	int i;
-	i = streq("A","A");
-
-	return 1;
-}

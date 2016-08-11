@@ -1,5 +1,0 @@
-edge e1 = |"A", 2, "B"|
-
-/* The next two are equivalent*/
-node n1 = [|"A": 2,"D",3,"E"|] <-- ignore this one until further notice.
-node n1 = [|"A": 2, "D"| :: |"A",3,"E"|]
