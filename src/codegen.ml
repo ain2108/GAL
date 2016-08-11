@@ -330,7 +330,7 @@ let translate (globals, functions) =
 			| A.Call("dest", [e]) -> 
 				let dest_field_pointer = L.build_struct_gep (expr builder e) 2 "" builder 
 				in L.build_load dest_field_pointer "" builder 
-			| A.Call("spop", [e]) ->
+			| A.Call("spop", [e]) | A.Call("epop", [e]) | A.Call("ipop", [e]) | A.Call("npop", [e])->
 				let head_node_p = (expr builder e) in 
 				let head_node_next_node_pointer = L.build_struct_gep head_node_p 0 "" builder in 
 				ignore (L.build_free head_node_p builder);

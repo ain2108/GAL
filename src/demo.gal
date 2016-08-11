@@ -33,6 +33,14 @@ int main(){
     print_nlist(graph);
     print_endline();
 
+
+    graph = npop(graph);
+    print_nlist(graph);
+    graph = npop(graph);
+    print_nlist(graph);
+    graph = npop(graph);
+    print_nlist(graph);
+
     print_line("Lets get the heaviest edge of the node n1:");
     edge heaviest;
     heaviest = get_heaviest_edge(n1); 
