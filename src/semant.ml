@@ -116,7 +116,7 @@ let nadd_fdcl =
 	  locals = []; body = []};;
 
 let str_comp_fdcl = 
-	{ typ = Int; fname = "str_comp"; formals = [(String, "a"); (String, "b")];
+	{ typ = Int; fname = "streq"; formals = [(String, "a"); (String, "b")];
 	  locals = []; body = []};;
 
 
@@ -234,7 +234,6 @@ let check_func exp_list globs_map func_decl funcs_map =
 	in let rec get_expression_type vars_map exp_list = function
 		| Litstr(_) -> (String, exp_list)
 		| Litint(_) -> (Int, exp_list)
-		| Boolit(_) -> (Int, exp_list) (* KIV, just like in parser *)
 		| Id(name)  -> get_type_of_id exp_list vars_map name
 		| Binop(e1, op, e2) (* as e *) -> 
 			let (v1, exp_list) = get_expression_type vars_map exp_list e1 in
@@ -242,7 +241,7 @@ let check_func exp_list globs_map func_decl funcs_map =
 			in (match op with 
 				(* Integer operators *)
 				| Add | Sub | Mult | Div | Equal | Less | Leq 
-				| Greater | Geq | And | Or 
+				| Greater | Geq | And | Or | Neq 
 					when (v1 = Int && v2 = Int) -> (Int, exp_list)
 				(* List operators *)
 				(* | Eadd | Esub when v1 = Listtyp && v2 = Listtyp -> (Listtyp, exp_list) *)
@@ -510,14 +509,3 @@ let check (globals, funcs) =
 		(extract_locals [] funcs) *)
 
 ;;
-
-
-
-
-
-
-
-
-
-
-

@@ -1,0 +1,20 @@
+int main()
+{
+	
+	ilist x;
+    ilist rev_x;
+
+	x = [11];
+	x = iadd(10,x);
+	x = iadd(9,x);
+	x = iadd(8,x);
+	x = iadd(7,x);
+	x = iadd(1,x);
+	x = iadd(2,x);
+	x = iadd(3,x);
+
+	x = irev(x);
+
+	print_ilist(x);
+	return 1;
+}

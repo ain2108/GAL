@@ -1,5 +1,3 @@
-open Semant;; 
-
 type action = Ast | LLVM_IR | Compile;;
 
 module P = Printf;;
@@ -12,8 +10,18 @@ let _ = (*
       Compile 
     in
 
-  let lexbuf = Lexing.from_channel stdin in
-  let ast = Parser.program Scanner.token lexbuf in
+  (* Standard Library Functions *)
+  let stdlib_file               = "stdlib_code.gal" in 
+  let stdlib_in                 = open_in stdlib_file in 
+  let stdlib_lexbuf             = Lexing.from_channel stdlib_in in 
+  let (std_globs, std_funcs)    = Parser.program Scanner.token stdlib_lexbuf in 
+
+  (* The input program *)
+  let lexbuf                    = Lexing.from_channel stdin in
+  let (globs, funcs)            = Parser.program Scanner.token lexbuf in
+  
+  let ast = (std_globs @ globs, std_funcs @ funcs) in 
+
   (* P.fprintf stderr "%s" "ast built\n"; *)
   let exp_list = Semant.check ast in
   if exp_list <> [] then

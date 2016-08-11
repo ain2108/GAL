@@ -12,7 +12,7 @@
 
 %token SEMI LPAREN RPAREN LSQBRACE RSQBRACE LBRACE RBRACE BAR COLON LISTSEP COMMA
 %token EPLUS EMINUS PLUS MINUS TIMES DIVIDE ASSIGN NOT 
-%token EQ LT LEQ GT GEQ AND OR 
+%token EQ LT LEQ GT GEQ AND OR NEQ
 %token RETURN IF ELSE FOR INT STRING EDGE SLISTT NLISTT ELISTT ILISTT DEFINE WHILE
 %token <int> LITINT
 %token <string> ID
@@ -23,9 +23,9 @@
 %right ASSIGN
 %left OR
 %left AND
-%left EQ 
+%left EQ NEQ
 %left LT GT LEQ GEQ
-%left PLUS MINUS EPLUS EMINUS
+%left PLUS MINUS
 %left TIMES DIVIDE
 %right NOT  
 
@@ -111,9 +111,8 @@ expr:
     | expr MINUS  expr { Binop($1, Sub,   $3) }
  	| expr TIMES  expr { Binop($1, Mult,  $3) }
     | expr DIVIDE expr { Binop($1, Div,   $3) }
-    | expr EPLUS expr  { Binop($1, Eadd,  $3) }
-    | expr EMINUS expr { Binop($1, Esub,  $3) }
     | expr EQ     expr { Binop($1, Equal, $3) }
+    | expr NEQ 	  expr { Binop($1, Neq,   $3) }
     | expr LT     expr { Binop($1, Less,  $3) }
     | expr LEQ    expr { Binop($1, Leq,   $3) }
     | expr GT     expr { Binop($1, Greater, $3) }

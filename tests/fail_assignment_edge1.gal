@@ -1,6 +1,6 @@
-def int main()
+int main()
 {
-	def edge e1;
+	edge e1;
 
 	e1 = |"A",x,"C"|;
 

@@ -1,0 +1,12 @@
+int main()
+{
+	if(!(1==1))
+	{
+		print_str("This is true");
+	}
+	else
+	{
+		print_str("This is NOT true");
+	}
+	return 1;
+}

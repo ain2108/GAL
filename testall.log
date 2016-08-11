@@ -1,0 +1,170 @@
+/usr/local/opt/llvm/bin/lli
+
+###### Testing test_assignment_list1
+./src/gal.native < tests/test_assignment_list1.gal > test_assignment_list1.ll
+/usr/local/opt/llvm/bin/lli test_assignment_list1.ll > test_assignment_list1.out
+diff -b test_assignment_list1.out tests/test_assignment_list1.out > test_assignment_list1.diff
+###### SUCCESS
+
+###### Testing test_boolean_false
+./src/gal.native < tests/test_boolean_false.gal > test_boolean_false.ll
+/usr/local/opt/llvm/bin/lli test_boolean_false.ll > test_boolean_false.out
+diff -b test_boolean_false.out tests/test_boolean_false.out > test_boolean_false.diff
+###### SUCCESS
+
+###### Testing test_boolean_true
+./src/gal.native < tests/test_boolean_true.gal > test_boolean_true.ll
+/usr/local/opt/llvm/bin/lli test_boolean_true.ll > test_boolean_true.out
+diff -b test_boolean_true.out tests/test_boolean_true.out > test_boolean_true.diff
+###### SUCCESS
+
+###### Testing test_create_edge
+./src/gal.native < tests/test_create_edge.gal > test_create_edge.ll
+/usr/local/opt/llvm/bin/lli test_create_edge.ll > test_create_edge.out
+diff -b test_create_edge.out tests/test_create_edge.out > test_create_edge.diff
+###### SUCCESS
+
+###### Testing test_print_ilist
+./src/gal.native < tests/test_print_ilist.gal > test_print_ilist.ll
+/usr/local/opt/llvm/bin/lli test_print_ilist.ll > test_print_ilist.out
+diff -b test_print_ilist.out tests/test_print_ilist.out > test_print_ilist.diff
+###### SUCCESS
+
+###### Testing test_print_ilist_rev
+./src/gal.native < tests/test_print_ilist_rev.gal > test_print_ilist_rev.ll
+/usr/local/opt/llvm/bin/lli test_print_ilist_rev.ll > test_print_ilist_rev.out
+diff -b test_print_ilist_rev.out tests/test_print_ilist_rev.out > test_print_ilist_rev.diff
+###### SUCCESS
+
+###### Testing test_print_int
+./src/gal.native < tests/test_print_int.gal > test_print_int.ll
+/usr/local/opt/llvm/bin/lli test_print_int.ll > test_print_int.out
+diff -b test_print_int.out tests/test_print_int.out > test_print_int.diff
+###### SUCCESS
+
+###### Testing test_print_int1
+./src/gal.native < tests/test_print_int1.gal > test_print_int1.ll
+/usr/local/opt/llvm/bin/lli test_print_int1.ll > test_print_int1.out
+diff -b test_print_int1.out tests/test_print_int1.out > test_print_int1.diff
+###### SUCCESS
+
+###### Testing test_print_order
+./src/gal.native < tests/test_print_order.gal > test_print_order.ll
+/usr/local/opt/llvm/bin/lli test_print_order.ll > test_print_order.out
+diff -b test_print_order.out tests/test_print_order.out > test_print_order.diff
+###### SUCCESS
+
+###### Testing fail_assignment_edge1
+./src/gal.native < tests/fail_assignment_edge1.gal 2> fail_assignment_edge1.err >> testall.log
+diff -b fail_assignment_edge1.err tests/fail_assignment_edge1.err > fail_assignment_edge1.diff
+###### SUCCESS
+
+###### Testing fail_assignment_edge2
+./src/gal.native < tests/fail_assignment_edge2.gal 2> fail_assignment_edge2.err >> testall.log
+diff -b fail_assignment_edge2.err tests/fail_assignment_edge2.err > fail_assignment_edge2.diff
+###### SUCCESS
+
+###### Testing fail_assignment_int_to_string
+./src/gal.native < tests/fail_assignment_int_to_string.gal 2> fail_assignment_int_to_string.err >> testall.log
+diff -b fail_assignment_int_to_string.err tests/fail_assignment_int_to_string.err > fail_assignment_int_to_string.diff
+###### SUCCESS
+
+###### Testing fail_assignment_string_to_int
+./src/gal.native < tests/fail_assignment_string_to_int.gal 2> fail_assignment_string_to_int.err >> testall.log
+diff -b fail_assignment_string_to_int.err tests/fail_assignment_string_to_int.err > fail_assignment_string_to_int.diff
+###### SUCCESS
+
+###### Testing fail_binary_addition1
+./src/gal.native < tests/fail_binary_addition1.gal 2> fail_binary_addition1.err >> testall.log
+diff -b fail_binary_addition1.err tests/fail_binary_addition1.err > fail_binary_addition1.diff
+###### SUCCESS
+
+###### Testing fail_binary_addition2
+./src/gal.native < tests/fail_binary_addition2.gal 2> fail_binary_addition2.err >> testall.log
+diff -b fail_binary_addition2.err tests/fail_binary_addition2.err > fail_binary_addition2.diff
+###### SUCCESS
+
+###### Testing fail_binary_division1
+./src/gal.native < tests/fail_binary_division1.gal 2> fail_binary_division1.err >> testall.log
+diff -b fail_binary_division1.err tests/fail_binary_division1.err > fail_binary_division1.diff
+###### SUCCESS
+
+###### Testing fail_binary_mulitplication1
+./src/gal.native < tests/fail_binary_mulitplication1.gal 2> fail_binary_mulitplication1.err >> testall.log
+diff -b fail_binary_mulitplication1.err tests/fail_binary_mulitplication1.err > fail_binary_mulitplication1.diff
+###### SUCCESS
+
+###### Testing fail_binary_subtraction1
+./src/gal.native < tests/fail_binary_subtraction1.gal 2> fail_binary_subtraction1.err >> testall.log
+diff -b fail_binary_subtraction1.err tests/fail_binary_subtraction1.err > fail_binary_subtraction1.diff
+###### SUCCESS
+
+###### Testing fail_duplicate_assignint
+./src/gal.native < tests/fail_duplicate_assignint.gal 2> fail_duplicate_assignint.err >> testall.log
+diff -b fail_duplicate_assignint.err tests/fail_duplicate_assignint.err > fail_duplicate_assignint.diff
+###### SUCCESS
+
+###### Testing fail_duplicate_formal_identifiers
+./src/gal.native < tests/fail_duplicate_formal_identifiers.gal 2> fail_duplicate_formal_identifiers.err >> testall.log
+diff -b fail_duplicate_formal_identifiers.err tests/fail_duplicate_formal_identifiers.err > fail_duplicate_formal_identifiers.diff
+###### SUCCESS
+
+###### Testing fail_duplicate_function_names
+./src/gal.native < tests/fail_duplicate_function_names.gal 2> fail_duplicate_function_names.err >> testall.log
+diff -b fail_duplicate_function_names.err tests/fail_duplicate_function_names.err > fail_duplicate_function_names.diff
+###### SUCCESS
+
+###### Testing fail_duplicate_global_assignment
+./src/gal.native < tests/fail_duplicate_global_assignment.gal 2> fail_duplicate_global_assignment.err >> testall.log
+diff -b fail_duplicate_global_assignment.err tests/fail_duplicate_global_assignment.err > fail_duplicate_global_assignment.diff
+###### SUCCESS
+
+###### Testing fail_function_doesnt_exist
+./src/gal.native < tests/fail_function_doesnt_exist.gal 2> fail_function_doesnt_exist.err >> testall.log
+diff -b fail_function_doesnt_exist.err tests/fail_function_doesnt_exist.err > fail_function_doesnt_exist.diff
+###### SUCCESS
+
+###### Testing fail_incorrect_argument_types
+./src/gal.native < tests/fail_incorrect_argument_types.gal 2> fail_incorrect_argument_types.err >> testall.log
+diff -b fail_incorrect_argument_types.err tests/fail_incorrect_argument_types.err > fail_incorrect_argument_types.diff
+###### SUCCESS
+
+###### Testing fail_incorrect_number_function_arguments
+./src/gal.native < tests/fail_incorrect_number_function_arguments.gal 2> fail_incorrect_number_function_arguments.err >> testall.log
+diff -b fail_incorrect_number_function_arguments.err tests/fail_incorrect_number_function_arguments.err > fail_incorrect_number_function_arguments.diff
+###### SUCCESS
+
+###### Testing fail_incorrect_number_function_arguments2
+./src/gal.native < tests/fail_incorrect_number_function_arguments2.gal 2> fail_incorrect_number_function_arguments2.err >> testall.log
+diff -b fail_incorrect_number_function_arguments2.err tests/fail_incorrect_number_function_arguments2.err > fail_incorrect_number_function_arguments2.diff
+###### SUCCESS
+
+###### Testing fail_main_nonexistent
+./src/gal.native < tests/fail_main_nonexistent.gal 2> fail_main_nonexistent.err >> testall.log
+diff -b fail_main_nonexistent.err tests/fail_main_nonexistent.err > fail_main_nonexistent.diff
+###### SUCCESS
+
+###### Testing fail_no_id_before_usage_int
+./src/gal.native < tests/fail_no_id_before_usage_int.gal 2> fail_no_id_before_usage_int.err >> testall.log
+diff -b fail_no_id_before_usage_int.err tests/fail_no_id_before_usage_int.err > fail_no_id_before_usage_int.diff
+###### SUCCESS
+
+###### Testing fail_redefine_builtin_edge
+./src/gal.native < tests/fail_redefine_builtin_edge.gal 2> fail_redefine_builtin_edge.err >> testall.log
+diff -b fail_redefine_builtin_edge.err tests/fail_redefine_builtin_edge.err > fail_redefine_builtin_edge.diff
+###### SUCCESS
+
+###### Testing fail_redefine_builtin_int
+./src/gal.native < tests/fail_redefine_builtin_int.gal 2> fail_redefine_builtin_int.err >> testall.log
+diff -b fail_redefine_builtin_int.err tests/fail_redefine_builtin_int.err > fail_redefine_builtin_int.diff
+###### SUCCESS
+
+###### Testing fail_redefine_builtin_list
+./src/gal.native < tests/fail_redefine_builtin_list.gal 2> fail_redefine_builtin_list.err >> testall.log
+diff -b fail_redefine_builtin_list.err tests/fail_redefine_builtin_list.err > fail_redefine_builtin_list.diff
+###### SUCCESS
+
+###### Testing fail_redefine_existing_function
+./src/gal.native < tests/fail_redefine_existing_function.gal 2> fail_redefine_existing_function.err >> testall.log
+diff -b fail_redefine_existing_function.err tests/fail_redefine_existing_function.err > fail_redefine_existing_function.diff
+###### SUCCESS

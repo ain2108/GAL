@@ -1,4 +1,4 @@
-def int main()
+int main()
 {
 	string b;
 	int a;
@@ -10,7 +10,7 @@ def int main()
 	
 }
 
-def int test(int x, int y)
+int test(int x, int y)
 {
 	
 	int z;

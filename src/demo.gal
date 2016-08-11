@@ -1,0 +1,53 @@
+int main(){
+	
+	print_endline();
+
+	/* Declare our nodes above */ 
+	node n1;
+    n1 = |"A": 2, "B", 11, "C", 4, "D", 14, "E"|; 
+    node n2;
+    n2 = |"B": 7, "C", 3, "A", 20, "D"|;
+    node n3; 
+    n3 = |"C": 5, "D", 5, "A", 16, "E"|; 
+    node n4;
+    n4 = |"D": 20, "A", 7, "B"|; 
+
+    print_line("Lets print them to see what we got:");
+    print_elist(n1);
+    print_elist(n2);
+    print_elist(n3);
+    print_elist(n4);
+
+    print_endline();
+    print_endline();
+
+    /* Lets declare another node. But using diffrent syntax */ 
+    elist n5;
+    n5 = [|"E", 24, "D"|::|"E", 13, "B"|];
+
+    print_line("We can also print them as a graph:"); 
+    nlist graph;
+    graph = [n1::n2::n3::n4::n5];  
+
+    /* We can use a different function to print this graph */ 
+    print_nlist(graph);
+    print_endline();
+
+    print_line("Lets get the heaviest edge of the node n1:");
+    edge heaviest;
+    heaviest = get_heaviest_edge(n1); 
+    print_edge(heaviest);
+    print_endline();
+
+    print_line("How about the heaviest edge in our graph? Sure:");
+    heaviest = get_heaviest_graph_edge(graph);
+    print_edge(heaviest);
+    print_endline();
+
+    print_line("Lets get the node that has the most edges");
+    node important;
+    important = get_most_edges_node(graph);
+    print_line(source(epeek(important)));
+
+    return 0;
+}
