@@ -1,0 +1,17 @@
+int main()
+{
+
+    string a;
+    string b;
+    int bool;
+
+    a = "A";
+    b = "B";
+
+    bool = streq(a,b);
+
+    print_int(bool);
+
+    return 1;
+
+}

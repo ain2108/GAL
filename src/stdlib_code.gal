@@ -433,20 +433,21 @@ nlist nconcat(nlist l1, nlist l2){
 
 /*
 int main(){
-
-    nlist l1;
-    nlist l2;
-    node n1;
-    node n2;
-    n1 = |"A":2,"B"|;
-    n2 = |"C":3,"D"|;
-    l1 = [n1];
-    l2 = [n2];
-    nlist l3;
-    l3 = nconcat(l1,l2);
-    print_nlist(l3);
-
     
+    node n1;
+    n1 = |"A":2,"B",3,"C"|;
+    edge e2;
+    edge e3;
+    e2 = |"A",2,"B"|;
+    e3 = |"A",2,"B"|;
+    
+    int i;
+    i = streq("A","A");
+
+    n1 = eadd(|"H",10,"L"|,n1);
+    print_elist(n1);
+
+
     node n1;
     n1 = |"A": 2, "B", 11, "C", 2, "D"|;
     nlist n2;

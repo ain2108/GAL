@@ -1,4 +1,7 @@
-int print_int() {}
+int print_int()
+{
+	
+}
 
 int main()
 {

@@ -1,0 +1,11 @@
+int main()
+{
+	ilist l1;
+
+	l1 = [0];
+
+	l1 = iadd_back(l1,1);
+
+	print_ilist(l1);
+
+}
