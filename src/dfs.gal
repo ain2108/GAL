@@ -5,6 +5,7 @@ int dfs(nlist graph,string A)
 
 	slist visited;
 	slist stack;
+	stack = ["A"];
 
 	elist v;
 	int s_counter;
@@ -18,6 +19,15 @@ int dfs(nlist graph,string A)
 	graph_length = nlength(graph);
 	int i;
 	i = 0;
+	string v_dest;
+	found = 100;
+	string v_source;
+	visited = [""];
+	int streq_val;
+	string top_of_stack;
+	elist use_node;
+	elist temp_node;
+	string temp_source;
 
 	while(1==1)
 	{
@@ -30,11 +40,55 @@ int dfs(nlist graph,string A)
 
 		}
 
-		v = npeek(temp);
+		top_of_stack = speek(stack);
+		/*this might give us issues*/
+		stack = spop(stack);
+		/*Iterate through graph to find correct edge*/
+		i = 0;
+		temp = graph;
+		while(i <= graph_length)
+		{
+			temp_node = npeek(temp);
+			temp_source = source(epeek(temp_node));
+
+			streq_val = streq(temp_source,top_of_stack);
+			if(streq_val == 0)
+			{
+				use_node = temp_node;
+			}
+			else
+			{
+
+			}
+
+			i = i + 1;
+		}
+
 		temp = nnext(temp);
 
-		print_elist(v);
+		/*v_source = source(epeek(use_node));
+		v_dest = dest(epeek(use_node));
+		visited = sadd_back(visited,v_source);*/
+		print_endline();
+		print_elist(use_node);
+		/*print_endline();
+		print_str(v_source);
+		print_endline();
+		print_str(v_dest);
+		print_endline();
+		print_slist(visited);*/
 		/*
+
+		v_dest = dest(epeek(v));
+
+		while(1==1)
+		{
+			
+		}
+
+		print_str(v_dest);
+		print_elist(v);
+
 		s_counter = 0;
 		while(s_counter < slength(visited))
 		{
@@ -78,5 +132,6 @@ int main()
     new_graph = [n1::n2::n3]; 
 
     dfs(new_graph,"E");
+    /*ABEFCGH*/
 
 }
