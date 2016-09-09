@@ -145,7 +145,7 @@ int main()
 	nlist new_graph;
     new_graph = [n1::n2::n3]; 
 
-    isfound = dfs(new_graph,"Z");
+    isfound = dfs(new_graph,"F");
     if(isfound == 1){
     	print_str("NODE IS FOUND USING DFS");
 
