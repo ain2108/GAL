@@ -12,13 +12,13 @@ module StringMap = Map.Make(String)
 
 let translate (globals, functions) = 
 
-	(* let contains s1 s2 = 
-    let re = Str.regexp_string s2
-    in
-        try ignore (Str.search_forward re s1 0); true
-        with Not_found -> false
-
-    in  *)
+	let the_funcs_map = StringMap.empty in 
+	let the_funcs_map = 
+		List.fold_left 
+		(fun map fdecl -> StringMap.add fdecl.A.fname fdecl.A.typ map)
+		the_funcs_map
+		functions 
+	in 
 
     (* Holding global string constants *)
     let glob_str_const_hash = Hashtbl.create 200 in 
@@ -52,13 +52,6 @@ let translate (globals, functions) =
 
 	let n_node_t = L.named_struct_type context "nnode" in 
     L.struct_set_body n_node_t (Array.of_list [L.pointer_type n_node_t; L.pointer_type e_node_t; i32_t ])  true;
-
-(*     let Some(node_t) = L.type_by_name the_module "node" in 
-    let Some(e_node_t) = L.type_by_name the_module "enode" in 
-    let Some(i_node_t) = L.type_by_name the_module "inode" in  
-    let Some(n_node_t) = L.type_by_name the_module "nnode" in
-    let Some(empty_node_t) = L.type_by_name the_module "empty" in  *)
-    	
     
 	(* Pattern match on A.typ returning a llvm type *)
 	let ltype_of_typ ltyp = match ltyp with
@@ -180,6 +173,23 @@ let translate (globals, functions) =
 			| A.Id(name) 	-> 
 				let ocaml_type = (Hashtbl.find ocaml_local_hash name)
 				in  list_type_from_type ocaml_type
+			| A.Call("iadd", _) | A.Call("inext", _) ->
+				i_node_t
+			| A.Call("eadd", _) | A.Call("enext", _) ->
+				e_node_t
+			| A.Call("sadd", _) | A.Call("snext", _) ->
+				node_t
+			| A.Call("nadd", _) | A.Call("nnext", _) ->
+				n_node_t
+			| A.Call("ilength", _) | A.Call("slength", _) | A.Call("nlength", _) | A.Call("elength", _) ->
+				i_node_t
+			| A.Call(fname, _) ->
+				let ftype = StringMap.find fname the_funcs_map in 
+				ltype_of_typ ftype
+				(* try let fdecl = List.find 
+				(fun fdecl -> if fdecl.A.fname = fname then true else false)
+				functions 
+				in (ltype_of_typ fdecl.A.typ) with Not_found -> in  *)
 			| _ -> raise (Failure(" type not supported in list "))
 
 
@@ -210,11 +220,14 @@ let translate (globals, functions) =
 			in match e with 
 			| A.Litint(i) -> L.const_int i32_t i 
 			| A.Litstr(str) -> 
-				let s = L.build_global_stringptr str "" builder in
+				let s = L.build_global_stringptr str str builder in
 				let zero = L.const_int i32_t 0 in
-				let lvalue = L.build_in_bounds_gep s [|zero|] "" builder in 
+				let lvalue = L.build_in_bounds_gep s [|zero|] str builder in
+				let lv_str = L.string_of_llvalue s in 
+				(* P.fprintf stderr "%s\n" lv_str; *)
+
 				Hashtbl.add glob_str_const_hash lvalue str;
-				lvalue
+				s
 			| A.Edgedcl(src, w, dst) -> 
 				let src_p = expr builder src
 				and w =  expr builder w
@@ -265,10 +278,6 @@ let translate (globals, functions) =
 			| A.Assign(name, e) -> 
 				let loc_var = lookup name in 
 				let e' = (expr builder e) in
-
-				(* let node_t_str = L.string_of_lltype (L.type_of loc_var) in 
-				let loc_var_str = L.string_of_lltype (L.type_of e') in 
-				P.fprintf stderr "%s and %s\n" node_t_str loc_var_str; *)
 
 				(* Cant add it like this. Need a different comparison. And need to remove
 					old var form the hash map  *)
@@ -321,7 +330,7 @@ let translate (globals, functions) =
 			| A.Call("dest", [e]) -> 
 				let dest_field_pointer = L.build_struct_gep (expr builder e) 2 "" builder 
 				in L.build_load dest_field_pointer "" builder 
-			| A.Call("spop", [e]) ->
+			| A.Call("spop", [e]) | A.Call("epop", [e]) | A.Call("ipop", [e]) | A.Call("npop", [e])->
 				let head_node_p = (expr builder e) in 
 				let head_node_next_node_pointer = L.build_struct_gep head_node_p 0 "" builder in 
 				ignore (L.build_free head_node_p builder);
@@ -383,20 +392,19 @@ let translate (globals, functions) =
 
 						(* Attach the new head to the old head *) 
 						add_element the_head new_node 
-			| A.Call("str_comp", [s1;s2]) ->
+			| A.Call("streq", [s1;s2]) ->
 				let v1 = (expr builder s1) and v2 = expr builder s2 in 
-				let v1str = Hashtbl.find glob_str_const_hash v1
-				and v2str = Hashtbl.find glob_str_const_hash v2 in 
+				let v1value = L.build_load (L.build_load  (L.global_initializer v1)  "" builder) "" builder in 
+				let v2value = L.build_load (L.build_load  (L.global_initializer v2)  "" builder) "" builder in 
 
-				(* let space = Str.regexp_string " " in 
+				let str = L.string_of_lltype (L.type_of v2value) in 
 
-				let tokenize s = Str.search_forward per_regex s 1 in 
-
-				let Some(v1name_pos) = get_name v1str and Some(v2name_pos) = get_name v2str in  *)
-
-				P.fprintf stderr "%s and %s\n" v1str v2str;
-				L.const_int i32_t 0 
-
+				let result = (L.build_icmp L.Icmp.Eq v1value v2value "" builder) in 
+				let result = L.build_not result "" builder in 
+				let result = L.build_intcast result i32_t "" builder in 
+				result
+			(*
+ *)
 			| A.Call(fname, actuals) ->
 			
 				(* Will clean up later *)
@@ -426,6 +434,7 @@ let translate (globals, functions) =
 					| A.And 	-> L.build_and
 					| A.Or 		-> L.build_or 
 					| A.Equal   -> L.build_icmp L.Icmp.Eq
+					| A.Neq 	-> L.build_icmp L.Icmp.Ne
 	  				| A.Less    -> L.build_icmp L.Icmp.Slt
 	  				| A.Leq     -> L.build_icmp L.Icmp.Sle
 	  				| A.Greater -> L.build_icmp L.Icmp.Sgt

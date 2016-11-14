@@ -1,0 +1,159 @@
+int dfs(nlist graph,string A)
+{
+	
+	int found;
+	found =0;
+
+	slist visited;
+	slist stack;
+	stack = ["A"];
+
+	elist v;
+	int s_counter;
+	string temp_str;
+	string node_name;
+	int node_found;
+
+	nlist temp;
+	temp = graph;
+	int graph_length;
+	graph_length = nlength(graph);
+	int i;
+	i = 0;
+	int count;
+	count = 0;
+	string v_dest;
+	
+	string v_source;
+	visited = [""];
+	int streq_val;
+	string top_of_stack;
+	elist use_node;
+	elist temp_node;
+	string temp_source;
+	string temp_dest;
+	slist stack_temp;
+	elist use_node_temp;
+
+	stack_temp = stack;
+	int count_loop;
+	count_loop = 0;
+	string temp_visited;
+
+	while(count<7)
+	{
+		if(i >= graph_length)
+		{
+			return found;
+		}
+		else
+		{
+
+		}
+		if(count>0){
+			/*print_str(speek(stack_temp));*/
+			stack_temp = snext(stack);
+			stack = snext(stack);
+
+		}
+		else{
+			
+		}
+
+		top_of_stack = speek(stack_temp);
+		visited = sadd_back(visited,top_of_stack);
+		/*this might give us issues*/
+
+		/*Iterate through graph to find correct edge*/
+		i = 0;
+		temp = graph;
+		while(i < graph_length)
+		{
+			temp_node = npeek(temp);
+			temp_source = source(epeek(temp_node));
+			
+			streq_val = streq(temp_source,top_of_stack);
+			if(streq_val == 0)
+			{
+				use_node = temp_node;
+			}
+			else
+			{
+
+			}
+			temp = nnext(temp);
+			i = i + 1;
+		}
+
+		/*temp = nnext(temp);*/
+
+
+
+		/*v_source = source(epeek(use_node));
+		v_dest = dest(epeek(use_node));
+		visited = sadd_back(visited,v_source);*/
+	
+		i = 0;
+		
+		use_node_temp = use_node;
+
+		while(i<elength(use_node))
+		{
+			
+			temp_dest = dest(epeek(use_node_temp));
+			use_node_temp = enext(use_node_temp);
+			stack = sadd_back(stack,temp_dest);
+
+
+			i = i + 1;
+		}
+
+		
+		count = count+1;
+	}
+	
+
+	while(count_loop<slength(visited)){
+
+		temp_visited = speek(visited);
+		visited = snext(visited);
+		if(streq(temp_visited,A)==0){
+			found = 1;
+		}
+		else{
+
+		}
+
+	}
+	return found;
+
+}
+
+int main()
+{
+
+	int isfound;
+
+	/* Declare our nodes above */ 
+	node n1;
+    n1 = |"A": 2, "B", 4, "C"|; 
+    node n2;
+    n2 = |"B": 11, "E", 12, "F"|;
+    node n3; 
+    n3 = |"C": 5, "G", 16, "H"|; 
+
+	nlist new_graph;
+    new_graph = [n1::n2::n3]; 
+
+    isfound = dfs(new_graph,"F");
+    if(isfound == 1){
+    	print_str("NODE IS FOUND USING DFS");
+
+    }
+    else{
+    	print_str("NODE IS NOT FOUND");
+    }
+    /*ABEFCGH*/
+    print_endline();
+
+}

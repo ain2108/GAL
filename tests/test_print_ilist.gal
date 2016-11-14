@@ -1,0 +1,13 @@
+int main()
+{
+	
+	ilist x;
+
+	x = [1];
+	x = iadd(2,x);
+	x = iadd(100,x);
+
+
+	print_ilist(x);
+	return 1;
+}

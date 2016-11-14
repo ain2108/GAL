@@ -67,6 +67,18 @@ let spop_fdcl =
 	{ typ = SListtyp; fname = "spop"; formals = [(SListtyp, "a")];
 	  locals = []; body = []};;
 
+let ipop_fdcl = 
+	{ typ = IListtyp; fname = "ipop"; formals = [(IListtyp, "a")];
+	  locals = []; body = []};;
+
+let epop_fdcl = 
+	{ typ = EListtyp; fname = "epop"; formals = [(EListtyp, "a")];
+	  locals = []; body = []};;
+
+let npop_fdcl = 
+	{ typ = NListtyp; fname = "npop"; formals = [(NListtyp, "a")];
+	  locals = []; body = []};;
+
 let speek_fdcl = 
 	{ typ = String; fname = "speek"; formals = [(SListtyp, "a")];
 	  locals = []; body = []};;
@@ -116,7 +128,7 @@ let nadd_fdcl =
 	  locals = []; body = []};;
 
 let str_comp_fdcl = 
-	{ typ = Int; fname = "str_comp"; formals = [(String, "a"); (String, "b")];
+	{ typ = Int; fname = "streq"; formals = [(String, "a"); (String, "b")];
 	  locals = []; body = []};;
 
 
@@ -126,7 +138,7 @@ let builtin_fdcl_list =
 	  speek_fdcl; ipeek_fdcl; epeek_fdcl; snext_fdcl; elength_fdcl;
 	  enext_fdcl; inext_fdcl; ilength_fdcl; nnext_fdcl; npeek_fdcl;
 	  nlength_fdcl; sadd_fdcl; eadd_fdcl; iadd_fdcl; nadd_fdcl;
-	  str_comp_fdcl ];;
+	  str_comp_fdcl; ipop_fdcl; epop_fdcl; npop_fdcl ];;
 
 
 (* Static semantic checker of the program. Will return void 
@@ -241,7 +253,7 @@ let check_func exp_list globs_map func_decl funcs_map =
 			in (match op with 
 				(* Integer operators *)
 				| Add | Sub | Mult | Div | Equal | Less | Leq 
-				| Greater | Geq | And | Or 
+				| Greater | Geq | And | Or | Neq 
 					when (v1 = Int && v2 = Int) -> (Int, exp_list)
 				(* List operators *)
 				(* | Eadd | Esub when v1 = Listtyp && v2 = Listtyp -> (Listtyp, exp_list) *)
@@ -509,14 +521,3 @@ let check (globals, funcs) =
 		(extract_locals [] funcs) *)
 
 ;;
-
-
-
-
-
-
-
-
-
-
-
